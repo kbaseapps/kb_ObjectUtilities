@@ -1,0 +1,56 @@
+#
+# define display information
+#
+name: Join Multiple Sequence Alignments (MSAs) - v1.0.0
+tooltip: |
+    Allows user to concatenate two (or more) MSAs
+
+screenshots: []
+
+icon: kb-cyan.png
+
+#
+# define a set of similar methods that might be useful to the user
+#
+suggestions:
+    apps:
+        related:
+            []
+        next:
+            []
+    methods:
+        related:
+            []
+        next:
+            []
+
+#
+# Configure the display and description of parameters
+#
+parameters :
+    desc:
+        ui-name : |
+            Description
+        short-hint : |
+            Describe Purpose or Contents of Output MSA
+        placeholder: |
+            Enter Description
+    input_refs:
+        ui-name : |
+            Input MSA Names
+        short-hint : |
+            Add a list of two or more MSA Names here (note: MSAs must contain consistent row IDs)
+    output_name:
+        ui-name : |
+            Output MSA Name
+        short-hint : |
+            Name for the Output MSA
+    blanks_flag:
+        ui-name : |
+            Add Blanks?
+        short-hint : |
+            Add blank positions for unmatched rows (otherwise unmatched rows are removed entirely)
+
+
+description : |
+    <p>This method allows the user to concatenate several MSAs into one MSA.</p>
