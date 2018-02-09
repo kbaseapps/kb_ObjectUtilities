@@ -4,7 +4,7 @@
 ** This module contains basic utility Apps for manipulating objects (other than Reads and Sets, which are found in kb_ReadsUtilities and kb_SetUtilities)
 */
 
-module kb_util_dylan {
+module kb_ObjectUtilities {
 
     /* 
     ** The workspace object refs are of form:
