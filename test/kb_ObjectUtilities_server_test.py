@@ -12,7 +12,7 @@ from pprint import pprint
 
 from Workspace.WorkspaceClient import Workspace as workspaceService
 from biokbase.AbstractHandle.Client import AbstractHandle as HandleService
-from kb_ObjectUtilities.kb_ObjectUtilities_dylanImpl import kb_ObjectUtilities
+from kb_ObjectUtilities.kb_ObjectUtilitiesImpl import kb_ObjectUtilities
 
 
 class kb_ObjectUtilitiesTest(unittest.TestCase):
