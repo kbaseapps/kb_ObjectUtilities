@@ -25,8 +25,7 @@ from requests_toolbelt import MultipartEncoder  # added
 from biokbase.AbstractHandle.Client import AbstractHandle as HandleService
 
 # SDK Utils                                                                                                                       
-from ReadsUtils.ReadsUtilsClient import ReadsUtils
-from SetAPI.SetAPIServiceClient import SetAPI
+#from SetAPI.SetAPIServiceClient import SetAPI
 from KBaseReport.KBaseReportClient import KBaseReport
 
 # silence whining                                                                                                                 
@@ -52,7 +51,7 @@ class kb_ObjectUtilities:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "0.0.1"
+    VERSION = "1.0.0"
     GIT_URL = "https://github.com/kbaseapps/kb_ObjectUtilities"
     GIT_COMMIT_HASH = "b6c791d10b6c698642d2f3de450ffd3ed10d8e98"
 
@@ -87,10 +86,10 @@ class kb_ObjectUtilities:
         self.callbackURL = os.environ.get('SDK_CALLBACK_URL')
 #        if self.callbackURL == None:                                                                                             
 #            self.callbackURL = os.environ['SDK_CALLBACK_URL']                                                                    
-if self.callbackURL == None:
+        if self.callbackURL == None:
             raise ValueError ("SDK_CALLBACK_URL not set in environment")
 
-self.scratch = os.path.abspath(config['scratch'])
+        self.scratch = os.path.abspath(config['scratch'])
         # HACK!! temporary hack for issue where megahit fails on mac because of silent named pipe error                           
         #self.host_scratch = self.scratch                                                                                         
         #self.scratch = os.path.join('/kb','module','local_scratch')                                                              
