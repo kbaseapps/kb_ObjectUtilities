@@ -181,6 +181,57 @@ public class KbObjectUtilitiesClient {
         return res.get(0);
     }
 
+    /**
+     * <p>Original spec-file function name: KButil_count_ws_objects</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.kbobjectutilities.KButilCountWsObjectsParams KButilCountWsObjectsParams} (original type "KButil_count_ws_objects_Params")
+     * @return   instance of type {@link us.kbase.kbobjectutilities.KButilCountWsObjectsOutput KButilCountWsObjectsOutput} (original type "KButil_count_ws_objects_Output")
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public KButilCountWsObjectsOutput kButilCountWsObjects(KButilCountWsObjectsParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<KButilCountWsObjectsOutput>> retType = new TypeReference<List<KButilCountWsObjectsOutput>>() {};
+        List<KButilCountWsObjectsOutput> res = caller.jsonrpcCall("kb_ObjectUtilities.KButil_count_ws_objects", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: KButil_update_genome_species_name</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.kbobjectutilities.KButilUpdateGenomeSpeciesNameParams KButilUpdateGenomeSpeciesNameParams} (original type "KButil_update_genome_species_name_Params")
+     * @return   instance of type {@link us.kbase.kbobjectutilities.KButilUpdateGenomeSpeciesNameOutput KButilUpdateGenomeSpeciesNameOutput} (original type "KButil_update_genome_species_name_Output")
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public KButilUpdateGenomeSpeciesNameOutput kButilUpdateGenomeSpeciesName(KButilUpdateGenomeSpeciesNameParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<KButilUpdateGenomeSpeciesNameOutput>> retType = new TypeReference<List<KButilUpdateGenomeSpeciesNameOutput>>() {};
+        List<KButilUpdateGenomeSpeciesNameOutput> res = caller.jsonrpcCall("kb_ObjectUtilities.KButil_update_genome_species_name", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: KButil_update_genome_fields_from_files</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.kbobjectutilities.KButilUpdateGenomeFieldsFromFilesParams KButilUpdateGenomeFieldsFromFilesParams} (original type "KButil_update_genome_fields_from_files_Params")
+     * @return   instance of type {@link us.kbase.kbobjectutilities.KButilUpdateGenomeFieldsFromFilesOutput KButilUpdateGenomeFieldsFromFilesOutput} (original type "KButil_update_genome_fields_from_files_Output")
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public KButilUpdateGenomeFieldsFromFilesOutput kButilUpdateGenomeFieldsFromFiles(KButilUpdateGenomeFieldsFromFilesParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<KButilUpdateGenomeFieldsFromFilesOutput>> retType = new TypeReference<List<KButilUpdateGenomeFieldsFromFilesOutput>>() {};
+        List<KButilUpdateGenomeFieldsFromFilesOutput> res = caller.jsonrpcCall("kb_ObjectUtilities.KButil_update_genome_fields_from_files", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
     public Map<String, Object> status(RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         TypeReference<List<Map<String, Object>>> retType = new TypeReference<List<Map<String, Object>>>() {};

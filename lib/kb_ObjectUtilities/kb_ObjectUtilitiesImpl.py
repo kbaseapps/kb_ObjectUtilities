@@ -15,20 +15,15 @@ import numpy as np
 import gzip
 import random
 
-from Bio import SeqIO
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio.Alphabet import generic_protein
-#from biokbase.workspace.client import Workspace as workspaceService                                                              
-from Workspace.WorkspaceClient import Workspace as workspaceService
-from requests_toolbelt import MultipartEncoder  # added                                                                           
-from biokbase.AbstractHandle.Client import AbstractHandle as HandleService
+from installed_clients.WorkspaceClient import Workspace as workspaceService
+from installed_clients.DataFileUtilClient import DataFileUtil
 
-# SDK Utils                                                                                                                       
-#from SetAPI.SetAPIServiceClient import SetAPI
-from KBaseReport.KBaseReportClient import KBaseReport
 
-# silence whining                                                                                                                 
+# SDK Utils
+#from installed_clients.SetAPIServiceClient import SetAPI
+from installed_clients.KBaseReportClient import KBaseReport
+
+# silence whining
 import requests
 requests.packages.urllib3.disable_warnings()
 #END_HEADER
@@ -51,9 +46,9 @@ class kb_ObjectUtilities:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "1.0.0"
+    VERSION = "1.1.0"
     GIT_URL = "https://github.com/kbaseapps/kb_ObjectUtilities"
-    GIT_COMMIT_HASH = "b6c791d10b6c698642d2f3de450ffd3ed10d8e98"
+    GIT_COMMIT_HASH = "91de21a03769050ba28a83e1762261215d1d40de"
 
     #BEGIN_CLASS_HEADER
     workspaceURL = None
@@ -71,32 +66,45 @@ class kb_ObjectUtilities:
             target.append(message)
         print(message)
         sys.stdout.flush()
+
+    def getUPA_fromInfo (self,obj_info):
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+        return '/'.join([str(obj_info[WSID_I]),
+                         str(obj_info[OBJID_I]),
+                         str(obj_info[VERSION_I])])
     #END_CLASS_HEADER
 
     # config contains contents of config file in a hash or None if it couldn't
     # be found
     def __init__(self, config):
         #BEGIN_CONSTRUCTOR
+        self.token = os.environ['KB_AUTH_TOKEN']
         self.workspaceURL = config['workspace-url']
         self.shockURL = config['shock-url']
         self.handleURL = config['handle-service-url']
         self.serviceWizardURL = config['service-wizard-url']
-
-        #self.callbackURL = os.environ['SDK_CALLBACK_URL'] if os.environ['SDK_CALLBACK_URL'] != None else 'https://kbase.us/services/njs_wrapper'  # DEBUG                                                                                                         
         self.callbackURL = os.environ.get('SDK_CALLBACK_URL')
-#        if self.callbackURL == None:                                                                                             
-#            self.callbackURL = os.environ['SDK_CALLBACK_URL']                                                                    
         if self.callbackURL == None:
             raise ValueError ("SDK_CALLBACK_URL not set in environment")
 
+        self.SERVICE_VER = 'release'
+        try:
+            self.wsClient = workspaceService(self.workspaceURL, token=self.token)
+        except:
+            raise ValueError ("unable to connect to workspace client")
+        try:
+            self.dfuClient = DataFileUtil(url=self.callbackURL, token=self.token, service_ver=self.SERVICE_VER)
+        except:
+            raise ValueError ("unable to connect to DataFileUtil client")
+        try:
+            self.reportClient = KBaseReport(url=self.callbackURL, token=self.token, service_ver=self.SERVICE_VER)
+        except:
+            raise ValueError ("unable to connect to KBaseReport client")
+
         self.scratch = os.path.abspath(config['scratch'])
-        # HACK!! temporary hack for issue where megahit fails on mac because of silent named pipe error                           
-        #self.host_scratch = self.scratch                                                                                         
-        #self.scratch = os.path.join('/kb','module','local_scratch')                                                              
-        # end hack                                                                                                                
         if not os.path.exists(self.scratch):
             os.makedirs(self.scratch)
-#END_CONSTRUCTOR
+        #END_CONSTRUCTOR
         pass
 
 
@@ -129,8 +137,9 @@ class kb_ObjectUtilities:
         report = ''
 #        report = 'Running KButil_Concat_MSAs with params='
 #        report += "\n"+pformat(params)
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
 
-
+        
         #### do some basic checks
         #
         if 'workspace_name' not in params:
@@ -141,6 +150,9 @@ class kb_ObjectUtilities:
             raise ValueError('input_refs parameter is required')
         if 'output_name' not in params:
             raise ValueError('output_name parameter is required')
+
+        # get ws_id
+        ws_id = self.dfuClient.ws_name_to_id(params['workspace_name'])
 
         # clean input_refs
         clean_input_refs = []
@@ -174,25 +186,10 @@ class kb_ObjectUtilities:
                 continue
 
             try:
-                ws = workspaceService(self.workspaceURL, token=ctx['token'])
-                #objects = ws.get_objects([{'ref': MSA_ref}])
-                objects = ws.get_objects2({'objects':[{'ref': MSA_ref}]})['data']
+                objects = self.dfuClient.get_objects({'object_refs':[MSA_ref]})['data']
                 data = objects[0]['data']
                 info = objects[0]['info']
-                # Object Info Contents
-                # absolute ref = info[6] + '/' + info[0] + '/' + info[4]
-                # 0 - obj_id objid
-                # 1 - obj_name name
-                # 2 - type_string type
-                # 3 - timestamp save_date
-                # 4 - int version
-                # 5 - username saved_by
-                # 6 - ws_id wsid
-                # 7 - ws_name workspace
-                # 8 - string chsum
-                # 9 - int size 
-                # 10 - usermeta meta
-                type_name = info[2].split('.')[1].split('-')[0]
+                type_name = info[TYPE_I].split('.')[1].split('-')[0]
 
             except Exception as e:
                 raise ValueError('Unable to fetch input_ref object from workspace: ' + str(e))
@@ -321,20 +318,6 @@ class kb_ObjectUtilities:
                 report += 'output MSA contains row: '+genome_id+"\n"
 
 
-        # load the method provenance from the context object
-        #
-        self.log(console,"SETTING PROVENANCE")  # DEBUG
-        provenance = [{}]
-        if 'provenance' in ctx:
-            provenance = ctx['provenance']
-        # add additional info to provenance here, in this case the input data object reference
-        provenance[0]['input_ws_objects'] = []
-        for MSA_ref in params['input_refs']:
-            provenance[0]['input_ws_objects'].append(MSA_ref)
-        provenance[0]['service'] = 'kb_ObjectUtilities'
-        provenance[0]['method'] = 'KButil_Concat_MSAs'
-
-
         # DEBUG: check alignment and row_order
         #for genome_id in row_order:
         #    self.log(console,"AFTER ROW_ORDER: "+genome_id)
@@ -356,18 +339,18 @@ class kb_ObjectUtilities:
             if sequence_type != None:
                 output_MSA['sequence_type'] = sequence_type
 
-                new_obj_info = ws.save_objects({
-                            'workspace': params['workspace_name'],
-                            'objects':[{
-                                    'type': 'KBaseTrees.MSA',
-                                    'data': output_MSA,
-                                    'name': params['output_name'],
-                                    'meta': {},
-                                    'provenance': provenance
-                                }]
-                        })
+            new_obj_info = self.dfuClient.save_objects({
+                'id': ws_id,
+                'objects':[{
+                    'type': 'KBaseTrees.MSA',
+                    'data': output_MSA,
+                    'name': params['output_name'],
+                    'meta': {},
+                    'extra_provenance_input_refs': params['input_refs']
+                }]
+            })[0]
 
-
+                
         # build output report object
         #
         self.log(console,"BUILDING REPORT")  # DEBUG
@@ -385,36 +368,469 @@ class kb_ObjectUtilities:
                 'text_message':report
                 }
 
-        reportName = 'kb_ObjectUtilities_concat_msas_report_'+str(uuid.uuid4())
-        ws = workspaceService(self.workspaceURL, token=ctx['token'])
-        report_obj_info = ws.save_objects({
-#                'id':info[6],
-                'workspace':params['workspace_name'],
-                'objects':[
-                    {
-                        'type':'KBaseReport.Report',
-                        'data':reportObj,
-                        'name':reportName,
-                        'meta':{},
-                        'hidden':1,
-                        'provenance':provenance
-                    }
-                ]
-            })[0]
+        report_info = self.reportClient.create({
+            'workspace_name':params['workspace_name'],
+            'report': reportObj
+        })
 
-
-        # Build report and return
-        #
-        self.log(console,"BUILDING RETURN OBJECT")
-        returnVal = { 'report_name': reportName,
-                      'report_ref': str(report_obj_info[6]) + '/' + str(report_obj_info[0]) + '/' + str(report_obj_info[4]),
-                      }
+        # Return report
+        returnVal = { 'report_name': report_info['name'],
+                      'report_ref': report_info['ref']
+        }
         self.log(console,"KButil_Concat_MSAs DONE")
         #END KButil_Concat_MSAs
 
         # At some point might do deeper type checking...
         if not isinstance(returnVal, dict):
             raise ValueError('Method KButil_Concat_MSAs return value ' +
+                             'returnVal is not type dict as required.')
+        # return the results
+        return [returnVal]
+
+    def KButil_count_ws_objects(self, ctx, params):
+        """
+        :param params: instance of type "KButil_count_ws_objects_Params"
+           (KButil_count_ws_objects() ** **  Method for counting number of
+           workspace objects when data panel fails) -> structure: parameter
+           "workspace_name" of type "workspace_name" (** The workspace object
+           refs are of form: ** **    objects = ws.get_objects([{'ref':
+           params['workspace_id']+'/'+params['obj_name']}]) ** ** "ref" means
+           the entire name combining the workspace id and the object name **
+           "id" is a numerical identifier of the workspace or object, and
+           should just be used for workspace ** "name" is a string identifier
+           of a workspace or object.  This is received from Narrative.),
+           parameter "object_types" of list of String
+        :returns: instance of type "KButil_count_ws_objects_Output" ->
+           structure: parameter "report_name" of type "data_obj_name",
+           parameter "report_ref" of type "data_obj_ref", parameter
+           "ws_obj_refs" of mapping from String to list of type "data_obj_ref"
+        """
+        # ctx is the context object
+        # return variables are: returnVal
+        #BEGIN KButil_count_ws_objects
+        console = []
+        invalid_msgs = []
+        updated_object_refs = []
+        self.log(console,'Running KButil_count_ws_objects')
+        self.log(console, "\n"+pformat(params))
+        report = ''
+        #report = 'Running KButil_count_ws_objects params='
+        #report += "\n"+pformat(params)
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+
+        
+        #### do some basic checks
+        #
+        required_params = ['workspace_name', 'object_types']
+        for req_param in required_params:
+            if not params.get(req_param):
+                raise ValueError('{} parameter is required'.format(req_param))
+
+        # get ws_id
+        ws_id = self.dfuClient.ws_name_to_id(params['workspace_name'])
+
+        # read objects in workspace (OBJID limit is chunk_size*top_iter)
+        chunk_size = 2000
+        top_iter = 1000
+        ws_obj_refs = dict()
+        for obj_type in params['object_types']:
+            ws_obj_refs[obj_type] = []
+            total_objs = 0
+            obj_name_to_ref = dict()
+            for chunk_i in range(0,top_iter):
+                minObjectID = chunk_i * chunk_size
+                maxObjectID = (chunk_i+1) * chunk_size - 1
+    
+                obj_info_list = self.wsClient.list_objects({
+                    'ids':[ws_id],
+                    'type':obj_type,
+                    'minObjectID': minObjectID,
+                    'maxObjectID': maxObjectID
+                })
+                num_objs = len(obj_info_list)
+                if num_objs < 1:
+                    break
+                print ("obj_type: {} num objs: {}".format(obj_type, num_objs))
+                total_objs += num_objs
+
+                for obj_info in obj_info_list:
+                    obj_name_to_ref[obj_info[NAME_I]] = self.getUPA_fromInfo(obj_info)
+            # log and store
+            self.log(console, "OBJ_TYPE: {}".format(obj_type))
+            for obj_name in sorted(obj_name_to_ref.keys()):
+                self.log(console,"{} -> {}".format(obj_name, obj_name_to_ref[obj_name]))
+                ws_obj_refs[obj_type].append(obj_name_to_ref[obj_name])
+            msg = "OBJ_TYPE: {} TOTAL OBJS: {}\n".format(obj_type,total_objs)
+            report += msg
+            self.log(console, msg)
+
+            
+        # Delete extra assemblies
+        """
+        for ass_obj_name in ['GCF_000632025.1', 'GCF_003013395.1', 'GCF_900102145.1']:
+            full_ass_obj_name = 'GTDB_Bac-'+ass_obj_name+"__.assembly"
+            if full_ass_obj_name not in obj_name_to_ref:
+                raise ValueError ("missing {}".format(full_ass_obj_name))
+            ass_ref = obj_name_to_ref[full_ass_obj_name]
+            print ("DELETING {} -> {}".format(full_ass_obj_name, ass_ref))
+            self.wsClient.delete_objects([{'ref':ass_ref}])
+        """
+
+        # create report
+        report_info = self.reportClient.create({
+            'workspace_name':params['workspace_name'],
+            'report': {
+                'objects_created':[],
+                'text_message':report
+            }
+        })
+                
+        # Return report and updated_object_refs
+        returnVal = { 'report_name': report_info['name'],
+                      'report_ref': report_info['ref'],
+                      'ws_obj_refs': ws_obj_refs
+        }
+        #END KButil_count_ws_objects
+
+        # At some point might do deeper type checking...
+        if not isinstance(returnVal, dict):
+            raise ValueError('Method KButil_count_ws_objects return value ' +
+                             'returnVal is not type dict as required.')
+        # return the results
+        return [returnVal]
+
+    def KButil_update_genome_species_name(self, ctx, params):
+        """
+        :param params: instance of type
+           "KButil_update_genome_species_name_Params"
+           (KButil_update_genome_species_name() ** **  Method for
+           adding/changing Genome objects species names) -> structure:
+           parameter "workspace_name" of type "workspace_name" (** The
+           workspace object refs are of form: ** **    objects =
+           ws.get_objects([{'ref':
+           params['workspace_id']+'/'+params['obj_name']}]) ** ** "ref" means
+           the entire name combining the workspace id and the object name **
+           "id" is a numerical identifier of the workspace or object, and
+           should just be used for workspace ** "name" is a string identifier
+           of a workspace or object.  This is received from Narrative.),
+           parameter "input_refs" of list of type "data_obj_ref", parameter
+           "species_names" of String
+        :returns: instance of type "KButil_update_genome_species_name_Output"
+           -> structure: parameter "report_name" of type "data_obj_name",
+           parameter "report_ref" of type "data_obj_ref", parameter
+           "updated_object_refs" of list of type "data_obj_ref"
+        """
+        # ctx is the context object
+        # return variables are: returnVal
+        #BEGIN KButil_update_genome_species_name
+        console = []
+        invalid_msgs = []
+        self.log(console,'Running KButil_update_genome_species_name with params=')
+        self.log(console, "\n"+pformat(params))
+        report = ''
+        #report = 'Running KButil_update_genome_species_name with params='
+        #report += "\n"+pformat(params)
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+
+        
+        #### do some basic checks
+        #
+        if not params.get('workspace_name'):
+            raise ValueError('workspace_name parameter is required')
+        if not params.get('input_refs'):
+            raise ValueError('input_refs parameter is required')
+        if not params.get('species_names'):
+            raise ValueError('species_names parameter is required')
+
+        # get ws_id
+        ws_id = self.dfuClient.ws_name_to_id(params['workspace_name'])
+        
+        # clean input_refs
+        clean_input_refs = []
+        for ref in params['input_refs']:
+            if ref != None and ref != '':
+                clean_input_refs.append(ref)
+        params['input_refs'] = clean_input_refs
+
+        # new species names
+        species_names = params['species_names'].split(',')
+        if len(species_names) == 1:
+            species_names = params['species_names'].split("\n")
+        if len(species_names) != len(params['input_refs']):
+            raise ValueError ("unequal number of input genomes and new species names.  num genomes: {}, num new species names: {}.  Exiting.".format(len(species_names),len(params['input_refs'])))
+
+        # iterate through genomes
+        objects_created = []
+        updated_object_refs = []
+        for genome_i,input_ref in enumerate(params['input_refs']):
+            new_species_name = species_names[genome_i].strip()
+            if new_species_name.startswith('"') and new_species_name.endswith('"'):
+                new_species_name.strip('"')
+
+            this_genome_obj = self.dfuClient.get_objects({'object_refs':[input_ref]})['data'][0]
+            this_genome_info = this_genome_obj['info']
+            this_genome_data = this_genome_obj['data']
+
+            this_genome_data['scientific_name'] = new_species_name
+            
+            self.log(console,"{} saving genome {} ".format(genome_i+1,this_genome_info[NAME_I]))
+
+            new_obj_info = self.dfuClient.save_objects({
+                'id': ws_id,
+                'objects':[{
+                    'type': 'KBaseGenomes.Genome',
+                    'data': this_genome_data,
+                    'name': this_genome_info[NAME_I],
+                    'meta': {},
+                }]
+            })[0]
+
+            this_ref = self.getUPA_fromInfo(new_obj_info)
+            updated_object_refs.append(this_ref)
+            objects_created.append({'ref': this_ref,
+                                    'description': new_species_name})
+                
+        # build output report object
+        #
+        self.log(console,"BUILDING REPORT")  # DEBUG
+        if len(invalid_msgs) == 0:
+            report += "num genomes processed: {}".format(len(updated_object_refs))
+            reportObj = {
+                'objects_created':objects_created,
+                'text_message':report
+                }
+        else:
+            report += "FAILURE:\n\n"+"\n".join(invalid_msgs)+"\n"
+            reportObj = {
+                'objects_created':[],
+                'text_message':report
+                }
+        report_info = self.reportClient.create({
+            'workspace_name':params['workspace_name'],
+            'report': reportObj
+        })
+
+        # Return report and updated_object_refs
+        returnVal = { 'report_name': report_info['name'],
+                      'report_ref': report_info['ref'],
+                      'updated_object_refs': updated_object_refs
+        }
+        self.log(console,"KButil_update_genome_species_name DONE")
+        #END KButil_update_genome_species_name
+
+        # At some point might do deeper type checking...
+        if not isinstance(returnVal, dict):
+            raise ValueError('Method KButil_update_genome_species_name return value ' +
+                             'returnVal is not type dict as required.')
+        # return the results
+        return [returnVal]
+
+    def KButil_update_genome_fields_from_files(self, ctx, params):
+        """
+        :param params: instance of type
+           "KButil_update_genome_fields_from_files_Params"
+           (KButil_update_genome_fields_from_files() ** **  Method for
+           adding/changing values in Genome object fields, from files) ->
+           structure: parameter "workspace_name" of type "workspace_name" (**
+           The workspace object refs are of form: ** **    objects =
+           ws.get_objects([{'ref':
+           params['workspace_id']+'/'+params['obj_name']}]) ** ** "ref" means
+           the entire name combining the workspace id and the object name **
+           "id" is a numerical identifier of the workspace or object, and
+           should just be used for workspace ** "name" is a string identifier
+           of a workspace or object.  This is received from Narrative.),
+           parameter "target_list_file" of type "file_path", parameter
+           "object_newname_file" of type "file_path", parameter
+           "species_name_file" of type "file_path", parameter "source_file"
+           of type "file_path", parameter "domain_file" of type "file_path",
+           parameter "taxonomy_hierarchy_file" of type "file_path", parameter
+           "taxonomy_ncbi_id_file" of type "file_path", parameter
+           "genome_qual_scores_file" of type "file_path", parameter
+           "functions_file" of type "file_path", parameter
+           "keep_spoofed_mRNAs" of type "bool"
+        :returns: instance of type
+           "KButil_update_genome_fields_from_files_Output" -> structure:
+           parameter "updated_object_refs" of list of type "data_obj_ref"
+        """
+        # ctx is the context object
+        # return variables are: returnVal
+        #BEGIN KButil_update_genome_fields_from_files
+        console = []
+        invalid_msgs = []
+        updated_object_refs = []
+        self.log(console,'Running KButil_update_gemome_fields_from_files with params=')
+        self.log(console, "\n"+pformat(params))
+        report = ''
+        #report = 'Running KButil_update_genome_species_name with params='
+        #report += "\n"+pformat(params)
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+
+        
+        #### do some basic checks
+        #
+        required_params = ['workspace_name', 'target_list_file']
+        at_least_one_params = ['object_newname_file',
+                               'species_name_file',
+                               'source_file',
+                               'domain_file',
+                               'taxonomy_hierarchy_file',
+                               'taxonomy_ncbi_id_file',
+                               'genome_qual_scores_file',
+                               
+                              ]
+        for req_param in required_params:
+            if not params.get(req_param):
+                raise ValueError('{} parameter is required'.format(req_param))
+        at_least_one_found = False
+        for optional_param in at_least_one_params:
+            if params.get(optional_param):
+                at_least_one_found = True
+        if not at_least_one_found:
+            raise ValueError('at least one of {} parameter is required'.format(",".join(at_least_one_param)))
+
+
+        # read targets and new vals
+        targets = dict()
+        with open (params['target_list_file'], 'r') as targets_h:
+            for targets_line in targets_h:
+                genome_id = targets_line.rstrip()
+                targets[genome_id] = True
+
+        map_files = {
+            'obj_name': params.get('object_newname_file'),
+            'species_name': params.get('species_name_file'),
+            'source': params.get('source_file'),
+            'domain': params.get('domain_file'),
+            'tax_hierarchy': params.get('taxonomy_hierarchy_file'),
+            'ncbi_tax_id': params.get('taxonomy_ncbi_id_file'),
+            'genome_qual_scores': params.get('genome_qual_scores_file')
+            #'genome_type': params.get('genome_type_file')
+            #'gene_functions': params.get('')
+        }
+
+        maps = dict()
+        for map_type in map_files.keys():
+            if map_files[map_type]:
+                maps[map_type] = dict()
+                with open (map_files[map_type], 'r') as map_h:
+                    for map_line in map_h:
+                        map_line = map_line.rstrip()
+                        [genome_id, field_val] = map_line.split("\t")
+                        if targets.get(genome_id):
+                            maps[map_type][genome_id] = field_val        
+
+                        
+        # get ws_id
+        ws_id = self.dfuClient.ws_name_to_id(params['workspace_name'])
+
+        # read genome objects in workspace
+        chunk_size = 2000
+        total_genomes = 0
+        genome_id_to_ref = dict()
+        genome_id_to_oldname = dict()
+        for chunk_i in range(0,1000):
+            minObjectID = chunk_i * chunk_size
+            maxObjectID = (chunk_i+1) * chunk_size - 1
+    
+            genome_info_list = self.wsClient.list_objects({'ids':[ws_id],
+                                    #'type':'KBaseGenomeAnnotations.Assembly', 
+                                                'type':'KBaseGenomes.Genome', 
+                                                'minObjectID': minObjectID,
+                                                'maxObjectID': maxObjectID
+            })
+            num_genomes = len(genome_info_list)
+            if num_genomes < 1:
+                break
+            print ("num genomes: {}".format(num_genomes))
+            total_genomes += num_genomes
+
+            for genome_info in genome_info_list:
+                obj_name = genome_info[NAME_I]
+                obj_ref = self.getUPA_fromInfo(genome_info)
+                genome_id = re.sub('.Genome$', '', obj_name, flags=re.IGNORECASE)
+                genome_id = re.sub('__$', '', genome_id)
+                genome_id = re.sub('^GTDB_Bac-', '', genome_id, flags=re.IGNORECASE)
+                genome_id = re.sub(r'^(GC[AF]_\d{9}\.\d).*$', r'\1', genome_id)
+                
+                if targets.get(genome_id):
+                    genome_id_to_ref[genome_id] = obj_ref
+                    genome_id_to_oldname[genome_id] = obj_name
+                
+
+        # adjust target genome objects
+        for genome_id in sorted(genome_id_to_ref.keys()):
+            genome_ref = genome_id_to_ref[genome_id]
+            genome_oldname = genome_id_to_oldname[genome_id]
+
+            genome_obj = self.dfuClient.get_objects({'object_refs':[genome_ref]})['data'][0]
+            genome_info = genome_obj['info']
+            genome_data = genome_obj['data']
+
+            # species name
+            if maps.get('species_name'):
+                genome_data['scientific_name'] = maps['species_name'][genome_id]
+            # source
+            if maps.get('source'):
+                genome_data['source'] = maps['source'][genome_id]
+
+            # domain
+            if maps.get('domain'):
+                genome_data['domain'] = maps['domain'][genome_id]
+
+            # taxonomy
+            if maps.get('tax_hierarchy'):
+                genome_data['taxonomy'] = maps['tax_hierarchy'][genome_id]
+                if not genome_data.get('taxon_assignments'):
+                    genome_data['taxon_assignments'] = dict()
+                genome_data['taxon_assignments']['gtdb_r207'] = maps['tax_hierarchy'][genome_id]
+
+            # ncbi tax id
+            if maps.get('ncbi_tax_id'):
+                if not genome_data.get('taxon_assignments'):
+                    genome_data['taxon_assignments'] = dict()
+                genome_data['taxon_assignments']['ncbi'] = maps['ncbi_tax_id'][genome_id]
+                
+            # genome qual scores
+            """
+            if maps.get('genome_qual_scores'):
+                if not genome_data.get('quality_scores'):
+                    genome_data['quality_scores'] = []
+                for score in maps['genome_qual_scores'][genome_id].split(','):
+                    [score_type, score_val] = score.split('=')
+                    genome_data['quality_scores'].append({
+                        'method': 'CheckM',
+                        'score': score_type,
+                        'score_interpretation': score_val
+                        })
+            """
+            
+            #if maps.get('gene_functions'):
+
+            # obj_name
+            if maps.get('obj_name') and genome_oldname != maps['obj_name'][genome_id]:
+                obj_name = maps['obj_name'][genome_id]
+                self.wsClient.rename_object({'obj':{'ref':genome_ref}, 'new_name':obj_name})
+            else:
+                obj_name = genome_oldname
+
+            new_ref = self.dfuClient.save_objects({'id': ws_id,
+                                                   'objects': [
+                                                       {'type': 'KBaseGenomes.Genome',
+                                                        'name': obj_name,
+                                                        'data': genome_data
+                                                        }]
+                                                  })[0]
+            updated_object_refs.append(new_ref)
+            
+            
+        # Return report and updated_object_refs
+        returnVal = { 'updated_object_refs': updated_object_refs }
+        self.log(console,"KButil_update_genome_fields_from_files DONE")
+        #END KButil_update_genome_fields_from_files
+
+        # At some point might do deeper type checking...
+        if not isinstance(returnVal, dict):
+            raise ValueError('Method KButil_update_genome_fields_from_files return value ' +
                              'returnVal is not type dict as required.')
         # return the results
         return [returnVal]

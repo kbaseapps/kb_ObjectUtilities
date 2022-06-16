@@ -1,0 +1,38 @@
+#
+# define display information
+#
+name: Count Workspace Objects - v1.1.0
+tooltip: |
+    Allows user to count workspace objects by type
+
+screenshots: []
+
+icon: kb-orange.png
+
+#
+# define a set of similar methods that might be useful to the user
+#
+suggestions:
+    apps:
+        related:
+            []
+        next:
+            []
+    methods:
+        related:
+            []
+        next:
+            []
+
+#
+# Configure the display and description of parameters
+#
+parameters :
+    object_types:
+        ui-name : |
+            Object Type(s)
+        short-hint : |
+            The object types to count (e.g. KBaseGenomes.Genome, KBaseGenomeAnnotations.Assembly)
+
+description : |
+    <p>This method allows the user to get a tally of the number of objects of a certain type or types in the workspace.  This can be especially useful when the Data Panel fails to capture them, which may happen when the number of objects exceeds 10k.</p>

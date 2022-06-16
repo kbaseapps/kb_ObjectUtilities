@@ -1,0 +1,43 @@
+#
+# define display information
+#
+name: Update Genome Species Name - v1.1.0
+tooltip: |
+    Allows user to add/change the Scientific Name field of Genome objects
+
+screenshots: []
+
+icon: kb-orange.png
+
+#
+# define a set of similar methods that might be useful to the user
+#
+suggestions:
+    apps:
+        related:
+            []
+        next:
+            []
+    methods:
+        related:
+            []
+        next:
+            []
+
+#
+# Configure the display and description of parameters
+#
+parameters :
+    input_refs:
+        ui-name : |
+            Input Genomes
+        short-hint : |
+            Genomes for which you want to update the species
+    species_names:
+        ui-name : |
+            New Species names
+        short-hint : |
+            List of new Species Names (in same order as input Genomes)
+
+description : |
+    <p>This method allows the user to add/revise the species names of one or more Genome objects.  If more than one name, the new names must be in the same order as the input Genomes objects and separated by a comma, a newline, or both.</p>

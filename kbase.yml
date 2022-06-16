@@ -2,13 +2,13 @@ module-name:
     kb_ObjectUtilities
 
 module-description:
-    A KBase module for slicing, merging, intersection, unioning, etc. various KBase Data Object types
+    A KBase module for interacting with KBase object content
 
 service-language:
     python
 
 module-version:
-    1.0.0
+    1.1.0
 
 owners:
     [dylan]
