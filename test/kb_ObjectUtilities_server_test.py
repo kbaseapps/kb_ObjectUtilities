@@ -255,7 +255,7 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
     
     #### test_KButil_count_ws_objects():
     ##
-    # HIDE # HIDE @unittest.skip("skipped test_KButil_count_ws_objects")
+    # HIDE @unittest.skip("skipped test_KButil_count_ws_objects")
     def test_KButil_count_ws_objects (self):
         method = 'KButil_count_ws_objects'
         print ("\n\nRUNNING: {}".format(method))
@@ -309,6 +309,10 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
         print ("==================================\n\n")
 
         [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+
+
+        # config
+        keep_mRNAs = 0
         
         # upload test genomes
         genomeInfo_0 = self.getGenomeInfo('GCF_000287295.1_ASM28729v1_genomic', 0)  # Candidatus Carsonella ruddii HT isolate Thao2000
@@ -324,10 +328,11 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
             'species_name': 'species_name.map',
             'source': 'source.map',
             'domain': 'domains.map',
+            'genome_type': 'genome_type.map',
+            'release': 'release.map',
             'tax_hierarchy': 'tax_hierarchy.map',
             'ncbi_tax_id': 'ncbi_tax_id.map',
             'genome_qual_scores': 'genome_qual_scores.map'
-            #'genome_type': params.get('genome_type_file')
             #'gene_functions': 'gene_functions.map'
             }
         
@@ -358,21 +363,21 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
             'species_name_file': dst_map_paths['species_name'],
             'source_file': dst_map_paths['source'],
             'domain_file': dst_map_paths['domain'],
+            'genome_type_file': dst_map_paths['genome_type'],
+            'release_file': dst_map_paths['release'],
             'taxonomy_hierarchy_file': dst_map_paths['tax_hierarchy'],
             'taxonomy_ncbi_id_file': dst_map_paths['ncbi_tax_id'],
             'genome_qual_scores_file': dst_map_paths['genome_qual_scores'],
-            #'domain': params.get('domains_file')
-            #'genome_type': params.get('genome_type_file')
-            'keep_spoofed_mRNAs': 0
+            #'gene_functions_file': dst_map_paths['gene_functions'],
+            'keep_spoofed_mRNAs': keep_mRNAs
         }
         result = self.getImpl().KButil_update_genome_fields_from_files(self.getContext(),params)[0]
         print('RESULT:')
         pprint(result)
 
         # check the output
-        output_infos = result['updated_object_refs']
-        for output_i,output_info in enumerate(output_infos):
-            output_ref = self.getUPA_fromInfo(output_info)
+        output_refs = result['updated_object_refs']
+        for output_i,output_ref in enumerate(output_refs):
             output_obj = self.getWsClient().get_objects2({'objects': [{'ref': output_ref}]})['data'][0]
             output_obj_info = output_obj['info']
             output_obj_data = output_obj['data']
@@ -380,10 +385,39 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
             output_obj_name = output_obj_info[NAME_I]
             genome_id = re.sub('.Genome$', '', output_obj_name, flags=re.IGNORECASE)
             genome_id = re.sub('__$', '', genome_id)
+            genome_id = re.sub('^GTDB_Arc-', '', genome_id, flags=re.IGNORECASE)
             genome_id = re.sub('^GTDB_Bac-', '', genome_id, flags=re.IGNORECASE)
             genome_id = re.sub(r'^(GC[AF]_\d{9}\.\d).*$', r'\1', genome_id)
             print ("GENOME_ID: {}".format(genome_id))
-            #self.assertEqual(output_obj['scientific_name'], output_names[output_i])
+
+            # test field vals
+            #maps[map_type][genome_id] = field_val
+            self.assertEqual(output_obj_name, maps['obj_name'][genome_id])
+            self.assertEqual(output_obj_data['scientific_name'], maps['species_name'][genome_id])
+            self.assertEqual(output_obj_data['source'], maps['source'][genome_id])
+            self.assertEqual(output_obj_data['domain'], maps['domain'][genome_id])
+            self.assertEqual(output_obj_data['genome_type'], maps['genome_type'][genome_id])
+            self.assertEqual(output_obj_data['release'], maps['release'][genome_id])
+            self.assertEqual(output_obj_data['taxonomy'], maps['tax_hierarchy'][genome_id])
+            self.assertEqual(output_obj_data['taxon_assignments']['ncbi'], maps['ncbi_tax_id'][genome_id])
+            self.assertEqual(output_obj_data['taxon_assignments']['gtdb_r207'], maps['tax_hierarchy'][genome_id])
+            if keep_mRNAs == 0:
+                self.assertEqual(len(output_obj_data['mrnas']),0)
+
+            # test genome_qual_scores
+            target_scores = []
+            for score_group in maps['genome_qual_scores'][genome_id].split(';'):
+                score_dict = {}
+                for score_kv in score_group.split(','):
+                    [key, val] = score_kv.split('=')
+		    score_dict[key] = val
+                target_scores.append(score_dict)
+            for score_group_i,target_score in enumerate(target_scores):
+                for field in ['method', 'method_version', 'score', 'score_interpretation', 'timestamp']:
+                    self.assertEqual(output_obj_data['quality_scores'][score_group_i][field], target_score[field])
+                
+
+            #'gene_functions': 'gene_functions.map'
         pass
 
     

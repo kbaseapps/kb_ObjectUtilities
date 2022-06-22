@@ -92,10 +92,12 @@ module kb_ObjectUtilities {
 	file_path  species_name_file;
 	file_path  source_file;
 	file_path  domain_file;
+	file_path  genome_type_file;
+	file_path  release_file;
 	file_path  taxonomy_hierarchy_file;
 	file_path  taxonomy_ncbi_id_file;
 	file_path  genome_qual_scores_file;
-	file_path  functions_file;
+	file_path  gene_functions_file;
 	bool       keep_spoofed_mRNAs;
     } KButil_update_genome_fields_from_files_Params;
 

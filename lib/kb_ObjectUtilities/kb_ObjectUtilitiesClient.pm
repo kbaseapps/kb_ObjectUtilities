@@ -444,10 +444,12 @@ KButil_update_genome_fields_from_files_Params is a reference to a hash where the
 	species_name_file has a value which is a kb_ObjectUtilities.file_path
 	source_file has a value which is a kb_ObjectUtilities.file_path
 	domain_file has a value which is a kb_ObjectUtilities.file_path
+	genome_type_file has a value which is a kb_ObjectUtilities.file_path
+	release_file has a value which is a kb_ObjectUtilities.file_path
 	taxonomy_hierarchy_file has a value which is a kb_ObjectUtilities.file_path
 	taxonomy_ncbi_id_file has a value which is a kb_ObjectUtilities.file_path
 	genome_qual_scores_file has a value which is a kb_ObjectUtilities.file_path
-	functions_file has a value which is a kb_ObjectUtilities.file_path
+	gene_functions_file has a value which is a kb_ObjectUtilities.file_path
 	keep_spoofed_mRNAs has a value which is a kb_ObjectUtilities.bool
 workspace_name is a string
 file_path is a string
@@ -471,10 +473,12 @@ KButil_update_genome_fields_from_files_Params is a reference to a hash where the
 	species_name_file has a value which is a kb_ObjectUtilities.file_path
 	source_file has a value which is a kb_ObjectUtilities.file_path
 	domain_file has a value which is a kb_ObjectUtilities.file_path
+	genome_type_file has a value which is a kb_ObjectUtilities.file_path
+	release_file has a value which is a kb_ObjectUtilities.file_path
 	taxonomy_hierarchy_file has a value which is a kb_ObjectUtilities.file_path
 	taxonomy_ncbi_id_file has a value which is a kb_ObjectUtilities.file_path
 	genome_qual_scores_file has a value which is a kb_ObjectUtilities.file_path
-	functions_file has a value which is a kb_ObjectUtilities.file_path
+	gene_functions_file has a value which is a kb_ObjectUtilities.file_path
 	keep_spoofed_mRNAs has a value which is a kb_ObjectUtilities.bool
 workspace_name is a string
 file_path is a string
@@ -1046,10 +1050,12 @@ object_newname_file has a value which is a kb_ObjectUtilities.file_path
 species_name_file has a value which is a kb_ObjectUtilities.file_path
 source_file has a value which is a kb_ObjectUtilities.file_path
 domain_file has a value which is a kb_ObjectUtilities.file_path
+genome_type_file has a value which is a kb_ObjectUtilities.file_path
+release_file has a value which is a kb_ObjectUtilities.file_path
 taxonomy_hierarchy_file has a value which is a kb_ObjectUtilities.file_path
 taxonomy_ncbi_id_file has a value which is a kb_ObjectUtilities.file_path
 genome_qual_scores_file has a value which is a kb_ObjectUtilities.file_path
-functions_file has a value which is a kb_ObjectUtilities.file_path
+gene_functions_file has a value which is a kb_ObjectUtilities.file_path
 keep_spoofed_mRNAs has a value which is a kb_ObjectUtilities.bool
 
 </pre>
@@ -1065,10 +1071,12 @@ object_newname_file has a value which is a kb_ObjectUtilities.file_path
 species_name_file has a value which is a kb_ObjectUtilities.file_path
 source_file has a value which is a kb_ObjectUtilities.file_path
 domain_file has a value which is a kb_ObjectUtilities.file_path
+genome_type_file has a value which is a kb_ObjectUtilities.file_path
+release_file has a value which is a kb_ObjectUtilities.file_path
 taxonomy_hierarchy_file has a value which is a kb_ObjectUtilities.file_path
 taxonomy_ncbi_id_file has a value which is a kb_ObjectUtilities.file_path
 genome_qual_scores_file has a value which is a kb_ObjectUtilities.file_path
-functions_file has a value which is a kb_ObjectUtilities.file_path
+gene_functions_file has a value which is a kb_ObjectUtilities.file_path
 keep_spoofed_mRNAs has a value which is a kb_ObjectUtilities.bool
 
 

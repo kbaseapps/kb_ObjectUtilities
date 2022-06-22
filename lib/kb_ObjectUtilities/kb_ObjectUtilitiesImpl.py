@@ -48,7 +48,7 @@ class kb_ObjectUtilities:
     ######################################### noqa
     VERSION = "1.1.0"
     GIT_URL = "https://github.com/kbaseapps/kb_ObjectUtilities"
-    GIT_COMMIT_HASH = "91de21a03769050ba28a83e1762261215d1d40de"
+    GIT_COMMIT_HASH = "f39324d08e1b57e4ed644cb78bfcc87ca3647357"
 
     #BEGIN_CLASS_HEADER
     workspaceURL = None
@@ -643,10 +643,12 @@ class kb_ObjectUtilities:
            "object_newname_file" of type "file_path", parameter
            "species_name_file" of type "file_path", parameter "source_file"
            of type "file_path", parameter "domain_file" of type "file_path",
-           parameter "taxonomy_hierarchy_file" of type "file_path", parameter
+           parameter "genome_type_file" of type "file_path", parameter
+           "release_file" of type "file_path", parameter
+           "taxonomy_hierarchy_file" of type "file_path", parameter
            "taxonomy_ncbi_id_file" of type "file_path", parameter
            "genome_qual_scores_file" of type "file_path", parameter
-           "functions_file" of type "file_path", parameter
+           "gene_functions_file" of type "file_path", parameter
            "keep_spoofed_mRNAs" of type "bool"
         :returns: instance of type
            "KButil_update_genome_fields_from_files_Output" -> structure:
@@ -673,10 +675,12 @@ class kb_ObjectUtilities:
                                'species_name_file',
                                'source_file',
                                'domain_file',
+                               'genome_type_file',
+                               'release_file',
                                'taxonomy_hierarchy_file',
                                'taxonomy_ncbi_id_file',
                                'genome_qual_scores_file',
-                               
+                               #'gene_functions_file'
                               ]
         for req_param in required_params:
             if not params.get(req_param):
@@ -701,11 +705,12 @@ class kb_ObjectUtilities:
             'species_name': params.get('species_name_file'),
             'source': params.get('source_file'),
             'domain': params.get('domain_file'),
+            'genome_type': params.get('genome_type_file'),
+            'release': params.get('release_file'),
             'tax_hierarchy': params.get('taxonomy_hierarchy_file'),
             'ncbi_tax_id': params.get('taxonomy_ncbi_id_file'),
             'genome_qual_scores': params.get('genome_qual_scores_file')
-            #'genome_type': params.get('genome_type_file')
-            #'gene_functions': params.get('')
+            #'gene_functions': params.get('gene_functions_file')
         }
 
         maps = dict()
@@ -718,7 +723,6 @@ class kb_ObjectUtilities:
                         [genome_id, field_val] = map_line.split("\t")
                         if targets.get(genome_id):
                             maps[map_type][genome_id] = field_val        
-
                         
         # get ws_id
         ws_id = self.dfuClient.ws_name_to_id(params['workspace_name'])
@@ -749,6 +753,7 @@ class kb_ObjectUtilities:
                 obj_ref = self.getUPA_fromInfo(genome_info)
                 genome_id = re.sub('.Genome$', '', obj_name, flags=re.IGNORECASE)
                 genome_id = re.sub('__$', '', genome_id)
+                genome_id = re.sub('^GTDB_Arc-', '', genome_id, flags=re.IGNORECASE)
                 genome_id = re.sub('^GTDB_Bac-', '', genome_id, flags=re.IGNORECASE)
                 genome_id = re.sub(r'^(GC[AF]_\d{9}\.\d).*$', r'\1', genome_id)
                 
@@ -777,6 +782,14 @@ class kb_ObjectUtilities:
             if maps.get('domain'):
                 genome_data['domain'] = maps['domain'][genome_id]
 
+            # genome_type
+            if maps.get('genome_type'):
+                genome_data['genome_type'] = maps['genome_type'][genome_id]
+
+            # release
+            if maps.get('release'):
+                genome_data['release'] = maps['release'][genome_id]
+
             # taxonomy
             if maps.get('tax_hierarchy'):
                 genome_data['taxonomy'] = maps['tax_hierarchy'][genome_id]
@@ -791,18 +804,24 @@ class kb_ObjectUtilities:
                 genome_data['taxon_assignments']['ncbi'] = maps['ncbi_tax_id'][genome_id]
                 
             # genome qual scores
-            """
             if maps.get('genome_qual_scores'):
                 if not genome_data.get('quality_scores'):
                     genome_data['quality_scores'] = []
-                for score in maps['genome_qual_scores'][genome_id].split(','):
-                    [score_type, score_val] = score.split('=')
-                    genome_data['quality_scores'].append({
-                        'method': 'CheckM',
-                        'score': score_type,
-                        'score_interpretation': score_val
-                        })
-            """
+                for score_group in maps['genome_qual_scores'][genome_id].split(';'):
+                    score_dict = {}
+                    for score_kv in score_group.split(','):
+                        [key, val] = score_kv.split('=')
+                        score_dict[key] = val
+                    genome_data['quality_scores'].append(score_dict)
+
+            # keep spoofed mRNAs
+            if not params.get('keep_spoofed_mRNAs'):
+                if genome_data.get('mrnas'):
+                    print ("genome_id: {} had an 'mrnas' substruct of length: {}".format(genome_id, len(genome_data['mrnas'])))
+                    genome_data.pop('mrnas')
+                else:
+                    print ("genome_id: {} doesn't have an 'mrnas' substruct".format(genome_id))
+                
             
             #if maps.get('gene_functions'):
 
@@ -813,13 +832,14 @@ class kb_ObjectUtilities:
             else:
                 obj_name = genome_oldname
 
-            new_ref = self.dfuClient.save_objects({'id': ws_id,
-                                                   'objects': [
-                                                       {'type': 'KBaseGenomes.Genome',
-                                                        'name': obj_name,
-                                                        'data': genome_data
+            new_info = self.dfuClient.save_objects({'id': ws_id,
+                                                    'objects': [
+                                                        {'type': 'KBaseGenomes.Genome',
+                                                         'name': obj_name,
+                                                         'data': genome_data
                                                         }]
-                                                  })[0]
+                                                   })[0]
+            new_ref = self.getUPA_fromInfo(new_info)
             updated_object_refs.append(new_ref)
             
             

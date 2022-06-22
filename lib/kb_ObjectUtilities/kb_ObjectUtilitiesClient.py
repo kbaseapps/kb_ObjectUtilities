@@ -118,10 +118,12 @@ class kb_ObjectUtilities(object):
            "object_newname_file" of type "file_path", parameter
            "species_name_file" of type "file_path", parameter "source_file"
            of type "file_path", parameter "domain_file" of type "file_path",
-           parameter "taxonomy_hierarchy_file" of type "file_path", parameter
+           parameter "genome_type_file" of type "file_path", parameter
+           "release_file" of type "file_path", parameter
+           "taxonomy_hierarchy_file" of type "file_path", parameter
            "taxonomy_ncbi_id_file" of type "file_path", parameter
            "genome_qual_scores_file" of type "file_path", parameter
-           "functions_file" of type "file_path", parameter
+           "gene_functions_file" of type "file_path", parameter
            "keep_spoofed_mRNAs" of type "bool"
         :returns: instance of type
            "KButil_update_genome_fields_from_files_Output" -> structure:
