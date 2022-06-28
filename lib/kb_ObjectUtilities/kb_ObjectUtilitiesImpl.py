@@ -765,10 +765,13 @@ class kb_ObjectUtilities:
                 
 
         # adjust target genome objects
+        genome_cnt = 0
         for genome_id in sorted(genome_id_to_ref.keys()):
+            genome_cnt += 1
             genome_ref = genome_id_to_ref[genome_id]
             genome_oldname = genome_id_to_oldname[genome_id]
 
+            self.log(console, "GETTING genome {} genome ID {}".format(genome_cnt, genome_id))
             genome_obj = self.dfuClient.get_objects({'object_refs':[genome_ref]})['data'][0]
             genome_info = genome_obj['info']
             genome_data = genome_obj['data']
@@ -834,6 +837,7 @@ class kb_ObjectUtilities:
             else:
                 obj_name = genome_oldname
 
+            self.log(console, "SAVING genome {} genome ID {}".format(genome_cnt, genome_id))
             new_info = self.dfuClient.save_objects({'id': ws_id,
                                                     'objects': [
                                                         {'type': 'KBaseGenomes.Genome',
