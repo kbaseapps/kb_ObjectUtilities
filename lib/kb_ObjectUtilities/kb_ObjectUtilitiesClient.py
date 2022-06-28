@@ -67,7 +67,8 @@ class kb_ObjectUtilities(object):
            "id" is a numerical identifier of the workspace or object, and
            should just be used for workspace ** "name" is a string identifier
            of a workspace or object.  This is received from Narrative.),
-           parameter "object_types" of list of String
+           parameter "object_types" of list of String, parameter "verbose" of
+           type "bool"
         :returns: instance of type "KButil_count_ws_objects_Output" ->
            structure: parameter "report_name" of type "data_obj_name",
            parameter "report_ref" of type "data_obj_ref", parameter

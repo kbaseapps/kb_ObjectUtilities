@@ -262,8 +262,8 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
         print ("==================================\n\n")
         [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
 
-        #obj_types =  ['KBaseGenomeAnnotations.Assembly','KBaseGenomes.Genome']
-        obj_types =  ['KBaseGenomes.Genome']  # DEBUG
+        obj_types =  ['KBaseGenomeAnnotations.Assembly','KBaseGenomes.Genome']
+        #obj_types =  ['KBaseGenomes.Genome']  # DEBUG
         expected_count = {'KBaseGenomeAnnotations.Assembly': 3,
                           'KBaseGenomes.Genome': 3
                           }
@@ -280,7 +280,8 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
             #'workspace_name': 'dylan:narrative_1653154121485',  # DEBUG
             #'workspace_name': 'dylan:narrative_1653154144334',  # DEBUG
             'workspace_name': self.getWsName(),
-            'object_types': obj_types
+            'object_types': obj_types,
+            'verbose': 1
         }
         result = self.getImpl().KButil_count_ws_objects(self.getContext(),params)[0]
         #print('RESULT:')

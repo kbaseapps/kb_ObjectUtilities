@@ -50,6 +50,7 @@ module kb_ObjectUtilities {
     typedef structure {
         workspace_name workspace_name;
 	list<string>   object_types;
+	bool           verbose;
     } KButil_count_ws_objects_Params;
 
     typedef structure {

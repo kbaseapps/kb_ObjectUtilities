@@ -48,7 +48,7 @@ class kb_ObjectUtilities:
     ######################################### noqa
     VERSION = "1.1.0"
     GIT_URL = "https://github.com/kbaseapps/kb_ObjectUtilities"
-    GIT_COMMIT_HASH = "f39324d08e1b57e4ed644cb78bfcc87ca3647357"
+    GIT_COMMIT_HASH = "03cdd336d45551b7f8820208e3e74843523b36ca"
 
     #BEGIN_CLASS_HEADER
     workspaceURL = None
@@ -399,7 +399,8 @@ class kb_ObjectUtilities:
            "id" is a numerical identifier of the workspace or object, and
            should just be used for workspace ** "name" is a string identifier
            of a workspace or object.  This is received from Narrative.),
-           parameter "object_types" of list of String
+           parameter "object_types" of list of String, parameter "verbose" of
+           type "bool"
         :returns: instance of type "KButil_count_ws_objects_Output" ->
            structure: parameter "report_name" of type "data_obj_name",
            parameter "report_ref" of type "data_obj_ref", parameter
@@ -458,7 +459,8 @@ class kb_ObjectUtilities:
             # log and store
             self.log(console, "OBJ_TYPE: {}".format(obj_type))
             for obj_name in sorted(obj_name_to_ref.keys()):
-                self.log(console,"{} -> {}".format(obj_name, obj_name_to_ref[obj_name]))
+                if int(params.get('verbose','0')) == 1:
+                    self.log(console,"{} -> {}".format(obj_name, obj_name_to_ref[obj_name]))
                 ws_obj_refs[obj_type].append(obj_name_to_ref[obj_name])
             msg = "OBJ_TYPE: {} TOTAL OBJS: {}\n".format(obj_type,total_objs)
             report += msg

@@ -234,7 +234,9 @@ $return is a kb_ObjectUtilities.KButil_count_ws_objects_Output
 KButil_count_ws_objects_Params is a reference to a hash where the following keys are defined:
 	workspace_name has a value which is a kb_ObjectUtilities.workspace_name
 	object_types has a value which is a reference to a list where each element is a string
+	verbose has a value which is a kb_ObjectUtilities.bool
 workspace_name is a string
+bool is an int
 KButil_count_ws_objects_Output is a reference to a hash where the following keys are defined:
 	report_name has a value which is a kb_ObjectUtilities.data_obj_name
 	report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
@@ -253,7 +255,9 @@ $return is a kb_ObjectUtilities.KButil_count_ws_objects_Output
 KButil_count_ws_objects_Params is a reference to a hash where the following keys are defined:
 	workspace_name has a value which is a kb_ObjectUtilities.workspace_name
 	object_types has a value which is a reference to a list where each element is a string
+	verbose has a value which is a kb_ObjectUtilities.bool
 workspace_name is a string
+bool is an int
 KButil_count_ws_objects_Output is a reference to a hash where the following keys are defined:
 	report_name has a value which is a kb_ObjectUtilities.data_obj_name
 	report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
@@ -898,6 +902,7 @@ KButil_count_ws_objects()
 a reference to a hash where the following keys are defined:
 workspace_name has a value which is a kb_ObjectUtilities.workspace_name
 object_types has a value which is a reference to a list where each element is a string
+verbose has a value which is a kb_ObjectUtilities.bool
 
 </pre>
 
@@ -908,6 +913,7 @@ object_types has a value which is a reference to a list where each element is a 
 a reference to a hash where the following keys are defined:
 workspace_name has a value which is a kb_ObjectUtilities.workspace_name
 object_types has a value which is a reference to a list where each element is a string
+verbose has a value which is a kb_ObjectUtilities.bool
 
 
 =end text
