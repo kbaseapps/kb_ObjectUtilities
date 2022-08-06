@@ -137,6 +137,76 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
         return new_obj_info
 
     
+    # call this method to get the WS object info of an AnnotatedMetagenomeAssembly
+    #   (will upload the example data if this is the first time the method is called during tests)
+    def getAMAInfo(self, ama_basename, item_i=0):
+        if hasattr(self.__class__, 'amaInfo_list'):
+            try:
+                info = self.__class__.amaInfo_list[item_i]
+                name = self.__class__.amaName_list[item_i]
+                if info != None:
+                    if name != ama_basename:
+                        self.__class__.amaInfo_list[item_i] = None
+                        self.__class__.amaName_list[item_i] = None
+                    else:
+                        return info
+            except:
+                pass
+
+        # 1) transform GFF+FNA to kbase AMA object and upload to ws
+        shared_dir = "/kb/module/work/tmp"
+        ama_gff_srcfile = 'data/amas/'+ama_basename+'.gff'
+        ama_fna_srcfile = 'data/amas/'+ama_basename+'.fa'
+        ama_gff_dstfile = os.path.join(shared_dir, os.path.basename(ama_gff_srcfile))
+        ama_fna_dstfile = os.path.join(shared_dir, os.path.basename(ama_fna_srcfile))
+        shutil.copy(ama_gff_srcfile, ama_gff_dstfile)
+        shutil.copy(ama_fna_srcfile, ama_fna_dstfile)
+
+        try:
+            SERVICE_VER = 'release'
+            #SERVICE_VER = 'dev'
+            GFU = GenomeFileUtil(os.environ['SDK_CALLBACK_URL'],
+                                 token=self.getContext()['token'],
+                                 service_ver=SERVICE_VER
+            )
+        except:
+            raise ValueError ("unable to obtain GenomeFileUtil client")
+        print ("UPLOADING AMA: "+ama_basename+" to WORKSPACE "+self.getWsName()+" ...")
+        ama_upload_params = {
+            "workspace_name": self.getWsName(),
+            "genome_name": ama_basename,
+            "fasta_file": {"path": ama_fna_dstfile},
+            "gff_file": {"path": ama_gff_dstfile},
+            "source": "GFF",
+            "scientific_name": "TEST AMA",
+            "generate_missing_genes": "True"
+        }        
+        try:
+            ama_upload_result = GFU.fasta_gff_to_metagenome(ama_upload_params)
+        except:
+            raise ValueError("unable to upload test AMA data object")
+        print ("AMA UPLOADED")
+        pprint(ama_upload_result)
+
+        ama_ref = ama_upload_result['metagenome_ref']
+        new_obj_info = self.getWsClient().get_object_info_new({'objects': [{'ref': ama_ref}]})[0]
+
+        # 2) store it
+        if not hasattr(self.__class__, 'amaInfo_list'):
+            self.__class__.amaInfo_list = []
+            self.__class__.amaName_list = []
+        for i in range(item_i+1):
+            try:
+                assigned = self.__class__.amaInfo_list[i]
+            except:
+                self.__class__.amaInfo_list.append(None)
+                self.__class__.amaName_list.append(None)
+
+        self.__class__.amaInfo_list[item_i] = new_obj_info
+        self.__class__.amaName_list[item_i] = ama_basename
+        return new_obj_info
+
+
     ##############
     # UNIT TESTS #
     ##############
@@ -262,8 +332,8 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
         print ("==================================\n\n")
         [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
 
-        obj_types =  ['KBaseGenomeAnnotations.Assembly','KBaseGenomes.Genome']
-        #obj_types =  ['KBaseGenomes.Genome']  # DEBUG
+        #obj_types =  ['KBaseGenomeAnnotations.Assembly','KBaseGenomes.Genome']
+        obj_types =  ['KBaseGenomes.Genome']  # DEBUG
         expected_count = {'KBaseGenomeAnnotations.Assembly': 3,
                           'KBaseGenomes.Genome': 3
                           }
@@ -277,8 +347,9 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
         
         # run method
         params = {
-            #'workspace_name': 'dylan:narrative_1653154121485',  # DEBUG
-            #'workspace_name': 'dylan:narrative_1653154144334',  # DEBUG
+            #'workspace_name': 'dylan:narrative_1653154088731',  # Archaea: all
+            #'workspace_name': 'dylan:narrative_1653154121485',  # Bacteria: no GB MAGs
+            #'workspace_name': 'dylan:narrative_1653154144334',  # Bacteria: all GB MAGs
             'workspace_name': self.getWsName(),
             'object_types': obj_types,
             'verbose': 1
@@ -416,9 +487,101 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
             for score_group_i,target_score in enumerate(target_scores):
                 for field in ['method', 'method_version', 'score', 'score_interpretation', 'timestamp']:
                     self.assertEqual(output_obj_data['quality_scores'][score_group_i][field], target_score[field])
-                
 
-            #'gene_functions': 'gene_functions.map'
+                    
+    #### test_KButil_update_genome_features_from_file():
+    ##
+    # HIDE @unittest.skip("skipped test_KButil_update_genome_fields_from_file")
+    def test_KButil_update_genome_fields_from_file (self):
+        method = 'KButil_update_genome_fields_from_file'
+
+        print ("\n\nRUNNING: {}".format(method))
+        print ("==================================\n\n")
+
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+
+
+        # upload test genomes
+        genomeInfo_0 = self.getGenomeInfo('GCF_000287295.1_ASM28729v1_genomic', 0)  # Candidatus Carsonella ruddii HT isolate Thao2000
+        genomeInfo_1 = self.getGenomeInfo('GCF_000306885.1_ASM30688v1_genomic', 1)  # Wolbachia endosymbiont of Onchocerca ochengi
+        genomeInfo_2 = self.getGenomeInfo('GCF_001439985.1_wTPRE_1.0_genomic',  2)  # Wolbachia endosymbiont of Trichogramma pretiosum
+        genomeInfo_3 = self.getGenomeInfo('GCF_000022285.1_ASM2228v1_genomic',  3)  # Wolbachia sp. wRi
+        amaInfo_0 = self.getAMAInfo('test_ama', 0)
+
+        # genome_ref mapping
+        genome_ref_map = {'123625/5/1' : self.getUPA_fromInfo (genomeInfo_0),
+                          '123625/4/1' : self.getUPA_fromInfo (genomeInfo_1),
+                          '123625/3/1' : self.getUPA_fromInfo (genomeInfo_2),
+                          '123625/2/1' : self.getUPA_fromInfo (genomeInfo_3),
+                          '123625/12/1' : self.getUPA_fromInfo (amaInfo_0)
+        }
+        
+        # copy mapping files to shared mount
+        shared_dir = "/kb/module/work/tmp"
+        map_files = {
+            'features': 'features.map'
+            }
+        
+        dst_map_paths = dict()
+        for map_type in map_files.keys():
+            src_map_path = os.path.join('data','maps', map_files[map_type])
+            dst_map_paths[map_type] = os.path.join(shared_dir, map_files[map_type])
+            shutil.copy (src_map_path, dst_map_paths[map_type])
+
+
+        # read expected values
+        target_refs = dict()
+        maps = dict()
+        for map_type in map_files.keys():
+            maps[map_type] = dict()
+            with open (dst_map_paths[map_type], 'r') as map_h:
+                for map_line in map_h:
+                    map_line = map_line.rstrip()
+                    [genome_id, fid, aliases_str, functions_str] = map_line.split("\t")
+
+                    if len(genome_id.split('/')) == 3:
+                        genome_ref = genome_ref_map[genome_id]
+                        target_refs[genome_ref] = True
+
+                    if genome_ref not in maps[map_type]:
+                        maps[map_type][genome_ref] = dict()
+                    maps[map_type][genome_ref][fid] = dict()
+
+                    aliases_str = aliases_str.replace('"aliases":', '', 1)
+                    functions_str = aliases_str.replace('"functions":', '', 1)
+                    maps[map_type][genome_ref][fid]['aliases'] = json.loads(aliases_str)
+                    maps[map_type][genome_ref][fid]['functions'] = json.loads(functions_str)
+            
+        # run method
+        params = {
+            'feature_update_file': dst_map_paths['features'],
+            'test_genome_ref_map': genome_ref_map
+        }
+        result = self.getImpl().KButil_update_genome_features_from_file(self.getContext(),params)[0]
+        print('RESULT:')
+        pprint(result)
+
+        # check the output
+        output_refs = result['updated_object_refs']
+        output_refs_noVER = []
+        for ref in output_refs:
+            output_refs_noVER.append('/'.join(ref.split('/')[0:2]))
+        target_refs_noVER = []
+        for ref in sorted(target_refs.keys()):
+            target_refs_noVER.append('/'.join(ref.split('/')[0:2]))
+            
+        for target_ref in target_refs_noVER:
+            self.assertTrue (target_ref in output_refs_noVER)
+
+#        for output_i,output_ref in enumerate(output_refs):
+#            output_obj = self.getWsClient().get_objects2({'objects': [{'ref': output_ref}]})['data'][0]
+#            output_obj_info = output_obj['info']
+#            output_obj_data = output_obj['data']
+#            
+#            output_obj_name = output_obj_info[NAME_I]
+#
+#            # test field vals
+#            #maps[map_type][genome_id] = field_val
+#            #self.assertEqual(output_obj_data['scientific_name'], maps['species_name'][genome_id])
+
         pass
-
-    

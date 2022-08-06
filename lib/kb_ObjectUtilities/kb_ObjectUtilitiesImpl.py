@@ -7,6 +7,7 @@ import hashlib
 import subprocess
 import requests
 import re
+import json
 import traceback
 import uuid
 from datetime import datetime
@@ -48,7 +49,7 @@ class kb_ObjectUtilities:
     ######################################### noqa
     VERSION = "1.1.0"
     GIT_URL = "https://github.com/kbaseapps/kb_ObjectUtilities"
-    GIT_COMMIT_HASH = "03cdd336d45551b7f8820208e3e74843523b36ca"
+    GIT_COMMIT_HASH = "a7cc8a3c3230b3ceab0f1270e62b9868b00124be"
 
     #BEGIN_CLASS_HEADER
     workspaceURL = None
@@ -58,10 +59,14 @@ class kb_ObjectUtilities:
     callbackURL = None
     scratch = None
 
+    def now_ISO(self):
+        now_timestamp = datetime.now()
+        now_secs_from_epoch = (now_timestamp - datetime(1970,1,1)).total_seconds()
+        now_timestamp_in_iso = datetime.fromtimestamp(int(now_secs_from_epoch)).strftime('%Y-%m-%d_%T')
+        return now_timestamp_in_iso
 
-    # target is a list for collecting log messages                                                                                
     def log(self, target, message):
-        # we should do something better here...                                                                                   
+        message = '['+self.now_ISO()+'] '+message
         if target is not None:
             target.append(message)
         print(message)
@@ -72,6 +77,45 @@ class kb_ObjectUtilities:
         return '/'.join([str(obj_info[WSID_I]),
                          str(obj_info[OBJID_I]),
                          str(obj_info[VERSION_I])])
+
+    def gaAPI_get_all_AMA_features(self, features_handle_ref):
+        output_dir = os.path.join(self.scratch, 'output_'+self.now_ISO())
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        json_features_file_path = os.path.join (output_dir, features_handle_ref+".json")
+        if (not os.path.exists(json_features_file_path) \
+            or os.path.getsize(json_features_file_path) == 0):
+            try:
+                self.dfuClient.shock_to_file({'handle_id': features_handle_ref,
+                                              'file_path': json_features_file_path+'.gz',
+                                              'unpack': 'uncompress'
+                })
+            except Exception as e:
+                raise ValueError('Unable to fetch AnnotatedMetagenomeAssembly features from SHOCK: ' + str(e))                    
+
+        # read file into json structure
+        with open(json_features_file_path, 'r') as f:
+            features_json = json.load(f)
+        return features_json
+
+    def gaAPI_save_AMA_features(self, obj_name, features):
+        features_handle_ref = None
+        output_dir = os.path.join(self.scratch, 'output_'+self.now_ISO())
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        features_path = os.path.join(output_dir, obj_name+'.features')
+        with open(features_path, 'w') as features_h:
+            json.dump(features, features_h)
+        
+        features_save_info = self.dfuClient.file_to_shock({'file_path': features_path,
+                                                           'make_handle': 1,
+                                                           'pack': 'gzip'})
+
+        print ("FEATURES_SAVE_INFO:")
+        print (pformat(features_save_info))
+        features_handle_ref = features_save_info['handle']['hid']
+        return features_handle_ref
+    
     #END_CLASS_HEADER
 
     # config contains contents of config file in a hash or None if it couldn't
@@ -452,6 +496,18 @@ class kb_ObjectUtilities:
                 if num_objs < 1:
                     break
                 print ("obj_type: {} num objs: {}".format(obj_type, num_objs))
+                # DEBUG to specify version
+                """
+                new_obj_info_list = []
+                #target_version = 1
+                target_version = 2
+                for obj_info in obj_info_list:
+                    if int(obj_info[VERSION_I]) == target_version:
+                        new_obj_info_list.append(obj_info)
+                obj_info_list = new_obj_info_list
+                num_objs = len(obj_info_list)
+                """
+                # END DEBUG
                 total_objs += num_objs
 
                 for obj_info in obj_info_list:
@@ -771,7 +827,8 @@ class kb_ObjectUtilities:
             genome_ref = genome_id_to_ref[genome_id]
             genome_oldname = genome_id_to_oldname[genome_id]
 
-            self.log(console, "\n===================================================")
+            self.log(console, "")
+            self.log(console, "===================================================")
             self.log(console, "GETTING genome {} genome ID {}".format(genome_cnt, genome_id))
             self.log(console, "===================================================\n")
             genome_obj = self.dfuClient.get_objects({'object_refs':[genome_ref]})['data'][0]
@@ -839,7 +896,8 @@ class kb_ObjectUtilities:
             else:
                 obj_name = genome_oldname
 
-            self.log(console, "\n===================================================")
+            self.log(console, "")
+            self.log(console, "===================================================")
             self.log(console, "SAVING genome {} genome ID {}".format(genome_cnt, genome_id))
             self.log(console, "===================================================\n")
             new_info = self.dfuClient.save_objects({'id': ws_id,
@@ -861,6 +919,169 @@ class kb_ObjectUtilities:
         # At some point might do deeper type checking...
         if not isinstance(returnVal, dict):
             raise ValueError('Method KButil_update_genome_fields_from_files return value ' +
+                             'returnVal is not type dict as required.')
+        # return the results
+        return [returnVal]
+
+    def KButil_update_genome_features_from_file(self, ctx, params):
+        """
+        :param params: instance of type
+           "KButil_update_genome_features_from_file_Params"
+           (KButil_update_genome_features_from_file() ** **  Method for
+           adding values to Genome object features, from file) -> structure:
+           parameter "feature_update_file" of type "file_path", parameter
+           "test_genome_ref_map" of mapping from String to String
+        :returns: instance of type
+           "KButil_update_genome_features_from_file_Output" -> structure:
+           parameter "updated_object_refs" of list of type "data_obj_ref"
+        """
+        # ctx is the context object
+        # return variables are: returnVal
+        #BEGIN KButil_update_genome_features_from_file
+        console = []
+        invalid_msgs = []
+        updated_object_refs = []
+        self.log(console,'Running KButil_update_gemome_fields_from_files with params=')
+        self.log(console, "\n"+pformat(params))
+        report = ''
+        #report = 'Running KButil_update_genome_species_name with params='
+        #report += "\n"+pformat(params)
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+
+        
+        #### do some basic checks
+        #
+        required_params = ['feature_update_file']
+        for req_param in required_params:
+            if not params.get(req_param):
+                raise ValueError('{} parameter is required'.format(req_param))
+
+        test_genome_ref_map = None
+        if params.get('test_genome_ref_map'):
+            test_genome_ref_map = params['test_genome_ref_map']
+            
+        # read targets and new vals
+        targets = dict()
+        features_update = dict()
+        with open (params['feature_update_file'], 'r') as features_h:
+            for features_line in features_h:
+                [genome_id, fid, aliases_str, functions_str] = features_line.split("\t")
+
+                if test_genome_ref_map and genome_id in test_genome_ref_map:
+                    genome_id = test_genome_ref_map[genome_id]
+                targets[genome_id] = True
+                if len(genome_id.split('/')) != 3:
+                    raise ValueError ("need to add genome_id to genome_ref_mapping")
+                else:
+                    genome_ref = genome_id
+                
+                if genome_ref not in features_update:
+                    features_update[genome_ref] = dict()
+                if fid not in features_update[genome_ref]:
+                    features_update[genome_ref][fid] = dict()
+
+                aliases_str = aliases_str.replace('"aliases":', '', 1)
+                functions_str = functions_str.replace('"functions":', '', 1)
+                features_update[genome_ref][fid]['aliases'] = json.loads(aliases_str)
+                features_update[genome_ref][fid]['functions'] = json.loads(functions_str)
+                
+        # adjust target genome objects
+        genome_cnt = 0
+        updated_object_refs = []
+        for genome_ref in sorted(targets.keys()):
+            genome_cnt += 1
+
+            self.log(console, "")
+            self.log(console, "===================================================")
+            self.log(console, "GETTING genome {} genome ref {}".format(genome_cnt, genome_ref))
+            self.log(console, "===================================================\n")
+            genome_obj = self.dfuClient.get_objects({'object_refs':[genome_ref]})['data'][0]
+            genome_info = genome_obj['info']
+            genome_data = genome_obj['data']
+
+            genome_ws_id = genome_ref.split('/')[0]
+            genome_obj_name = genome_info[NAME_I].split('-')[0]
+            genome_obj_type = genome_info[TYPE_I].split('-')[0]
+
+            # get original features
+            if genome_obj_type == 'KBaseGenomes.Genome':
+                features = genome_data['features']
+            elif genome_obj_type == 'KBaseMetagenomes.AnnotatedMetagenomeAssembly':
+                features_handle_ref = genome_obj['data']['features_handle_ref']
+                features = self.gaAPI_get_all_AMA_features(features_handle_ref)
+            else:
+                raise ValueError ("obj type not supported: {} is type {}".format(genome_obj_name, genome_obj_type))
+
+            # add updates
+            new_features = []
+            for feature in features:
+                fid = feature['id']
+                if fid in features_update[genome_ref]:
+
+                    # aliases
+                    aliases_seen = dict()
+                    new_aliases = []
+                    if 'aliases' in feature:  # may not be in AMA
+                        for alias_tuple in feature['aliases']:
+                            alias_str = '["'+alias_tuple[0]+'","'+alias_tuple[1]+'"]'
+                            if alias_str not in aliases_seen:
+                                aliases_seen[alias_str] = True
+                                new_aliases.append(alias_tuple)
+                    if 'aliases' in features_update[genome_ref][fid]:
+                        for alias_tuple in features_update[genome_ref][fid]['aliases']:
+                            alias_str = '["'+alias_tuple[0]+'","'+alias_tuple[1]+'"]'
+                            if alias_str not in aliases_seen:
+                                aliases_seen[alias_str] = True
+                                new_aliases.append(alias_tuple)
+                    feature['aliases'] = new_aliases
+
+                    # functions
+                    functions_seen = dict()
+                    new_functions = []
+                    if 'functions' in feature:  # may not be in AMA
+                        for function_str in feature['functions']:
+                            if function_str not in functions_seen:
+                                functions_seen[function_str] = True
+                                new_functions.append(function_str)
+                    if 'functions' in features_update[genome_ref][fid]:
+                        for function_str in features_update[genome_ref][fid]['functions']:
+                            if function_str not in functions_seen:
+                                functions_seen[function_str] = True
+                                new_functions.append(function_str)
+                    feature['functions'] = new_functions
+                new_features.append(feature)
+            
+            # save new features
+            if genome_obj_type == 'KBaseGenomes.Genome':
+                genome_data['features'] = new_features
+            elif genome_obj_type == 'KBaseMetagenomes.AnnotatedMetagenomeAssembly':
+                new_features_handle_ref = self.gaAPI_save_AMA_features(genome_obj_name, new_features)
+                genome_obj['data']['features_handle_ref'] = new_features_handle_ref
+            
+            # save updated object
+            self.log(console, "")
+            self.log(console, "===================================================")
+            self.log(console, "SAVING genome {} genome ref {}".format(genome_cnt, genome_ref))
+            self.log(console, "===================================================\n")
+            new_info = self.dfuClient.save_objects({'id': genome_ws_id,
+                                                    'objects': [
+                                                        {'type': genome_obj_type,
+                                                         'name': genome_obj_name,
+                                                         'data': genome_data
+                                                        }]
+                                                   })[0]
+            new_ref = self.getUPA_fromInfo(new_info)
+            updated_object_refs.append(new_ref)
+            
+            
+        # Return report and updated_object_refs
+        returnVal = { 'updated_object_refs': updated_object_refs }
+        self.log(console,"KButil_update_genome_features_from_files DONE")
+        #END KButil_update_genome_features_from_file
+
+        # At some point might do deeper type checking...
+        if not isinstance(returnVal, dict):
+            raise ValueError('Method KButil_update_genome_features_from_file return value ' +
                              'returnVal is not type dict as required.')
         # return the results
         return [returnVal]

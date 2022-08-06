@@ -108,5 +108,22 @@ module kb_ObjectUtilities {
 
     funcdef KButil_update_genome_fields_from_files(KButil_update_genome_fields_from_files_Params params)  returns (KButil_update_genome_fields_from_files_Output) authentication required;
     
+
+    /* KButil_update_genome_features_from_file()
+    **
+    **  Method for adding values to Genome object features, from file
+    */
+    typedef structure {
+        /*workspace_name workspace_name;*/  /* taken from genome or ama */
+	file_path  feature_update_file;
+	mapping<string,string> test_genome_ref_map;
+    } KButil_update_genome_features_from_file_Params;
+
+    typedef structure {
+	list<data_obj_ref> updated_object_refs;
+    } KButil_update_genome_features_from_file_Output;
+
+    funcdef KButil_update_genome_features_from_file(KButil_update_genome_features_from_file_Params params)  returns (KButil_update_genome_features_from_file_Output) authentication required;
+    
 };
 
