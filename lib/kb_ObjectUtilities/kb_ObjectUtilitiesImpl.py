@@ -1020,14 +1020,17 @@ class kb_ObjectUtilities:
             found_update = False
             for feature in features:
                 fid = feature['id']
-                cds_ids = feature['cdss']
-                found_cds_id = None
-                for cds_id in cds_ids:
-                    if cds_id in features_update[genome_ref]:
-                        found_cds_id = cds_id
-                        break
-                if found_cds_id or fid in features_update[genome_ref]:
 
+                # updated annotation may be on cds
+                found_cds_id = None
+                if 'cdss' in feature:
+                    cds_ids = feature['cdss']
+                    for cds_id in cds_ids:
+                        if cds_id in features_update[genome_ref]:
+                            found_cds_id = cds_id
+                            break
+                        
+                if found_cds_id or fid in features_update[genome_ref]:
                     lookup_fid = fid
                     if found_cds_id:
                         lookup_fid = found_cds_id
