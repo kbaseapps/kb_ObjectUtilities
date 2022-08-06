@@ -991,16 +991,19 @@ class kb_ObjectUtilities:
         for genome_ref in sorted(targets.keys()):
             genome_cnt += 1
 
+            genome_ref_noVER = '/'.join(genome_ref.split('/')[0:2])
+            
             self.log(console, "")
             self.log(console, "===================================================")
-            self.log(console, "GETTING genome {} genome ref {}".format(genome_cnt, genome_ref))
+            self.log(console, "GETTING genome {} genome ref {}".format(genome_cnt, genome_ref_noVER))
             self.log(console, "===================================================\n")
-            genome_obj = self.dfuClient.get_objects({'object_refs':[genome_ref]})['data'][0]
+
+            genome_obj = self.dfuClient.get_objects({'object_refs':[genome_ref_noVER]})['data'][0]
             genome_info = genome_obj['info']
             genome_data = genome_obj['data']
 
             genome_ws_id = genome_ref.split('/')[0]
-            genome_obj_name = genome_info[NAME_I].split('-')[0]
+            genome_obj_name = genome_info[NAME_I]
             genome_obj_type = genome_info[TYPE_I].split('-')[0]
 
             # get original features
@@ -1014,6 +1017,7 @@ class kb_ObjectUtilities:
 
             # add updates
             new_features = []
+            found_update = False
             for feature in features:
                 fid = feature['id']
                 if fid in features_update[genome_ref]:
@@ -1031,6 +1035,7 @@ class kb_ObjectUtilities:
                         for alias_tuple in features_update[genome_ref][fid]['aliases']:
                             alias_str = '["'+alias_tuple[0]+'","'+alias_tuple[1]+'"]'
                             if alias_str not in aliases_seen:
+                                found_update = True
                                 aliases_seen[alias_str] = True
                                 new_aliases.append(alias_tuple)
                     feature['aliases'] = new_aliases
@@ -1046,11 +1051,15 @@ class kb_ObjectUtilities:
                     if 'functions' in features_update[genome_ref][fid]:
                         for function_str in features_update[genome_ref][fid]['functions']:
                             if function_str not in functions_seen:
+                                found_update = True
                                 functions_seen[function_str] = True
                                 new_functions.append(function_str)
                     feature['functions'] = new_functions
                 new_features.append(feature)
-            
+
+            if not found_update:  # only save if there's new feature updates
+                continue
+                
             # save new features
             if genome_obj_type == 'KBaseGenomes.Genome':
                 genome_data['features'] = new_features
@@ -1061,7 +1070,7 @@ class kb_ObjectUtilities:
             # save updated object
             self.log(console, "")
             self.log(console, "===================================================")
-            self.log(console, "SAVING genome {} genome ref {}".format(genome_cnt, genome_ref))
+            self.log(console, "SAVING genome {} name {} ref {}".format(genome_cnt, genome_obj_name, genome_ref))
             self.log(console, "===================================================\n")
             new_info = self.dfuClient.save_objects({'id': genome_ws_id,
                                                     'objects': [
