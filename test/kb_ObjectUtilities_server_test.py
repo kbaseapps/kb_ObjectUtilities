@@ -214,7 +214,7 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
 
     #### test_KButil_Concat_MSAs():
     ##
-    @unittest.skip("skipped test_KButil_Concat_MSAs")
+    # HIDE @unittest.skip("skipped test_KButil_Concat_MSAs")
     def test_KButil_Concat_MSAs (self):
         method = 'KButil_Concat_MSAs'
 
@@ -285,7 +285,7 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
 
     #### test_KButil_update_genome_species_name():
     ##
-    @unittest.skip("skipped test_KButil_update_genome_species_name")
+    # HIDE @unittest.skip("skipped test_KButil_update_genome_species_name")
     def test_KButil_update_genome_species_name (self):
         method = 'KButil_update_genome_species_names'
 
@@ -325,7 +325,7 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
     
     #### test_KButil_count_ws_objects():
     ##
-    @unittest.skip("skipped test_KButil_count_ws_objects")
+    # HIDE @unittest.skip("skipped test_KButil_count_ws_objects")
     def test_KButil_count_ws_objects (self):
         method = 'KButil_count_ws_objects'
         print ("\n\nRUNNING: {}".format(method))
@@ -373,7 +373,7 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
     
     #### test_KButil_update_genome_fields_from_files():
     ##
-    @unittest.skip("skipped test_KButil_update_genome_fields_from_files")
+    # HIDE @unittest.skip("skipped test_KButil_update_genome_fields_from_files")
     def test_KButil_update_genome_fields_from_files (self):
         method = 'KButil_update_genome_fields_from_files'
 
