@@ -214,7 +214,7 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
 
     #### test_KButil_Concat_MSAs():
     ##
-    # HIDE @unittest.skip("skipped test_KButil_Concat_MSAs")
+    @unittest.skip("skipped test_KButil_Concat_MSAs")
     def test_KButil_Concat_MSAs (self):
         method = 'KButil_Concat_MSAs'
 
@@ -285,7 +285,7 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
 
     #### test_KButil_update_genome_species_name():
     ##
-    # HIDE @unittest.skip("skipped test_KButil_update_genome_species_name")
+    @unittest.skip("skipped test_KButil_update_genome_species_name")
     def test_KButil_update_genome_species_name (self):
         method = 'KButil_update_genome_species_names'
 
@@ -325,7 +325,7 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
     
     #### test_KButil_count_ws_objects():
     ##
-    # HIDE @unittest.skip("skipped test_KButil_count_ws_objects")
+    @unittest.skip("skipped test_KButil_count_ws_objects")
     def test_KButil_count_ws_objects (self):
         method = 'KButil_count_ws_objects'
         print ("\n\nRUNNING: {}".format(method))
@@ -373,7 +373,7 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
     
     #### test_KButil_update_genome_fields_from_files():
     ##
-    # HIDE @unittest.skip("skipped test_KButil_update_genome_fields_from_files")
+    @unittest.skip("skipped test_KButil_update_genome_fields_from_files")
     def test_KButil_update_genome_fields_from_files (self):
         method = 'KButil_update_genome_fields_from_files'
 
@@ -491,9 +491,9 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
                     
     #### test_KButil_update_genome_features_from_file():
     ##
-    # HIDE @unittest.skip("skipped test_KButil_update_genome_fields_from_file")
-    def test_KButil_update_genome_fields_from_file (self):
-        method = 'KButil_update_genome_fields_from_file'
+    # HIDE @unittest.skip("skipped test_KButil_update_genome_features_from_file")
+    def test_KButil_update_genome_features_from_file (self):
+        method = 'KButil_update_genome_features_from_file'
 
         print ("\n\nRUNNING: {}".format(method))
         print ("==================================\n\n")
@@ -573,13 +573,14 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
         for target_ref in target_refs_noVER:
             self.assertTrue (target_ref in output_refs_noVER)
 
-#        for output_i,output_ref in enumerate(output_refs):
-#            output_obj = self.getWsClient().get_objects2({'objects': [{'ref': output_ref}]})['data'][0]
-#            output_obj_info = output_obj['info']
-#            output_obj_data = output_obj['data']
-#            
-#            output_obj_name = output_obj_info[NAME_I]
-#
+        for output_i,output_ref in enumerate(output_refs):
+            output_obj = self.getWsClient().get_objects2({'objects': [{'ref': output_ref}]})['data'][0]
+            output_obj_info = output_obj['info']
+            output_obj_data = output_obj['data']
+            
+            output_obj_name = output_obj_info[NAME_I]
+            print ("OUTPUT_NAME: {}".format(output_obj_name))
+            
 #            # test field vals
 #            #maps[map_type][genome_id] = field_val
 #            #self.assertEqual(output_obj_data['scientific_name'], maps['species_name'][genome_id])
