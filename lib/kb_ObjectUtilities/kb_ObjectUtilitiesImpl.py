@@ -1020,8 +1020,18 @@ class kb_ObjectUtilities:
             found_update = False
             for feature in features:
                 fid = feature['id']
-                if fid in features_update[genome_ref]:
+                cds_ids = feature['cdss']
+                found_cds_id = None
+                for cds_id in cds_ids:
+                    if cds_id in features_update[genome_ref]:
+                        found_cds_id = cds_id
+                        break
+                if found_cds_id or fid in features_update[genome_ref]:
 
+                    lookup_fid = fid
+                    if found_cds_id:
+                        lookup_fid = found_cds_id
+                    
                     # aliases
                     aliases_seen = dict()
                     new_aliases = []
@@ -1031,8 +1041,8 @@ class kb_ObjectUtilities:
                             if alias_str not in aliases_seen:
                                 aliases_seen[alias_str] = True
                                 new_aliases.append(alias_tuple)
-                    if 'aliases' in features_update[genome_ref][fid]:
-                        for alias_tuple in features_update[genome_ref][fid]['aliases']:
+                    if 'aliases' in features_update[genome_ref][lookup_fid]:
+                        for alias_tuple in features_update[genome_ref][lookup_fid]['aliases']:
                             alias_str = '["'+alias_tuple[0]+'","'+alias_tuple[1]+'"]'
                             if alias_str not in aliases_seen:
                                 found_update = True
@@ -1048,8 +1058,8 @@ class kb_ObjectUtilities:
                             if function_str not in functions_seen:
                                 functions_seen[function_str] = True
                                 new_functions.append(function_str)
-                    if 'functions' in features_update[genome_ref][fid]:
-                        for function_str in features_update[genome_ref][fid]['functions']:
+                    if 'functions' in features_update[genome_ref][lookup_fid]:
+                        for function_str in features_update[genome_ref][lookup_fid]['functions']:
                             if function_str not in functions_seen:
                                 found_update = True
                                 functions_seen[function_str] = True
