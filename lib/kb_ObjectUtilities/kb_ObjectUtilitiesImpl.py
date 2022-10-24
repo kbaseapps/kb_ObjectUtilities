@@ -965,7 +965,7 @@ class kb_ObjectUtilities:
         features_update = dict()
         with open (params['feature_update_file'], 'r') as features_h:
             for features_line in features_h:
-                [genome_id, fid, aliases_str, functions_str] = features_line.split("\t")
+                [genome_id, fid, aliases_str, functions_str, inferences_str] = features_line.split("\t")
 
                 if test_genome_ref_map and genome_id in test_genome_ref_map:
                     genome_id = test_genome_ref_map[genome_id]
@@ -982,8 +982,10 @@ class kb_ObjectUtilities:
 
                 aliases_str = aliases_str.replace('"aliases":', '', 1)
                 functions_str = functions_str.replace('"functions":', '', 1)
+                inferences_str = inferences_str.replace('"inferences":', '', 1)
                 features_update[genome_ref][fid]['aliases'] = json.loads(aliases_str)
                 features_update[genome_ref][fid]['functions'] = json.loads(functions_str)
+                features_update[genome_ref][fid]['inferences'] = json.loads(inferences_str)
                 
         # adjust target genome objects
         genome_cnt = 0
@@ -1009,6 +1011,7 @@ class kb_ObjectUtilities:
             # get original features
             if genome_obj_type == 'KBaseGenomes.Genome':
                 features = genome_data['features']
+                cdss = genome_data['cdss']
             elif genome_obj_type == 'KBaseMetagenomes.AnnotatedMetagenomeAssembly':
                 features_handle_ref = genome_obj['data']['features_handle_ref']
                 features = self.gaAPI_get_all_AMA_features(features_handle_ref)
@@ -1017,7 +1020,10 @@ class kb_ObjectUtilities:
 
             # add updates
             new_features = []
+            new_cdss = []
             found_update = False
+
+            # do features
             for feature in features:
                 fid = feature['id']
 
@@ -1068,14 +1074,99 @@ class kb_ObjectUtilities:
                                 functions_seen[function_str] = True
                                 new_functions.append(function_str)
                     feature['functions'] = new_functions
+
+                    # inferences
+                    inferences_seen = dict()
+                    new_inferences = []
+                    if 'inferences' in feature:  # may not be in AMA
+                        for inference_dict in feature['inferences']:
+                            if inference_dict['category'] not in inferences_seen:
+                                inferences_seen[inference_dict['category']] = True
+                                new_inferences.append(inference_dict)
+                    if 'inferences' in features_update[genome_ref][lookup_fid]:
+                        for inference_dict in features_update[genome_ref][lookup_fid]['inferences']:
+                            if inference_dict['category'] not in inferences_seen:
+                                found_update = True
+                                inferences_seen[inference_dict['category']] = True
+                                new_inferences.append(inference_dict)
+                    feature['inferences'] = new_inferences
+
                 new_features.append(feature)
 
+            # do cdss
+            for cds in cdss:
+                fid = cds['id']
+
+                # updated annotation may be on feature
+                found_parent_id = None
+                if 'parent_gene' in cds:
+                    parent_id = cds['parent_gene']
+                    if parent_id in features_update[genome_ref]:
+                        found_parent_id = parent_id
+                        
+                if found_parent_id or fid in features_update[genome_ref]:
+                    lookup_fid = fid
+                    if found_parent_id:
+                        lookup_fid = found_parent_id
+                    
+                    # aliases
+                    aliases_seen = dict()
+                    new_aliases = []
+                    if 'aliases' in cds:  # may not be in AMA
+                        for alias_tuple in cds['aliases']:
+                            alias_str = '["'+alias_tuple[0]+'","'+alias_tuple[1]+'"]'
+                            if alias_str not in aliases_seen:
+                                aliases_seen[alias_str] = True
+                                new_aliases.append(alias_tuple)
+                    if 'aliases' in features_update[genome_ref][lookup_fid]:
+                        for alias_tuple in features_update[genome_ref][lookup_fid]['aliases']:
+                            alias_str = '["'+alias_tuple[0]+'","'+alias_tuple[1]+'"]'
+                            if alias_str not in aliases_seen:
+                                found_update = True
+                                aliases_seen[alias_str] = True
+                                new_aliases.append(alias_tuple)
+                    cds['aliases'] = new_aliases
+
+                    # functions
+                    functions_seen = dict()
+                    new_functions = []
+                    if 'functions' in cds:  # may not be in AMA
+                        for function_str in cds['functions']:
+                            if function_str not in functions_seen:
+                                functions_seen[function_str] = True
+                                new_functions.append(function_str)
+                    if 'functions' in features_update[genome_ref][lookup_fid]:
+                        for function_str in features_update[genome_ref][lookup_fid]['functions']:
+                            if function_str not in functions_seen:
+                                found_update = True
+                                functions_seen[function_str] = True
+                                new_functions.append(function_str)
+                    cds['functions'] = new_functions
+
+                    # inferences
+                    inferences_seen = dict()
+                    new_inferences = []
+                    if 'inferences' in cds:  # may not be in AMA
+                        for inference_dict in cds['inferences']:
+                            if inference_dict['category'] not in inferences_seen:
+                                inferences_seen[inference_dict['category']] = True
+                                new_inferences.append(inference_dict)
+                    if 'inferences' in features_update[genome_ref][lookup_fid]:
+                        for inference_dict in features_update[genome_ref][lookup_fid]['inferences']:
+                            if inference_dict['category'] not in inferences_seen:
+                                found_update = True
+                                inferences_seen[inference_dict['category']] = True
+                                new_inferences.append(inference_dict)
+                    cds['inferences'] = new_inferences
+
+                new_cdss.append(cds)
+
+            # save new features
             if not found_update:  # only save if there's new feature updates
                 continue
-                
-            # save new features
             if genome_obj_type == 'KBaseGenomes.Genome':
                 genome_data['features'] = new_features
+                genome_data['cdss'] = new_cdss
             elif genome_obj_type == 'KBaseMetagenomes.AnnotatedMetagenomeAssembly':
                 new_features_handle_ref = self.gaAPI_save_AMA_features(genome_obj_name, new_features)
                 genome_obj['data']['features_handle_ref'] = new_features_handle_ref
