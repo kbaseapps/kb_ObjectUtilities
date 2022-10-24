@@ -948,6 +948,7 @@ class kb_ObjectUtilities:
         #report += "\n"+pformat(params)
         [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
 
+        print ("DEBUG: A")
         
         #### do some basic checks
         #
@@ -960,10 +961,13 @@ class kb_ObjectUtilities:
         if params.get('test_genome_ref_map'):
             test_genome_ref_map = params['test_genome_ref_map']
             
+        print ("DEBUG: B")
+
         # read targets and new vals
         targets = dict()
         features_update = dict()
         with open (params['feature_update_file'], 'r') as features_h:
+            print ("DEBUG: C")
             for features_line in features_h:
                 [genome_id, fid, aliases_str, functions_str, inferences_str] = features_line.split("\t")
 
@@ -986,12 +990,16 @@ class kb_ObjectUtilities:
                 features_update[genome_ref][fid]['aliases'] = json.loads(aliases_str)
                 features_update[genome_ref][fid]['functions'] = json.loads(functions_str)
                 features_update[genome_ref][fid]['inferences'] = json.loads(inferences_str)
-                
+
+        print ("DEBUG: D")
+
         # adjust target genome objects
         genome_cnt = 0
         updated_object_refs = []
         for genome_ref in sorted(targets.keys()):
             genome_cnt += 1
+
+            print ("DEBUG: E")
 
             genome_ref_noVER = '/'.join(genome_ref.split('/')[0:2])
             
@@ -1022,6 +1030,8 @@ class kb_ObjectUtilities:
             new_features = []
             new_cdss = []
             found_update = False
+
+            print ("DEBUG: F")
 
             # do features
             for feature in features:
@@ -1093,6 +1103,8 @@ class kb_ObjectUtilities:
 
                 new_features.append(feature)
 
+            print ("DEBUG: G")
+
             # do cdss
             for cds in cdss:
                 fid = cds['id']
@@ -1161,8 +1173,11 @@ class kb_ObjectUtilities:
 
                 new_cdss.append(cds)
 
+            print ("DEBUG: G")
+
             # save new features
             if not found_update:  # only save if there's new feature updates
+                print ("No update necessary for genome {}".format(genome_obj_name))
                 continue
             if genome_obj_type == 'KBaseGenomes.Genome':
                 genome_data['features'] = new_features
@@ -1171,6 +1186,8 @@ class kb_ObjectUtilities:
                 new_features_handle_ref = self.gaAPI_save_AMA_features(genome_obj_name, new_features)
                 genome_obj['data']['features_handle_ref'] = new_features_handle_ref
             
+            print ("DEBUG: H")
+
             # save updated object
             self.log(console, "")
             self.log(console, "===================================================")
@@ -1183,9 +1200,11 @@ class kb_ObjectUtilities:
                                                          'data': genome_data
                                                         }]
                                                    })[0]
+            print ("DEBUG: I")
             new_ref = self.getUPA_fromInfo(new_info)
             updated_object_refs.append(new_ref)
             
+        print ("DEBUG: J")
             
         # Return report and updated_object_refs
         returnVal = { 'updated_object_refs': updated_object_refs }
