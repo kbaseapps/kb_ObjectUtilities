@@ -969,7 +969,7 @@ class kb_ObjectUtilities:
         with open (params['feature_update_file'], 'r') as features_h:
             print ("DEBUG: C")
             for features_line in features_h:
-                print ("FEATURES_LINE: 'features_line'")  # DEBUG
+                print ("FEATURES_LINE: '{}'".format(features_line))  # DEBUG
                 [genome_id, fid, aliases_str, functions_str, inferences_str] = features_line.split("\t")
                 print ("AFTER FEATURES_LINE")
                 
