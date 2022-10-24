@@ -969,8 +969,10 @@ class kb_ObjectUtilities:
         with open (params['feature_update_file'], 'r') as features_h:
             print ("DEBUG: C")
             for features_line in features_h:
+                print ("FEATURES_LINE: 'features_line'")  # DEBUG
                 [genome_id, fid, aliases_str, functions_str, inferences_str] = features_line.split("\t")
-
+                print ("AFTER FEATURES_LINE")
+                
                 if test_genome_ref_map and genome_id in test_genome_ref_map:
                     genome_id = test_genome_ref_map[genome_id]
                 targets[genome_id] = True
@@ -990,7 +992,8 @@ class kb_ObjectUtilities:
                 features_update[genome_ref][fid]['aliases'] = json.loads(aliases_str)
                 features_update[genome_ref][fid]['functions'] = json.loads(functions_str)
                 features_update[genome_ref][fid]['inferences'] = json.loads(inferences_str)
-
+                print ("AFTER features_update")  # DEBUG
+                
         print ("DEBUG: D")
 
         # adjust target genome objects
