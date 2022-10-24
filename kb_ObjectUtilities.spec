@@ -115,8 +115,8 @@ module kb_ObjectUtilities {
     */
     typedef structure {
         /*workspace_name workspace_name;*/  /* taken from genome or ama */
-	file_path  feature_update_file;
-	mapping<string,string> test_genome_ref_map;
+	file_path feature_update_file;
+	file_path genome_ref_map;
     } KButil_update_genome_features_from_file_Params;
 
     typedef structure {

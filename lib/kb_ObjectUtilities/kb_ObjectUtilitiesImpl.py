@@ -957,9 +957,13 @@ class kb_ObjectUtilities:
             if not params.get(req_param):
                 raise ValueError('{} parameter is required'.format(req_param))
 
-        test_genome_ref_map = None
-        if params.get('test_genome_ref_map'):
-            test_genome_ref_map = params['test_genome_ref_map']
+        genome_ref_map = None
+        if params.get('genome_ref_map'):
+            genome_ref_map = dict()
+            with open (params['genome_ref_map'], 'r') as genome_ref_map_h:
+                for genome_ref_map_line in genome_ref_map_h:
+                [genome_id, genome_ref] = genome_ref_map_line.split("\t")
+                genome_ref_map[genome_id] = genome_ref
             
         print ("DEBUG: B")
 
@@ -973,13 +977,13 @@ class kb_ObjectUtilities:
                 [genome_id, fid, aliases_str, functions_str, inferences_str] = features_line.split("\t")
                 print ("AFTER FEATURES_LINE")
                 
-                if test_genome_ref_map and genome_id in test_genome_ref_map:
-                    genome_id = test_genome_ref_map[genome_id]
-                targets[genome_id] = True
-                if len(genome_id.split('/')) != 3:
-                    raise ValueError ("need to add genome_id to genome_ref_mapping")
+                if genome_ref_map is not None and genome_id in genome_ref_map:
+                    genome_ref = genome_ref_map[genome_id]
                 else:
                     genome_ref = genome_id
+                if len(genome_ref.split('/')) != 3:
+                    raise ValueError ("need to add genome_id {} to genome_ref_map file {}".format(genome_id, params['genome_ref_map']))
+                targets[genome_ref] = True
                 
                 if genome_ref not in features_update:
                     features_update[genome_ref] = dict()
