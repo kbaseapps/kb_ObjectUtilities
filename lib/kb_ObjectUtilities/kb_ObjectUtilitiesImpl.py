@@ -998,6 +998,7 @@ class kb_ObjectUtilities:
                 aliases_str = aliases_str.replace('"aliases":', '', 1)
                 functions_str = functions_str.replace('"functions":', '', 1)
                 inferences_str = inferences_str.replace('"inferences":', '', 1)
+                print ("inferences_str: '{}'".format(inferences_str))  # DEBUG
                 print ("DEBUG: C.5")
                 features_update[genome_ref][fid]['aliases'] = json.loads(aliases_str)
                 print ("DEBUG: C.6")
