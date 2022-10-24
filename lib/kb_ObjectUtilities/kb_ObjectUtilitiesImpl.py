@@ -962,8 +962,8 @@ class kb_ObjectUtilities:
             genome_ref_map = dict()
             with open (params['genome_ref_map'], 'r') as genome_ref_map_h:
                 for genome_ref_map_line in genome_ref_map_h:
-                [genome_id, genome_ref] = genome_ref_map_line.split("\t")
-                genome_ref_map[genome_id] = genome_ref
+                    [genome_id, genome_ref] = genome_ref_map_line.split("\t")
+                    genome_ref_map[genome_id] = genome_ref
             
         print ("DEBUG: B")
 
