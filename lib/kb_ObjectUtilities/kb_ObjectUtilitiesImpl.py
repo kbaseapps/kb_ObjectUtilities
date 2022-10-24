@@ -973,6 +973,7 @@ class kb_ObjectUtilities:
         with open (params['feature_update_file'], 'r') as features_h:
             print ("DEBUG: C")
             for features_line in features_h:
+                features_line = features_line.rstrip()
                 print ("FEATURES_LINE: '{}'".format(features_line))  # DEBUG
                 [genome_id, fid, aliases_str, functions_str, inferences_str] = features_line.split("\t")
                 print ("AFTER FEATURES_LINE")
@@ -981,20 +982,27 @@ class kb_ObjectUtilities:
                     genome_ref = genome_ref_map[genome_id]
                 else:
                     genome_ref = genome_id
+                print ("DEBUG: C.1")
                 if len(genome_ref.split('/')) != 3:
                     raise ValueError ("need to add genome_id {} to genome_ref_map file {}".format(genome_id, params['genome_ref_map']))
+                print ("DEBUG: C.2")
                 targets[genome_ref] = True
                 
+                print ("DEBUG: C.3")
                 if genome_ref not in features_update:
                     features_update[genome_ref] = dict()
                 if fid not in features_update[genome_ref]:
                     features_update[genome_ref][fid] = dict()
+                print ("DEBUG: C.4")
 
                 aliases_str = aliases_str.replace('"aliases":', '', 1)
                 functions_str = functions_str.replace('"functions":', '', 1)
                 inferences_str = inferences_str.replace('"inferences":', '', 1)
+                print ("DEBUG: C.5")
                 features_update[genome_ref][fid]['aliases'] = json.loads(aliases_str)
+                print ("DEBUG: C.6")
                 features_update[genome_ref][fid]['functions'] = json.loads(functions_str)
+                print ("DEBUG: C.7")
                 features_update[genome_ref][fid]['inferences'] = json.loads(inferences_str)
                 print ("AFTER features_update")  # DEBUG
                 
