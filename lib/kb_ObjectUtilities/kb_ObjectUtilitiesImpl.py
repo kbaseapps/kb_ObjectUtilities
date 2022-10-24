@@ -997,14 +997,14 @@ class kb_ObjectUtilities:
 
                 aliases_str = aliases_str.replace('"aliases":', '', 1)
                 functions_str = functions_str.replace('"functions":', '', 1)
-                inferences_str = inferences_str.replace('"inferences":', '', 1)
+                inferences_str = inferences_str.replace('"inference_data":', '', 1)
                 print ("inferences_str: '{}'".format(inferences_str))  # DEBUG
                 print ("DEBUG: C.5")
                 features_update[genome_ref][fid]['aliases'] = json.loads(aliases_str)
                 print ("DEBUG: C.6")
                 features_update[genome_ref][fid]['functions'] = json.loads(functions_str)
                 print ("DEBUG: C.7")
-                features_update[genome_ref][fid]['inferences'] = json.loads(inferences_str)
+                features_update[genome_ref][fid]['inference_data'] = json.loads(inferences_str)
                 print ("AFTER features_update")  # DEBUG
                 
         print ("DEBUG: D")
@@ -1104,18 +1104,18 @@ class kb_ObjectUtilities:
                     # inferences
                     inferences_seen = dict()
                     new_inferences = []
-                    if 'inferences' in feature:  # may not be in AMA
-                        for inference_dict in feature['inferences']:
+                    if 'inference_data' in feature:  # may not be in AMA
+                        for inference_dict in feature['inference_data']:
                             if inference_dict['category'] not in inferences_seen:
                                 inferences_seen[inference_dict['category']] = True
                                 new_inferences.append(inference_dict)
-                    if 'inferences' in features_update[genome_ref][lookup_fid]:
-                        for inference_dict in features_update[genome_ref][lookup_fid]['inferences']:
+                    if 'inference_data' in features_update[genome_ref][lookup_fid]:
+                        for inference_dict in features_update[genome_ref][lookup_fid]['inference_data']:
                             if inference_dict['category'] not in inferences_seen:
                                 found_update = True
                                 inferences_seen[inference_dict['category']] = True
                                 new_inferences.append(inference_dict)
-                    feature['inferences'] = new_inferences
+                    feature['inference_data'] = new_inferences
 
                 new_features.append(feature)
 
@@ -1174,18 +1174,18 @@ class kb_ObjectUtilities:
                     # inferences
                     inferences_seen = dict()
                     new_inferences = []
-                    if 'inferences' in cds:  # may not be in AMA
-                        for inference_dict in cds['inferences']:
+                    if 'inference_data' in cds:  # may not be in AMA
+                        for inference_dict in cds['inference_data']:
                             if inference_dict['category'] not in inferences_seen:
                                 inferences_seen[inference_dict['category']] = True
                                 new_inferences.append(inference_dict)
-                    if 'inferences' in features_update[genome_ref][lookup_fid]:
-                        for inference_dict in features_update[genome_ref][lookup_fid]['inferences']:
+                    if 'inference_data' in features_update[genome_ref][lookup_fid]:
+                        for inference_dict in features_update[genome_ref][lookup_fid]['inference_data']:
                             if inference_dict['category'] not in inferences_seen:
                                 found_update = True
                                 inferences_seen[inference_dict['category']] = True
                                 new_inferences.append(inference_dict)
-                    cds['inferences'] = new_inferences
+                    cds['inference_data'] = new_inferences
 
                 new_cdss.append(cds)
 
