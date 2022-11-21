@@ -500,10 +500,34 @@ class kb_ObjectUtilities:
                 """
                 new_obj_info_list = []
                 #target_version = 1
-                target_version = 2
+                #target_version = 2
+                target_version = 3
+                #target_version = 4
+                #target_version = 5
+                #target_version = 6
+                target_Y = 2022
+                target_M = 10
+                target_D = 10
                 for obj_info in obj_info_list:
-                    if int(obj_info[VERSION_I]) == target_version:
+
+                    # filter by version
+                    if not int(obj_info[VERSION_I]) == target_version:
+                        continue
+                    #else:
+                    #    new_obj_info_list.append(obj_info)
+                        
+                    # filter by date
+                    save_datetime = str(obj_info[SAVE_DATE_I])
+                    save_date = re.sub('T.*$', '', save_datetime)
+                    [Y, M, D] = save_date.split('-')
+                    if int(Y) <= target_Y and \
+                       int(M) <= target_M and \
+                       int(D) <= target_D:
+                        print ("OBJ: {} SAVE_DATE: {}".format(obj_info[NAME_I], save_date))
                         new_obj_info_list.append(obj_info)
+                    else:
+                        continue
+                    
                 obj_info_list = new_obj_info_list
                 num_objs = len(obj_info_list)
                 """

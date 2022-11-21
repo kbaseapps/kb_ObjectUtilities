@@ -332,24 +332,27 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
         print ("==================================\n\n")
         [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
 
-        #obj_types =  ['KBaseGenomeAnnotations.Assembly','KBaseGenomes.Genome']
-        obj_types =  ['KBaseGenomes.Genome']  # DEBUG
+        obj_types =  ['KBaseGenomeAnnotations.Assembly','KBaseGenomes.Genome']
+        #obj_types =  ['KBaseGenomes.Genome']  # DEBUG
         expected_count = {'KBaseGenomeAnnotations.Assembly': 3,
                           'KBaseGenomes.Genome': 3
                           }
 
-        # DEBUG
+        # DEBUG: comment out section
         # upload test genomes
         genomeInfo_0 = self.getGenomeInfo('GCF_000287295.1_ASM28729v1_genomic', 0)  # Candidatus Carsonella ruddii HT isolate Thao2000
         genomeInfo_1 = self.getGenomeInfo('GCF_000306885.1_ASM30688v1_genomic', 1)  # Wolbachia endosymbiont of Onchocerca ochengi
         genomeInfo_2 = self.getGenomeInfo('GCF_001439985.1_wTPRE_1.0_genomic',  2)  # Wolbachia endosymbiont of Trichogramma pretiosum
         #genomeInfo_3 = self.getGenomeInfo('GCF_000022285.1_ASM2228v1_genomic',  3)  # Wolbachia sp. wRi
+        # END DEBUG
         
         # run method
         params = {
+            # DEBUG
             #'workspace_name': 'dylan:narrative_1653154088731',  # Archaea: all
             #'workspace_name': 'dylan:narrative_1653154121485',  # Bacteria: no GB MAGs
             #'workspace_name': 'dylan:narrative_1653154144334',  # Bacteria: all GB MAGs
+            # END DEBUG
             'workspace_name': self.getWsName(),
             'object_types': obj_types,
             'verbose': 1
@@ -358,7 +361,7 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
         #print('RESULT:')
         #pprint(result)
 
-        # DEBUG
+        # DEBUG: comment out section
         # check the output
         obj_refs_by_type = result['ws_obj_refs']
         for obj_type in obj_types:
@@ -368,9 +371,12 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
             for obj_ref in obj_refs:
                 obj_info = self.getWsClient().get_object_info_new({'objects': [{'ref': obj_ref}]})[0]
                 self.assertEqual(obj_info[TYPE_I].split('-')[0],obj_type)
-        pass
+        # END DEBUG
 
+        pass
     
+        
+
     #### test_KButil_update_genome_fields_from_files():
     ##
     # HIDE @unittest.skip("skipped test_KButil_update_genome_fields_from_files")
