@@ -375,6 +375,43 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
 
         pass
     
+
+    #### test_KButil_delete_ws_objects():
+    ##
+    # HIDE @unittest.skip("skipped test_KButil_delete_ws_objects")
+    def test_KButil_delete_ws_objects (self):
+        method = 'KButil_count_ws_objects'
+        print ("\n\nRUNNING: {}".format(method))
+        print ("==================================\n\n")
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+
+        obj_types =  ['KBaseGenomeAnnotations.Assembly','KBaseGenomes.Genome']
+        #obj_types =  ['KBaseGenomes.Genome']  # DEBUG
+        expected_count = {'KBaseGenomeAnnotations.Assembly': 3,
+                          'KBaseGenomes.Genome': 3
+                          }
+
+        # DEBUG: comment out section
+        # upload test genomes
+        genomeInfo_0 = self.getGenomeInfo('GCF_000287295.1_ASM28729v1_genomic', 0)  # Candidatus Carsonella ruddii HT isolate Thao2000
+        genomeInfo_1 = self.getGenomeInfo('GCF_000306885.1_ASM30688v1_genomic', 1)  # Wolbachia endosymbiont of Onchocerca ochengi
+        genomeInfo_2 = self.getGenomeInfo('GCF_001439985.1_wTPRE_1.0_genomic',  2)  # Wolbachia endosymbiont of Trichogramma pretiosum
+        #genomeInfo_3 = self.getGenomeInfo('GCF_000022285.1_ASM2228v1_genomic',  3)  # Wolbachia sp. wRi
+        # END DEBUG
+        
+        # run method
+        params = {
+            'workspace_name': self.getWsName(),
+            'object_types': obj_types,
+            'verbose': 1,
+            'delete_all': 0
+        }
+        result = self.getImpl().KButil_delete_ws_objects(self.getContext(),params)[0]
+        #print('RESULT:')
+        #pprint(result)
+
+        pass
+    
         
 
     #### test_KButil_update_genome_fields_from_files():

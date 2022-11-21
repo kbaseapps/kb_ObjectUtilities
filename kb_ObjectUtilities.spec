@@ -62,6 +62,25 @@ module kb_ObjectUtilities {
     funcdef KButil_count_ws_objects(KButil_count_ws_objects_Params params)  returns (KButil_count_ws_objects_Output) authentication required;
     
 
+    /* KButil_delete_ws_objects()
+    **
+    **  Method for deleting workspace objects
+    */
+    typedef structure {
+        workspace_name workspace_name;
+	list<string>   object_types;
+	bool           verbose;
+	bool           delete_all;
+    } KButil_delete_ws_objects_Params;
+
+    typedef structure {
+	data_obj_name report_name;
+	data_obj_ref  report_ref;
+    } KButil_delete_ws_objects_Output;
+
+    funcdef KButil_delete_ws_objects(KButil_delete_ws_objects_Params params)  returns (KButil_delete_ws_objects_Output) authentication required;
+    
+
     /* KButil_update_genome_species_name()
     **
     **  Method for adding/changing Genome objects species names

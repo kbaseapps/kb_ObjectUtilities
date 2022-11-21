@@ -1,0 +1,48 @@
+#
+# define display information
+#
+name: Delete Data Objects - v1.2.0
+tooltip: |
+    Allows user to delete data objects by type
+
+screenshots: []
+
+icon: kb-orange.png
+
+#
+# define a set of similar methods that might be useful to the user
+#
+suggestions:
+    apps:
+        related:
+            []
+        next:
+            []
+    methods:
+        related:
+            []
+        next:
+            []
+
+#
+# Configure the display and description of parameters
+#
+parameters :
+    object_types:
+        ui-name : |
+            Object Type(s)
+        short-hint : |
+            The object types to delete (e.g. Genome, Assembly)
+    verbose:
+        ui-name : |
+            Verbose
+        short-hint : |
+            List objects as they are deleted
+    delete_all:
+        ui-name : |
+            Delete All
+        short-hint : |
+            Delete all objects of known types (Note: USE WITH CAUTION!!!)
+
+description : |
+    <p>This method allows the user to delete objects of a certain type or types in the workspace.</p>

@@ -1,3 +1,6 @@
+### Version 1.2.0
+- added method and app to delete objects from workspace
+
 ### Version 1.1.0
 - added method and app KButil_count_ws_objects()
 - added method and app KButil_update_genome_species_name()

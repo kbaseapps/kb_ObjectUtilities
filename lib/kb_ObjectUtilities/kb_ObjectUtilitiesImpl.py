@@ -47,9 +47,9 @@ class kb_ObjectUtilities:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "1.1.0"
+    VERSION = "1.2.0"
     GIT_URL = "https://github.com/kbaseapps/kb_ObjectUtilities"
-    GIT_COMMIT_HASH = "a7cc8a3c3230b3ceab0f1270e62b9868b00124be"
+    GIT_COMMIT_HASH = "207d62740823889865d85ef4fa8e0d6ffd627aff"
 
     #BEGIN_CLASS_HEADER
     workspaceURL = None
@@ -59,6 +59,8 @@ class kb_ObjectUtilities:
     callbackURL = None
     scratch = None
 
+    known_obj_types_path = os.path.join (os.path.sep, 'kb', 'module', 'data', 'known_obj_types.txt')
+    
     def now_ISO(self):
         now_timestamp = datetime.now()
         now_secs_from_epoch = (now_timestamp - datetime(1970,1,1)).total_seconds()
@@ -581,6 +583,121 @@ class kb_ObjectUtilities:
         # return the results
         return [returnVal]
 
+    def KButil_delete_ws_objects(self, ctx, params):
+        """
+        :param params: instance of type "KButil_delete_ws_objects_Params"
+           (KButil_delete_ws_objects() ** **  Method for deleting workspace
+           objects) -> structure: parameter "workspace_name" of type
+           "workspace_name" (** The workspace object refs are of form: ** ** 
+           objects = ws.get_objects([{'ref':
+           params['workspace_id']+'/'+params['obj_name']}]) ** ** "ref" means
+           the entire name combining the workspace id and the object name **
+           "id" is a numerical identifier of the workspace or object, and
+           should just be used for workspace ** "name" is a string identifier
+           of a workspace or object.  This is received from Narrative.),
+           parameter "object_types" of list of String, parameter "verbose" of
+           type "bool", parameter "delete_all" of type "bool"
+        :returns: instance of type "KButil_delete_ws_objects_Output" ->
+           structure: parameter "report_name" of type "data_obj_name",
+           parameter "report_ref" of type "data_obj_ref"
+        """
+        # ctx is the context object
+        # return variables are: returnVal
+        #BEGIN KButil_delete_ws_objects
+        console = []
+        invalid_msgs = []
+        updated_object_refs = []
+        self.log(console,'Running KButil_delete_ws_objects')
+        self.log(console, "\n"+pformat(params))
+        report = ''
+        #report = 'Running KButil_count_ws_objects params='
+        #report += "\n"+pformat(params)
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+
+        
+        #### do some basic checks
+        #
+        required_params = ['workspace_name', 'object_types']
+        for req_param in required_params:
+            if not params.get(req_param):
+                raise ValueError('{} parameter is required'.format(req_param))
+
+        # get ws_id
+        ws_id = self.dfuClient.ws_name_to_id(params['workspace_name'])
+
+
+        # limit which object types are permitted
+        known_obj_types = []
+        with open (self.known_obj_types_path, 'r') as known_obj_types_h:
+            for obj_type in known_obj_types_h:
+                obj_type = obj_type.strip()
+                known_obj_types.append(obj_type)
+
+        if int(params.get('delete_all','0')) == 1:
+            params['object_types'] = known_obj_types
+
+                
+        # read objects in workspace (OBJID limit is chunk_size*top_iter)
+        chunk_size = 2000
+        top_iter = 1000
+        ws_obj_refs = dict()
+        for obj_type in params['object_types']:
+            self.log(console, "OBJ_TYPE: {}".format(obj_type))
+            ws_obj_refs[obj_type] = []
+            total_objs = 0
+            obj_name_to_ref = dict()
+            for chunk_i in range(0,top_iter):
+                minObjectID = chunk_i * chunk_size
+                maxObjectID = (chunk_i+1) * chunk_size - 1
+    
+                obj_info_list = self.wsClient.list_objects({
+                    'ids':[ws_id],
+                    'type':obj_type,
+                    'minObjectID': minObjectID,
+                    'maxObjectID': maxObjectID
+                })
+                num_objs = len(obj_info_list)
+                if num_objs < 1:
+                    break
+                self.log(console, "obj_type: {} num objs: {}".format(obj_type, num_objs))
+                total_objs += num_objs
+
+                refs_to_delete = []
+                for obj_info in obj_info_list:
+                    obj_name = obj_info[NAME_I]
+                    obj_ref = self.getUPA_fromInfo(obj_info) 
+                    if int(params.get('verbose','0')) == 1:
+                        self.log(console,"deleting {} -> {}".format(obj_name, obj_ref))
+                    refs_to_delete.append({'ref':obj_ref})
+                self.wsClient.delete_objects(refs_to_delete)
+                    
+            msg = "OBJ_TYPE: {} TOTAL OBJS DELETED: {}\n".format(obj_type,total_objs)
+            report += msg
+            self.log(console, msg)
+
+
+        # create report
+        report_info = self.reportClient.create({
+            'workspace_name':params['workspace_name'],
+            'report': {
+                'objects_created':[],
+                'text_message':report
+            }
+        })
+                
+        # Return report and updated_object_refs
+        returnVal = { 'report_name': report_info['name'],
+                      'report_ref': report_info['ref']
+        }
+        #END KButil_delete_ws_objects
+
+        # At some point might do deeper type checking...
+        if not isinstance(returnVal, dict):
+            raise ValueError('Method KButil_delete_ws_objects return value ' +
+                             'returnVal is not type dict as required.')
+        # return the results
+        return [returnVal]
+
     def KButil_update_genome_species_name(self, ctx, params):
         """
         :param params: instance of type
@@ -954,7 +1071,7 @@ class kb_ObjectUtilities:
            (KButil_update_genome_features_from_file() ** **  Method for
            adding values to Genome object features, from file) -> structure:
            parameter "feature_update_file" of type "file_path", parameter
-           "test_genome_ref_map" of mapping from String to String
+           "genome_ref_map" of type "file_path"
         :returns: instance of type
            "KButil_update_genome_features_from_file_Output" -> structure:
            parameter "updated_object_refs" of list of type "data_obj_ref"
