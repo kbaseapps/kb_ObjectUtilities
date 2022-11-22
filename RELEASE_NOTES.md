@@ -1,5 +1,6 @@
 ### Version 1.2.0
-- added method and app to delete objects from workspace
+- added method and app to bulk delete objects from workspace
+- added method and app to bulk delete objects from workspace
 
 ### Version 1.1.0
 - added method and app KButil_count_ws_objects()

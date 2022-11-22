@@ -430,6 +430,112 @@ data_obj_ref is a string
  
 
 
+=head2 KButil_undelete_ws_objects
+
+  $return = $obj->KButil_undelete_ws_objects($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a kb_ObjectUtilities.KButil_undelete_ws_objects_Params
+$return is a kb_ObjectUtilities.KButil_undelete_ws_objects_Output
+KButil_undelete_ws_objects_Params is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+	object_types has a value which is a reference to a list where each element is a string
+	verbose has a value which is a kb_ObjectUtilities.bool
+	undelete_all has a value which is a kb_ObjectUtilities.bool
+workspace_name is a string
+bool is an int
+KButil_undelete_ws_objects_Output is a reference to a hash where the following keys are defined:
+	report_name has a value which is a kb_ObjectUtilities.data_obj_name
+	report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+data_obj_name is a string
+data_obj_ref is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a kb_ObjectUtilities.KButil_undelete_ws_objects_Params
+$return is a kb_ObjectUtilities.KButil_undelete_ws_objects_Output
+KButil_undelete_ws_objects_Params is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+	object_types has a value which is a reference to a list where each element is a string
+	verbose has a value which is a kb_ObjectUtilities.bool
+	undelete_all has a value which is a kb_ObjectUtilities.bool
+workspace_name is a string
+bool is an int
+KButil_undelete_ws_objects_Output is a reference to a hash where the following keys are defined:
+	report_name has a value which is a kb_ObjectUtilities.data_obj_name
+	report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+data_obj_name is a string
+data_obj_ref is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+ sub KButil_undelete_ws_objects
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function KButil_undelete_ws_objects (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to KButil_undelete_ws_objects:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'KButil_undelete_ws_objects');
+	}
+    }
+
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "kb_ObjectUtilities.KButil_undelete_ws_objects",
+	    params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'KButil_undelete_ws_objects',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method KButil_undelete_ws_objects",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'KButil_undelete_ws_objects',
+				       );
+    }
+}
+ 
+
+
 =head2 KButil_update_genome_species_name
 
   $return = $obj->KButil_update_genome_species_name($params)
@@ -1202,6 +1308,81 @@ delete_all has a value which is a kb_ObjectUtilities.bool
 
 
 =head2 KButil_delete_ws_objects_Output
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+report_name has a value which is a kb_ObjectUtilities.data_obj_name
+report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+report_name has a value which is a kb_ObjectUtilities.data_obj_name
+report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+
+
+=end text
+
+=back
+
+
+
+=head2 KButil_undelete_ws_objects_Params
+
+=over 4
+
+
+
+=item Description
+
+KButil_undelete_ws_objects()
+**
+**  Method for undeleting workspace objects
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+object_types has a value which is a reference to a list where each element is a string
+verbose has a value which is a kb_ObjectUtilities.bool
+undelete_all has a value which is a kb_ObjectUtilities.bool
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+object_types has a value which is a reference to a list where each element is a string
+verbose has a value which is a kb_ObjectUtilities.bool
+undelete_all has a value which is a kb_ObjectUtilities.bool
+
+
+=end text
+
+=back
+
+
+
+=head2 KButil_undelete_ws_objects_Output
 
 =over 4
 

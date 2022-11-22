@@ -216,6 +216,23 @@ public class KbObjectUtilitiesClient {
     }
 
     /**
+     * <p>Original spec-file function name: KButil_undelete_ws_objects</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.kbobjectutilities.KButilUndeleteWsObjectsParams KButilUndeleteWsObjectsParams} (original type "KButil_undelete_ws_objects_Params")
+     * @return   instance of type {@link us.kbase.kbobjectutilities.KButilUndeleteWsObjectsOutput KButilUndeleteWsObjectsOutput} (original type "KButil_undelete_ws_objects_Output")
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public KButilUndeleteWsObjectsOutput kButilUndeleteWsObjects(KButilUndeleteWsObjectsParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<KButilUndeleteWsObjectsOutput>> retType = new TypeReference<List<KButilUndeleteWsObjectsOutput>>() {};
+        List<KButilUndeleteWsObjectsOutput> res = caller.jsonrpcCall("kb_ObjectUtilities.KButil_undelete_ws_objects", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
      * <p>Original spec-file function name: KButil_update_genome_species_name</p>
      * <pre>
      * </pre>

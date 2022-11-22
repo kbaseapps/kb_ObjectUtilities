@@ -350,6 +350,10 @@ class Application(object):
                              name='kb_ObjectUtilities.KButil_delete_ws_objects',
                              types=[dict])
         self.method_authentication['kb_ObjectUtilities.KButil_delete_ws_objects'] = 'required'  # noqa
+        self.rpc_service.add(impl_kb_ObjectUtilities.KButil_undelete_ws_objects,
+                             name='kb_ObjectUtilities.KButil_undelete_ws_objects',
+                             types=[dict])
+        self.method_authentication['kb_ObjectUtilities.KButil_undelete_ws_objects'] = 'required'  # noqa
         self.rpc_service.add(impl_kb_ObjectUtilities.KButil_update_genome_species_name,
                              name='kb_ObjectUtilities.KButil_update_genome_species_name',
                              types=[dict])
