@@ -5,7 +5,7 @@
     ],
     "contact": "http://www.kbase.us/support/",
     "visible": true,
-    "categories": ["active","util"],
+    "categories": ["inactive","util"],
     "widgets": {
         "input": null,
         "output": "no-display"
@@ -189,7 +189,7 @@
             }
         },
         {
-            "id": "undelete_all",
+            "id": "unhide_all",
             "optional": true,
             "advanced": true,
             "allow_multiple": false,
@@ -205,7 +205,7 @@
         "service-mapping": {
             "url": "",
             "name": "kb_ObjectUtilities",
-            "method": "KButil_undelete_ws_objects",
+            "method": "KButil_unhide_ws_objects",
             "input_mapping": [
                 {
                     "narrative_system_variable": "workspace",
@@ -220,8 +220,8 @@
                     "target_property": "verbose"
                 },
                 {
-                    "input_parameter": "undelete_all",
-                    "target_property": "undelete_all"
+                    "input_parameter": "unhide_all",
+                    "target_property": "unhide_all"
                 }
             ],
             "output_mapping": [

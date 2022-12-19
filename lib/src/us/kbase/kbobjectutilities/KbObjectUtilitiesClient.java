@@ -199,36 +199,36 @@ public class KbObjectUtilitiesClient {
     }
 
     /**
-     * <p>Original spec-file function name: KButil_delete_ws_objects</p>
+     * <p>Original spec-file function name: KButil_hide_ws_objects</p>
      * <pre>
      * </pre>
-     * @param   params   instance of type {@link us.kbase.kbobjectutilities.KButilDeleteWsObjectsParams KButilDeleteWsObjectsParams} (original type "KButil_delete_ws_objects_Params")
-     * @return   instance of type {@link us.kbase.kbobjectutilities.KButilDeleteWsObjectsOutput KButilDeleteWsObjectsOutput} (original type "KButil_delete_ws_objects_Output")
+     * @param   params   instance of type {@link us.kbase.kbobjectutilities.KButilHideWsObjectsParams KButilHideWsObjectsParams} (original type "KButil_hide_ws_objects_Params")
+     * @return   instance of type {@link us.kbase.kbobjectutilities.KButilHideWsObjectsOutput KButilHideWsObjectsOutput} (original type "KButil_hide_ws_objects_Output")
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public KButilDeleteWsObjectsOutput kButilDeleteWsObjects(KButilDeleteWsObjectsParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+    public KButilHideWsObjectsOutput kButilHideWsObjects(KButilHideWsObjectsParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
-        TypeReference<List<KButilDeleteWsObjectsOutput>> retType = new TypeReference<List<KButilDeleteWsObjectsOutput>>() {};
-        List<KButilDeleteWsObjectsOutput> res = caller.jsonrpcCall("kb_ObjectUtilities.KButil_delete_ws_objects", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        TypeReference<List<KButilHideWsObjectsOutput>> retType = new TypeReference<List<KButilHideWsObjectsOutput>>() {};
+        List<KButilHideWsObjectsOutput> res = caller.jsonrpcCall("kb_ObjectUtilities.KButil_hide_ws_objects", args, retType, true, true, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
     /**
-     * <p>Original spec-file function name: KButil_undelete_ws_objects</p>
+     * <p>Original spec-file function name: KButil_unhide_ws_objects</p>
      * <pre>
      * </pre>
-     * @param   params   instance of type {@link us.kbase.kbobjectutilities.KButilUndeleteWsObjectsParams KButilUndeleteWsObjectsParams} (original type "KButil_undelete_ws_objects_Params")
-     * @return   instance of type {@link us.kbase.kbobjectutilities.KButilUndeleteWsObjectsOutput KButilUndeleteWsObjectsOutput} (original type "KButil_undelete_ws_objects_Output")
+     * @param   params   instance of type {@link us.kbase.kbobjectutilities.KButilUnhideWsObjectsParams KButilUnhideWsObjectsParams} (original type "KButil_unhide_ws_objects_Params")
+     * @return   instance of type {@link us.kbase.kbobjectutilities.KButilUnhideWsObjectsOutput KButilUnhideWsObjectsOutput} (original type "KButil_unhide_ws_objects_Output")
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public KButilUndeleteWsObjectsOutput kButilUndeleteWsObjects(KButilUndeleteWsObjectsParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+    public KButilUnhideWsObjectsOutput kButilUnhideWsObjects(KButilUnhideWsObjectsParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
-        TypeReference<List<KButilUndeleteWsObjectsOutput>> retType = new TypeReference<List<KButilUndeleteWsObjectsOutput>>() {};
-        List<KButilUndeleteWsObjectsOutput> res = caller.jsonrpcCall("kb_ObjectUtilities.KButil_undelete_ws_objects", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        TypeReference<List<KButilUnhideWsObjectsOutput>> retType = new TypeReference<List<KButilUnhideWsObjectsOutput>>() {};
+        List<KButilUnhideWsObjectsOutput> res = caller.jsonrpcCall("kb_ObjectUtilities.KButil_unhide_ws_objects", args, retType, true, true, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 

@@ -1,9 +1,9 @@
 #
 # define display information
 #
-name: Bulk Undelete Data Objects - v1.2.0
+name: Bulk Unhide Data Objects - v1.2.0
 tooltip: |
-    Allows user to undelete data objects by type
+    Allows user to unhide data objects by type
 
 screenshots: []
 
@@ -32,17 +32,17 @@ parameters :
         ui-name : |
             Object Type(s)
         short-hint : |
-            The object types to undelete (e.g. Genome, Assembly)
+            The object types to unhide (e.g. Genome, Assembly)
     verbose:
         ui-name : |
             Verbose
         short-hint : |
-            List objects as they are undeleted
-    undelete_all:
+            List objects as they are unhidden
+    unhide_all:
         ui-name : |
-            Undelete All
+            Unhide All
         short-hint : |
-            Undelete all objects of known types
+            Unhide all objects of known types
 
 description : |
-    <p>This method allows the user to undelete objects of a certain type or types in the workspace.</p>
+    <p>This method allows the user to unhide objects of a certain type or types in the workspace.</p>

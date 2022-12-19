@@ -1,9 +1,9 @@
 #
 # define display information
 #
-name: Bulk Delete Data Objects - v1.2.0
+name: Bulk Hide Data Objects - v1.2.0
 tooltip: |
-    Allows user to delete data objects by type
+    Allows user to hide data objects by type
 
 screenshots: []
 
@@ -32,17 +32,17 @@ parameters :
         ui-name : |
             Object Type(s)
         short-hint : |
-            The object types to delete (e.g. Genome, Assembly)
+            The object types to hide (e.g. Genome, Assembly)
     verbose:
         ui-name : |
             Verbose
         short-hint : |
-            List objects as they are deleted
-    delete_all:
+            List objects as they are hidden
+    hide_all:
         ui-name : |
-            Delete All
+            Hide All
         short-hint : |
-            Delete all objects of known types (Note: USE WITH CAUTION!!!)
+            Hide all objects of known types (Note: USE WITH CAUTION!!!)
 
 description : |
-    <p>This method allows the user to delete objects of a certain type or types in the workspace.</p>
+    <p>This method allows the user to hide objects of a certain type or types in the workspace.</p>

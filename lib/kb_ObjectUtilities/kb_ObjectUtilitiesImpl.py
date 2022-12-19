@@ -49,7 +49,7 @@ class kb_ObjectUtilities:
     ######################################### noqa
     VERSION = "1.2.0"
     GIT_URL = "https://github.com/kbaseapps/kb_ObjectUtilities"
-    GIT_COMMIT_HASH = "7cf3e7c2d28735d12b50fa47df531f50364f29f2"
+    GIT_COMMIT_HASH = "62b10c36d017a9c8c6350238f2f5f0710dc2aebe"
 
     #BEGIN_CLASS_HEADER
     workspaceURL = None
@@ -583,11 +583,11 @@ class kb_ObjectUtilities:
         # return the results
         return [returnVal]
 
-    def KButil_delete_ws_objects(self, ctx, params):
+    def KButil_hide_ws_objects(self, ctx, params):
         """
-        :param params: instance of type "KButil_delete_ws_objects_Params"
-           (KButil_delete_ws_objects() ** **  Method for deleting workspace
-           objects) -> structure: parameter "workspace_name" of type
+        :param params: instance of type "KButil_hide_ws_objects_Params"
+           (KButil_hide_ws_objects() ** **  Method for hiding workspace
+           objects in bulk) -> structure: parameter "workspace_name" of type
            "workspace_name" (** The workspace object refs are of form: ** ** 
            objects = ws.get_objects([{'ref':
            params['workspace_id']+'/'+params['obj_name']}]) ** ** "ref" means
@@ -596,18 +596,18 @@ class kb_ObjectUtilities:
            should just be used for workspace ** "name" is a string identifier
            of a workspace or object.  This is received from Narrative.),
            parameter "object_types" of list of String, parameter "verbose" of
-           type "bool", parameter "delete_all" of type "bool"
-        :returns: instance of type "KButil_delete_ws_objects_Output" ->
+           type "bool", parameter "hide_all" of type "bool"
+        :returns: instance of type "KButil_hide_ws_objects_Output" ->
            structure: parameter "report_name" of type "data_obj_name",
            parameter "report_ref" of type "data_obj_ref"
         """
         # ctx is the context object
         # return variables are: returnVal
-        #BEGIN KButil_delete_ws_objects
+        #BEGIN KButil_hide_ws_objects
         console = []
         invalid_msgs = []
         updated_object_refs = []
-        self.log(console,'Running KButil_delete_ws_objects')
+        self.log(console,'Running KButil_hide_ws_objects')
         self.log(console, "\n"+pformat(params))
         report = ''
         #report = 'Running KButil_count_ws_objects params='
@@ -633,7 +633,7 @@ class kb_ObjectUtilities:
                 obj_type = obj_type.strip()
                 known_obj_types.append(obj_type)
 
-        if int(params.get('delete_all','0')) == 1:
+        if int(params.get('hide_all','0')) == 1:
             params['object_types'] = known_obj_types
 
                 
@@ -662,16 +662,16 @@ class kb_ObjectUtilities:
                 self.log(console, "obj_type: {} num objs: {}".format(obj_type, num_objs))
                 total_objs += num_objs
 
-                refs_to_delete = []
+                refs_to_hide = []
                 for obj_info in obj_info_list:
                     obj_name = obj_info[NAME_I]
                     obj_ref = self.getUPA_fromInfo(obj_info) 
                     if int(params.get('verbose','0')) == 1:
                         self.log(console,"deleting {} -> {}".format(obj_name, obj_ref))
-                    refs_to_delete.append({'ref':obj_ref})
-                self.wsClient.delete_objects(refs_to_delete)
+                    refs_to_hide.append({'ref':obj_ref})
+                self.wsClient.hide_objects(refs_to_hide)
                     
-            msg = "OBJ_TYPE: {} TOTAL OBJS DELETED: {}\n".format(obj_type,total_objs)
+            msg = "OBJ_TYPE: {} TOTAL OBJS HIDDEN: {}\n".format(obj_type,total_objs)
             report += msg
             self.log(console, msg)
 
@@ -689,92 +689,108 @@ class kb_ObjectUtilities:
         returnVal = { 'report_name': report_info['name'],
                       'report_ref': report_info['ref']
         }
-        #END KButil_delete_ws_objects
+        #END KButil_hide_ws_objects
 
         # At some point might do deeper type checking...
         if not isinstance(returnVal, dict):
-            raise ValueError('Method KButil_delete_ws_objects return value ' +
+            raise ValueError('Method KButil_hide_ws_objects return value ' +
                              'returnVal is not type dict as required.')
         # return the results
         return [returnVal]
 
-    def KButil_undelete_ws_objects(self, ctx, params):
+    def KButil_unhide_ws_objects(self, ctx, params):
         """
-        :param params: instance of type "KButil_undelete_ws_objects_Params"
-           (KButil_undelete_ws_objects() ** **  Method for undeleting
-           workspace objects) -> structure: parameter "workspace_name" of
-           type "workspace_name" (** The workspace object refs are of form:
-           ** **    objects = ws.get_objects([{'ref':
+        :param params: instance of type "KButil_unhide_ws_objects_Params"
+           (KButil_unhide_ws_objects() ** **  Method for unhiding workspace
+           objects in bulk) -> structure: parameter "workspace_name" of type
+           "workspace_name" (** The workspace object refs are of form: ** ** 
+           objects = ws.get_objects([{'ref':
            params['workspace_id']+'/'+params['obj_name']}]) ** ** "ref" means
            the entire name combining the workspace id and the object name **
            "id" is a numerical identifier of the workspace or object, and
            should just be used for workspace ** "name" is a string identifier
            of a workspace or object.  This is received from Narrative.),
            parameter "object_types" of list of String, parameter "verbose" of
-           type "bool", parameter "undelete_all" of type "bool"
-        :returns: instance of type "KButil_undelete_ws_objects_Output" ->
+           type "bool", parameter "unhide_all" of type "bool"
+        :returns: instance of type "KButil_unhide_ws_objects_Output" ->
            structure: parameter "report_name" of type "data_obj_name",
            parameter "report_ref" of type "data_obj_ref"
         """
         # ctx is the context object
         # return variables are: returnVal
-        #BEGIN KButil_undelete_ws_objects
+        #BEGIN KButil_unhide_ws_objects
         console = []
         invalid_msgs = []
         updated_object_refs = []
-        self.log(console,'Running KButil_undelete_ws_objects')
+        self.log(console,'Running KButil_unhide_ws_objects')
         self.log(console, "\n"+pformat(params))
         report = ''
+        #report = 'Running KButil_count_ws_objects params='
+        #report += "\n"+pformat(params)
         [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
 
         
         #### do some basic checks
         #
-        required_params = ['workspace_name']
+        required_params = ['workspace_name', 'object_types']
         for req_param in required_params:
             if not params.get(req_param):
                 raise ValueError('{} parameter is required'.format(req_param))
 
         # get ws_id
         ws_id = self.dfuClient.ws_name_to_id(params['workspace_name'])
+
+
+        # limit which object types are permitted
+        known_obj_types = []
+        with open (self.known_obj_types_path, 'r') as known_obj_types_h:
+            for obj_type in known_obj_types_h:
+                obj_type = obj_type.strip()
+                known_obj_types.append(obj_type)
+
+        if int(params.get('hide_all','0')) == 1:
+            params['object_types'] = known_obj_types
+
                 
-        # undelete objects in workspace (OBJID limit is chunk_size*top_iter)
-        total_objs = 0
+        # read objects in workspace (OBJID limit is chunk_size*top_iter)
         chunk_size = 2000
         top_iter = 1000
-        for chunk_i in range(0,top_iter):
-            minObjectID = chunk_i * chunk_size
-            if minObjectID == 0:
-                minObjectID = 1
-            maxObjectID = (chunk_i+1) * chunk_size - 1
-            refs_to_undelete = []
-            for obj_id in range(minObjectID, maxObjectID+1):
-                obj_ref = "/".join([str(ws_id),str(obj_id)])
-                refs_to_undelete.append({'ref':obj_ref})
-            try:
-                self.wsClient.undelete_objects(refs_to_undelete)
-            except:
-                for obj_id in range(minObjectID, maxObjectID+1):
-                    obj_ref = "/".join([str(ws_id),str(obj_id)])
-                    try:
-                        self.wsClient.undelete_objects([{'ref':obj_ref}])
-                    except:
-                        break
-                    
-            obj_info_list = self.wsClient.list_objects({
-                'ids':[ws_id],
-                'minObjectID': minObjectID,
-                'maxObjectID': maxObjectID
-            })
-            num_objs = len(obj_info_list)
-            if num_objs < 1:
-                break
-            self.log(console, "chunk {} num objs: {}".format(chunk_i, num_objs))
-            total_objs += num_objs
+        ws_obj_refs = dict()
+        for obj_type in params['object_types']:
+            self.log(console, "OBJ_TYPE: {}".format(obj_type))
+            ws_obj_refs[obj_type] = []
+            total_objs = 0
+            obj_name_to_ref = dict()
+            for chunk_i in range(0,top_iter):
+                minObjectID = chunk_i * chunk_size
+                maxObjectID = (chunk_i+1) * chunk_size - 1
+    
+                obj_info_list = self.wsClient.list_objects({
+                    'ids':[ws_id],
+                    'type':obj_type,
+                    'showHidden': 1,
+                    'minObjectID': minObjectID,
+                    'maxObjectID': maxObjectID
+                })
+                num_objs = len(obj_info_list)
+                if num_objs < 1:
+                    break
+                self.log(console, "obj_type: {} num objs: {}".format(obj_type, num_objs))
+                total_objs += num_objs
 
-        msg = "Total objects: {}".format(total_objs)
-        report += msg
-        self.log(console, msg)
+                refs_to_unhide = []
+                for obj_info in obj_info_list:
+                    obj_name = obj_info[NAME_I]
+                    obj_ref = self.getUPA_fromInfo(obj_info) 
+                    if int(params.get('verbose','0')) == 1:
+                        self.log(console,"deleting {} -> {}".format(obj_name, obj_ref))
+                    refs_to_unhide.append({'ref':obj_ref})
+                self.wsClient.unhide_objects(refs_to_hide)
+                    
+            msg = "OBJ_TYPE: {} TOTAL OBJS UNHIDDEN: {}\n".format(obj_type,total_objs)
+            report += msg
+            self.log(console, msg)
+
 
         # create report
         report_info = self.reportClient.create({
@@ -789,11 +805,11 @@ class kb_ObjectUtilities:
         returnVal = { 'report_name': report_info['name'],
                       'report_ref': report_info['ref']
         }
-        #END KButil_undelete_ws_objects
+        #END KButil_unhide_ws_objects
 
         # At some point might do deeper type checking...
         if not isinstance(returnVal, dict):
-            raise ValueError('Method KButil_undelete_ws_objects return value ' +
+            raise ValueError('Method KButil_unhide_ws_objects return value ' +
                              'returnVal is not type dict as required.')
         # return the results
         return [returnVal]

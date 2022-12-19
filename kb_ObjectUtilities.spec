@@ -62,42 +62,42 @@ module kb_ObjectUtilities {
     funcdef KButil_count_ws_objects(KButil_count_ws_objects_Params params)  returns (KButil_count_ws_objects_Output) authentication required;
     
 
-    /* KButil_delete_ws_objects()
+    /* KButil_hide_ws_objects()
     **
-    **  Method for deleting workspace objects
+    **  Method for hiding workspace objects in bulk
     */
     typedef structure {
         workspace_name workspace_name;
 	list<string>   object_types;
 	bool           verbose;
-	bool           delete_all;
-    } KButil_delete_ws_objects_Params;
+	bool           hide_all;
+    } KButil_hide_ws_objects_Params;
 
     typedef structure {
 	data_obj_name report_name;
 	data_obj_ref  report_ref;
-    } KButil_delete_ws_objects_Output;
+    } KButil_hide_ws_objects_Output;
 
-    funcdef KButil_delete_ws_objects(KButil_delete_ws_objects_Params params)  returns (KButil_delete_ws_objects_Output) authentication required;
+    funcdef KButil_hide_ws_objects(KButil_hide_ws_objects_Params params)  returns (KButil_hide_ws_objects_Output) authentication required;
     
 
-    /* KButil_undelete_ws_objects()
+    /* KButil_unhide_ws_objects()
     **
-    **  Method for undeleting workspace objects
+    **  Method for unhiding workspace objects in bulk
     */
     typedef structure {
         workspace_name workspace_name;
 	list<string>   object_types;
 	bool           verbose;
-	bool           undelete_all;
-    } KButil_undelete_ws_objects_Params;
+	bool           unhide_all;
+    } KButil_unhide_ws_objects_Params;
 
     typedef structure {
 	data_obj_name report_name;
 	data_obj_ref  report_ref;
-    } KButil_undelete_ws_objects_Output;
+    } KButil_unhide_ws_objects_Output;
 
-    funcdef KButil_undelete_ws_objects(KButil_undelete_ws_objects_Params params)  returns (KButil_undelete_ws_objects_Output) authentication required;
+    funcdef KButil_unhide_ws_objects(KButil_unhide_ws_objects_Params params)  returns (KButil_unhide_ws_objects_Output) authentication required;
     
 
     /* KButil_update_genome_species_name()

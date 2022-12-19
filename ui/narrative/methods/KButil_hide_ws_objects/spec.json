@@ -189,7 +189,7 @@
             }
         },
         {
-            "id": "delete_all",
+            "id": "hide_all",
             "optional": true,
             "advanced": true,
             "allow_multiple": false,
@@ -205,7 +205,7 @@
         "service-mapping": {
             "url": "",
             "name": "kb_ObjectUtilities",
-            "method": "KButil_delete_ws_objects",
+            "method": "KButil_hide_ws_objects",
             "input_mapping": [
                 {
                     "narrative_system_variable": "workspace",
@@ -220,8 +220,8 @@
                     "target_property": "verbose"
                 },
                 {
-                    "input_parameter": "delete_all",
-                    "target_property": "delete_all"
+                    "input_parameter": "hide_all",
+                    "target_property": "hide_all"
                 }
             ],
             "output_mapping": [
