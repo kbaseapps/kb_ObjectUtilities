@@ -338,6 +338,10 @@ class Application(object):
         self.serverlog.set_log_level(6)
         self.rpc_service = JSONRPCServiceCustom()
         self.method_authentication = dict()
+        self.rpc_service.add(impl_kb_ObjectUtilities.KButil_copy_object,
+                             name='kb_ObjectUtilities.KButil_copy_object',
+                             types=[dict])
+        self.method_authentication['kb_ObjectUtilities.KButil_copy_object'] = 'required'  # noqa
         self.rpc_service.add(impl_kb_ObjectUtilities.KButil_Concat_MSAs,
                              name='kb_ObjectUtilities.KButil_Concat_MSAs',
                              types=[dict])

@@ -1,3 +1,6 @@
+### Version 1.3.0
+- added method and app to copy an object of a limited number of common types
+
 ### Version 1.2.0
 - added method and app to bulk hide objects by type from workspace
 - added method and app to bulk unhide objects by type from workspace

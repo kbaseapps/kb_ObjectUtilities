@@ -1,0 +1,43 @@
+#
+# define display information
+#
+name: Copy Object - v1.3.0
+tooltip: |
+    Allows user to copy an object of a limited number of common types
+
+screenshots: []
+
+icon: kb-orange.png
+
+#
+# define a set of similar methods that might be useful to the user
+#
+suggestions:
+    apps:
+        related:
+            []
+        next:
+            []
+    methods:
+        related:
+            []
+        next:
+            []
+
+#
+# Configure the display and description of parameters
+#
+parameters :
+    input_refs:
+        ui-name : |
+            Source Object
+        short-hint : |
+            Object that you want to copy
+    species_names:
+        ui-name : |
+            Output Name
+        short-hint : |
+            Name of the copied object
+
+description : |
+    <p>This method allows the user to copy an object so that the original is not modified.  A new name is provided for the output object.</p>

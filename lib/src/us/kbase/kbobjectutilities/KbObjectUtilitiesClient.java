@@ -165,6 +165,23 @@ public class KbObjectUtilitiesClient {
     }
 
     /**
+     * <p>Original spec-file function name: KButil_copy_object</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.kbobjectutilities.KButilCopyObjectParams KButilCopyObjectParams} (original type "KButil_copy_object_Params")
+     * @return   instance of type {@link us.kbase.kbobjectutilities.KButilCopyObjectOutput KButilCopyObjectOutput} (original type "KButil_copy_object_Output")
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public KButilCopyObjectOutput kButilCopyObject(KButilCopyObjectParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<KButilCopyObjectOutput>> retType = new TypeReference<List<KButilCopyObjectOutput>>() {};
+        List<KButilCopyObjectOutput> res = caller.jsonrpcCall("kb_ObjectUtilities.KButil_copy_object", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
      * <p>Original spec-file function name: KButil_Concat_MSAs</p>
      * <pre>
      * </pre>

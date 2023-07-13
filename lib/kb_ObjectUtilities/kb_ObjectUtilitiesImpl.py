@@ -47,9 +47,9 @@ class kb_ObjectUtilities:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "1.2.0"
+    VERSION = "1.3.0"
     GIT_URL = "https://github.com/kbaseapps/kb_ObjectUtilities"
-    GIT_COMMIT_HASH = "62b10c36d017a9c8c6350238f2f5f0710dc2aebe"
+    GIT_COMMIT_HASH = "5a416276e2aee3055140ff9aa805338e40d2153e"
 
     #BEGIN_CLASS_HEADER
     workspaceURL = None
@@ -153,6 +153,109 @@ class kb_ObjectUtilities:
         #END_CONSTRUCTOR
         pass
 
+
+    def KButil_copy_object(self, ctx, params):
+        """
+        :param params: instance of type "KButil_copy_object_Params"
+           (KButil_copy_object() ** **  Method for copying an object of a
+           limited number of common types) -> structure: parameter
+           "workspace_name" of type "workspace_name" (** The workspace object
+           refs are of form: ** **    objects = ws.get_objects([{'ref':
+           params['workspace_id']+'/'+params['obj_name']}]) ** ** "ref" means
+           the entire name combining the workspace id and the object name **
+           "id" is a numerical identifier of the workspace or object, and
+           should just be used for workspace ** "name" is a string identifier
+           of a workspace or object.  This is received from Narrative.),
+           parameter "input_ref" of type "data_obj_ref", parameter
+           "output_name" of String
+        :returns: instance of type "KButil_copy_object_Output" -> structure:
+           parameter "report_name" of type "data_obj_name", parameter
+           "report_ref" of type "data_obj_ref"
+        """
+        # ctx is the context object
+        # return variables are: returnVal
+        #BEGIN KButil_copy_object
+        console = []
+        invalid_msgs = []
+        self.log(console,'Running KButil_copy_object with params=')
+        self.log(console, "\n"+pformat(params))
+        report = ''
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+
+        
+        #### do some basic checks
+        #
+        if not params.get('workspace_name'):
+            raise ValueError('workspace_name parameter is required')
+        if not params.get('input_ref'):
+            raise ValueError('input_ref parameter is required')
+        if not params.get('output_name'):
+            raise ValueError('output_name parameter is required')
+
+        # get ws_id
+        ws_id = self.dfuClient.ws_name_to_id(params['workspace_name'])
+        
+        # iterate through genomes
+        objects_created = []
+
+        src_obj = self.dfuClient.get_objects({'object_refs':[params['input_ref']]})['data'][0]
+        src_info = src_obj['info']
+        src_data = src_obj['data']
+        src_type = src_info[TYPE_I]
+        src_name = src_info[NAME_I]
+        
+        if src_name == params['output_name']:
+            self.log(console, "Must give name for new object that is different from source object")
+            self.log(invalid_msgs, "Must give name for new object that is different from source object")
+        else:
+            self.log(console,"copying object {} to {}".format(src_name, params['output_name']))
+            new_obj_info = self.dfuClient.save_objects({
+                'id': ws_id,
+                'objects':[{
+                    'type': src_type,
+                    'data': src_data,
+                    'name': params['output_name'],
+                    'meta': {},
+                }]
+            })[0]
+
+            this_ref = self.getUPA_fromInfo(new_obj_info)
+            objects_created.append({'ref': this_ref,
+                                    'description': 'copy of {}'.format(src_name)})
+                
+        # build output report object
+        #
+        self.log(console,"BUILDING REPORT")  # DEBUG
+        if len(invalid_msgs) == 0:
+            report += "object {} \ncopied to {}".format(src_name, params['output_name'])
+            reportObj = {
+                'objects_created':objects_created,
+                'text_message':report
+                }
+        else:
+            report += "FAILURE:\n\n"+"\n".join(invalid_msgs)+"\n"
+            reportObj = {
+                'objects_created':[],
+                'text_message':report
+                }
+        report_info = self.reportClient.create({
+            'workspace_name':params['workspace_name'],
+            'report': reportObj
+        })
+
+        # Return report and updated_object_refs
+        returnVal = { 'report_name': report_info['name'],
+                      'report_ref': report_info['ref']
+        }
+        self.log(console,"KButil_copy_object DONE")
+        #END KButil_copy_object
+
+        # At some point might do deeper type checking...
+        if not isinstance(returnVal, dict):
+            raise ValueError('Method KButil_copy_object return value ' +
+                             'returnVal is not type dict as required.')
+        # return the results
+        return [returnVal]
 
     def KButil_Concat_MSAs(self, ctx, params):
         """

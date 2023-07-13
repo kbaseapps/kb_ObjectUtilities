@@ -23,6 +23,24 @@ module kb_ObjectUtilities {
     typedef int    bool;
 
 
+    /* KButil_copy_object()
+    **
+    **  Method for copying an object of a limited number of common types
+    */
+    typedef structure {
+        workspace_name workspace_name;
+	data_obj_ref   input_ref;
+	string         output_name;
+    } KButil_copy_object_Params;
+
+    typedef structure {
+	data_obj_name report_name;
+	data_obj_ref  report_ref;
+    } KButil_copy_object_Output;
+
+    funcdef KButil_copy_object (KButil_copy_object_Params params)  returns (KButil_copy_object_Output) authentication required;
+
+    
     /* KButil_Concat_MSAs()
     **
     **  Method for Concatenating MSAs into a combined MSA
@@ -59,7 +77,7 @@ module kb_ObjectUtilities {
 	mapping<string,list<data_obj_ref>> ws_obj_refs;
     } KButil_count_ws_objects_Output;
 
-    funcdef KButil_count_ws_objects(KButil_count_ws_objects_Params params)  returns (KButil_count_ws_objects_Output) authentication required;
+    funcdef KButil_count_ws_objects (KButil_count_ws_objects_Params params)  returns (KButil_count_ws_objects_Output) authentication required;
     
 
     /* KButil_hide_ws_objects()
@@ -78,7 +96,7 @@ module kb_ObjectUtilities {
 	data_obj_ref  report_ref;
     } KButil_hide_ws_objects_Output;
 
-    funcdef KButil_hide_ws_objects(KButil_hide_ws_objects_Params params)  returns (KButil_hide_ws_objects_Output) authentication required;
+    funcdef KButil_hide_ws_objects (KButil_hide_ws_objects_Params params)  returns (KButil_hide_ws_objects_Output) authentication required;
     
 
     /* KButil_unhide_ws_objects()
@@ -97,7 +115,7 @@ module kb_ObjectUtilities {
 	data_obj_ref  report_ref;
     } KButil_unhide_ws_objects_Output;
 
-    funcdef KButil_unhide_ws_objects(KButil_unhide_ws_objects_Params params)  returns (KButil_unhide_ws_objects_Output) authentication required;
+    funcdef KButil_unhide_ws_objects (KButil_unhide_ws_objects_Params params)  returns (KButil_unhide_ws_objects_Output) authentication required;
     
 
     /* KButil_update_genome_species_name()
@@ -116,7 +134,7 @@ module kb_ObjectUtilities {
 	list<data_obj_ref> updated_object_refs;
     } KButil_update_genome_species_name_Output;
 
-    funcdef KButil_update_genome_species_name(KButil_update_genome_species_name_Params params)  returns (KButil_update_genome_species_name_Output) authentication required;
+    funcdef KButil_update_genome_species_name (KButil_update_genome_species_name_Params params)  returns (KButil_update_genome_species_name_Output) authentication required;
 
     
     /* KButil_update_genome_fields_from_files()
@@ -144,7 +162,7 @@ module kb_ObjectUtilities {
 	list<data_obj_ref> updated_object_refs;
     } KButil_update_genome_fields_from_files_Output;
 
-    funcdef KButil_update_genome_fields_from_files(KButil_update_genome_fields_from_files_Params params)  returns (KButil_update_genome_fields_from_files_Output) authentication required;
+    funcdef KButil_update_genome_fields_from_files (KButil_update_genome_fields_from_files_Params params)  returns (KButil_update_genome_fields_from_files_Output) authentication required;
     
 
     /* KButil_update_genome_features_from_file()
@@ -161,7 +179,7 @@ module kb_ObjectUtilities {
 	list<data_obj_ref> updated_object_refs;
     } KButil_update_genome_features_from_file_Output;
 
-    funcdef KButil_update_genome_features_from_file(KButil_update_genome_features_from_file_Params params)  returns (KButil_update_genome_features_from_file_Output) authentication required;
+    funcdef KButil_update_genome_features_from_file (KButil_update_genome_features_from_file_Params params)  returns (KButil_update_genome_features_from_file_Output) authentication required;
     
 };
 

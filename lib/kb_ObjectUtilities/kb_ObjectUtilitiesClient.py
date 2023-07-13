@@ -33,6 +33,27 @@ class kb_ObjectUtilities(object):
             trust_all_ssl_certificates=trust_all_ssl_certificates,
             auth_svc=auth_svc)
 
+    def KButil_copy_object(self, params, context=None):
+        """
+        :param params: instance of type "KButil_copy_object_Params"
+           (KButil_copy_object() ** **  Method for copying an object of a
+           limited number of common types) -> structure: parameter
+           "workspace_name" of type "workspace_name" (** The workspace object
+           refs are of form: ** **    objects = ws.get_objects([{'ref':
+           params['workspace_id']+'/'+params['obj_name']}]) ** ** "ref" means
+           the entire name combining the workspace id and the object name **
+           "id" is a numerical identifier of the workspace or object, and
+           should just be used for workspace ** "name" is a string identifier
+           of a workspace or object.  This is received from Narrative.),
+           parameter "input_ref" of type "data_obj_ref", parameter
+           "output_name" of String
+        :returns: instance of type "KButil_copy_object_Output" -> structure:
+           parameter "report_name" of type "data_obj_name", parameter
+           "report_ref" of type "data_obj_ref"
+        """
+        return self._client.call_method('kb_ObjectUtilities.KButil_copy_object',
+                                        [params], self._service_ver, context)
+
     def KButil_Concat_MSAs(self, params, context=None):
         """
         :param params: instance of type "KButil_Concat_MSAs_Params"
