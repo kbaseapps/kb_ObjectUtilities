@@ -28,12 +28,12 @@ suggestions:
 # Configure the display and description of parameters
 #
 parameters :
-    input_refs:
+    input_ref:
         ui-name : |
             Source Object
         short-hint : |
             Object that you want to copy
-    species_names:
+    output_name:
         ui-name : |
             Output Name
         short-hint : |

@@ -57,7 +57,7 @@
 				    "KBaseFBA.PromConstraint",
 				    "KBaseFBA.ReactionProbabilities",
 				    "KBaseFBA.ReactionSensitivityAnalysis",
-				    "KBaseFBA.SubsystemAnnotation"
+				    "KBaseFBA.SubsystemAnnotation",
 				    "KBaseGenomes.GenomeComparison",
 				    "KBaseGenomes.GenomeDomainData",
 				    "KBaseGenomes.MetagenomeAnnotation",
