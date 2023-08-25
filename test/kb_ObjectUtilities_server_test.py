@@ -428,7 +428,8 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
 
         # run method
         params = {
-            'workspace_name': self.getWsName()
+            'workspace_name': self.getWsName(),
+            'object_types': ['KBaseGenomeAnnotations.Assembly','KBaseGenomes.Genome']
         }
         result = self.getImpl().KButil_unhide_ws_objects(self.getContext(),params)[0]
         print('RESULT:')
