@@ -46,3 +46,6 @@ parameters :
 
 description : |
     <p>This method allows the user to unhide objects of a certain type or types in the workspace.</p>
+
+    <p><hr></p>
+    <p><strong>Team members who implemented App in KBase:</strong> <a href="https://narrative.kbase.us/#people/dylan">Dylan Chivian</a>. For questions, please <a href=”http://www.kbase.us/support/”>contact us</a>.</p>

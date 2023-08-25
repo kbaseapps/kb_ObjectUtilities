@@ -36,3 +36,8 @@ parameters :
 
 description : |
     <p>This method allows the user to get a tally of the number of objects of a certain type or types in the workspace.  This can be especially useful when the Data Panel fails to capture them, which may happen when the number of objects exceeds 10k.</p>
+
+    <p>Object types must include the name of the module.  For example, "KBaseGenomes.Genome" not just "Genome".</p>
+
+    <p><hr></p>
+    <p><strong>Team members who implemented App in KBase:</strong> <a href="https://narrative.kbase.us/#people/dylan">Dylan Chivian</a>. For questions, please <a href=”http://www.kbase.us/support/”>contact us</a>.</p>

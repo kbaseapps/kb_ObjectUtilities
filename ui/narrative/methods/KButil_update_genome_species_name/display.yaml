@@ -40,4 +40,7 @@ parameters :
             List of new Species Names (in same order as input Genomes)
 
 description : |
-    <p>This method allows the user to add/revise the species names of one or more Genome objects.  If more than one name, the new names must be in the same order as the input Genomes objects and separated by a comma, a newline, or both.</p>
+    <p>This method allows the user to add/revise the species names of one or more Genome objects.  If more than one name, the new names must be in the same order as the input Genomes objects and separated by a comma, a newline, or both.  There must be the same number of input Genomes and new species names.</p>
+
+    <p><hr></p>
+    <p><strong>Team members who implemented App in KBase:</strong> <a href="https://narrative.kbase.us/#people/dylan">Dylan Chivian</a>. For questions, please <a href=”http://www.kbase.us/support/”>contact us</a>.</p>
