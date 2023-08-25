@@ -376,11 +376,11 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
         pass
     
 
-    #### test_KButil_delete_ws_objects():
+    #### test_KButil_hide_ws_objects():
     ##
-    # HIDE @unittest.skip("skipped test_KButil_delete_ws_objects")
-    def test_KButil_delete_ws_objects (self):
-        method = 'KButil_delete_ws_objects'
+    # HIDE @unittest.skip("skipped test_KButil_hide_ws_objects")
+    def test_KButil_hide_ws_objects (self):
+        method = 'KButil_hide_ws_objects'
         print ("\n\nRUNNING: {}".format(method))
         print ("==================================\n\n")
         [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
@@ -404,20 +404,20 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
             'workspace_name': self.getWsName(),
             'object_types': obj_types,
             'verbose': 1,
-            'delete_all': 0
+            'hide_all': 0
         }
-        result = self.getImpl().KButil_delete_ws_objects(self.getContext(),params)[0]
+        result = self.getImpl().KButil_hide_ws_objects(self.getContext(),params)[0]
         print('RESULT:')
         pprint(result)
 
         pass
 
 
-    #### test_KButil_undelete_ws_objects():
+    #### test_KButil_unhide_ws_objects():
     ##
-    # HIDE @unittest.skip("skipped test_KButil_undelete_ws_objects")
-    def test_KButil_undelete_ws_objects (self):
-        method = 'KButil_undelete_ws_objects'
+    # HIDE @unittest.skip("skipped test_KButil_unhide_ws_objects")
+    def test_KButil_unhide_ws_objects (self):
+        method = 'KButil_unhide_ws_objects'
         print ("\n\nRUNNING: {}".format(method))
         print ("==================================\n\n")
         [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
@@ -430,7 +430,7 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
         params = {
             'workspace_name': self.getWsName()
         }
-        result = self.getImpl().KButil_undelete_ws_objects(self.getContext(),params)[0]
+        result = self.getImpl().KButil_unhide_ws_objects(self.getContext(),params)[0]
         print('RESULT:')
         pprint(result)
 
