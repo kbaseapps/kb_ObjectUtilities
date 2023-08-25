@@ -287,7 +287,8 @@ class kb_ObjectUtilities:
 #        report = 'Running KButil_Concat_MSAs with params='
 #        report += "\n"+pformat(params)
         [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
-
+        genome_id_feature_id_delim = '.f:'
+        
         
         #### do some basic checks
         #
@@ -382,7 +383,9 @@ class kb_ObjectUtilities:
             genome_row_ids_updated = {}
             for row_id in this_row_order:
                 id_pieces = re.split('\.', row_id)
-                if len(id_pieces) >= 2:
+                if genome_id_feature_id_delim in row_id:
+                    genome_id = row_id.split(genome_id_feature_id_delim)[0]
+                elif len(id_pieces) >= 2:
                     genome_id = ".".join(id_pieces[0:2])  # just want genome_id
                 else:
                     genome_id = row_id

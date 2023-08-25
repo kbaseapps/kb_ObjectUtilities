@@ -1,5 +1,6 @@
 ### Version 1.3.0
 - added method and app to copy an object of a limited number of common types
+- fixed bug in KButil_Concat_MSAs() where f_id was not split from genome_id
 
 ### Version 1.2.0
 - added method and app to bulk hide objects by type from workspace

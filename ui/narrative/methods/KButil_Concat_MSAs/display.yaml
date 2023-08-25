@@ -1,7 +1,7 @@
 #
 # define display information
 #
-name: Join Multiple Sequence Alignments (MSAs) - v1.0.0
+name: Join Multiple Sequence Alignments (MSAs) - v1.3.0
 tooltip: |
     Allows user to concatenate two (or more) MSAs
 
