@@ -891,7 +891,7 @@ class kb_ObjectUtilities:
                     if int(params.get('verbose','0')) == 1:
                         self.log(console,"deleting {} -> {}".format(obj_name, obj_ref))
                     refs_to_unhide.append({'ref':obj_ref})
-                self.wsClient.unhide_objects(refs_to_hide)
+                self.wsClient.unhide_objects(refs_to_unhide)
                     
             msg = "OBJ_TYPE: {} TOTAL OBJS UNHIDDEN: {}\n".format(obj_type,total_objs)
             report += msg

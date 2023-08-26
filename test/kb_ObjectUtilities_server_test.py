@@ -604,7 +604,7 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
             with open (dst_map_paths[map_type], 'r') as map_h:
                 for map_line in map_h:
                     map_line = map_line.rstrip()
-                    [genome_id, fid, aliases_str, functions_str] = map_line.split("\t")
+                    [genome_id, fid, aliases_str, functions_str, inference_str] = map_line.split("\t")
 
                     if len(genome_id.split('/')) == 3:
                         genome_ref = genome_ref_map[genome_id]
