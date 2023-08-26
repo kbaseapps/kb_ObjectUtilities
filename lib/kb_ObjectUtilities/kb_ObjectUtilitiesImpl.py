@@ -1376,6 +1376,8 @@ class kb_ObjectUtilities:
             genome_obj_type = genome_info[TYPE_I].split('-')[0]
 
             # get original features
+            features = []
+            cdss = []
             if genome_obj_type == 'KBaseGenomes.Genome':
                 features = genome_data['features']
                 cdss = genome_data['cdss']
