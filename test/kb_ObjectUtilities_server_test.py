@@ -593,32 +593,26 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
         for map_type in map_files.keys():
             src_map_path = os.path.join('data','maps', map_files[map_type])
             dst_map_paths[map_type] = os.path.join(shared_dir, map_files[map_type])
-            shutil.copy (src_map_path, dst_map_paths[map_type])
+            #shutil.copy (src_map_path, dst_map_paths[map_type])
 
 
-        # read expected values
-        target_refs = dict()
-        maps = dict()
-        for map_type in map_files.keys():
-            maps[map_type] = dict()
-            with open (dst_map_paths[map_type], 'r') as map_h:
-                for map_line in map_h:
-                    map_line = map_line.rstrip()
-                    [genome_id, fid, aliases_str, functions_str, inference_str] = map_line.split("\t")
+            # correct features map object IDs
+            with open (src_map_path, 'r') as map_in:
+                with open (dst_map_paths[map_type], 'w') as map_out:
+                    for map_line in map_in:
+                        map_line = map_line.rstrip()
+                        [genome_id, fid, aliases_str, functions_str, inference_data_str] = map_line.split("\t")
 
-                    if len(genome_id.split('/')) == 3:
-                        genome_ref = genome_ref_map[genome_id]
-                        target_refs[genome_ref] = True
+                        if len(genome_id.split('/')) == 3:
+                            if genome_id in genome_ref_map:
+                                new_genome_ref = genome_ref_map[genome_id]
+                            else:
+                                raise ValueError ("genome id {} from features.map not in genome_ref_map".format(genome_id))
+                        else:
+                            raise ValueError ("bad genome id {}.  Must be UPA".format(genome_id))
+                        map_out.write("\t".join([new_genome_ref, fid, aliases_str, functions_str, inference_data_str])+"\n")
 
-                    if genome_ref not in maps[map_type]:
-                        maps[map_type][genome_ref] = dict()
-                    maps[map_type][genome_ref][fid] = dict()
-
-                    aliases_str = aliases_str.replace('"aliases":', '', 1)
-                    functions_str = aliases_str.replace('"functions":', '', 1)
-                    maps[map_type][genome_ref][fid]['aliases'] = json.loads(aliases_str)
-                    maps[map_type][genome_ref][fid]['functions'] = json.loads(functions_str)
-            
+                        
         # run method
         params = {
             'feature_update_file': dst_map_paths['features'],

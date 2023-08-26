@@ -1304,7 +1304,7 @@ class kb_ObjectUtilities:
         console = []
         invalid_msgs = []
         updated_object_refs = []
-        self.log(console,'Running KButil_update_gemome_fields_from_files with params=')
+        self.log(console,'Running KButil_update_gemome_features_from_files with params=')
         self.log(console, "\n"+pformat(params))
         report = ''
         #report = 'Running KButil_update_genome_species_name with params='
