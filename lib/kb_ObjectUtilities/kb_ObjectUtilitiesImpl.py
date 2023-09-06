@@ -47,9 +47,9 @@ class kb_ObjectUtilities:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "1.3.0"
+    VERSION = "1.4.0"
     GIT_URL = "https://github.com/kbaseapps/kb_ObjectUtilities"
-    GIT_COMMIT_HASH = "5a416276e2aee3055140ff9aa805338e40d2153e"
+    GIT_COMMIT_HASH = "d40f14c350e510ad4240a119cf6400f163ba2296"
 
     #BEGIN_CLASS_HEADER
     workspaceURL = None
@@ -608,8 +608,8 @@ class kb_ObjectUtilities:
                 """
                 new_obj_info_list = []
                 #target_version = 1
-                #target_version = 2
-                target_version = 3
+                target_version = 2
+                #target_version = 3
                 #target_version = 4
                 #target_version = 5
                 #target_version = 6
@@ -635,7 +635,7 @@ class kb_ObjectUtilities:
                         new_obj_info_list.append(obj_info)
                     else:
                         continue
-                    
+
                 obj_info_list = new_obj_info_list
                 num_objs = len(obj_info_list)
                 """
@@ -1214,15 +1214,17 @@ class kb_ObjectUtilities:
                 genome_data['genome_type'] = maps['genome_type'][genome_id]
 
             # release
+            this_release = 'gtdb_r214'
             if maps.get('release'):
-                genome_data['release'] = maps['release'][genome_id]
-
+                this_release = genome_data['release'] = maps['release'][genome_id]
+                this_release = this_release.lower()
+                
             # taxonomy
             if maps.get('tax_hierarchy'):
                 genome_data['taxonomy'] = maps['tax_hierarchy'][genome_id]
                 if not genome_data.get('taxon_assignments'):
                     genome_data['taxon_assignments'] = dict()
-                genome_data['taxon_assignments']['gtdb_r207'] = maps['tax_hierarchy'][genome_id]
+                genome_data['taxon_assignments'][this_release] = maps['tax_hierarchy'][genome_id]
 
             # ncbi tax id
             if maps.get('ncbi_tax_id'):
@@ -1282,6 +1284,239 @@ class kb_ObjectUtilities:
         # At some point might do deeper type checking...
         if not isinstance(returnVal, dict):
             raise ValueError('Method KButil_update_genome_fields_from_files return value ' +
+                             'returnVal is not type dict as required.')
+        # return the results
+        return [returnVal]
+
+    def KButil_update_genome_lineage_from_files(self, ctx, params):
+        """
+        :param params: instance of type
+           "KButil_update_genome_lineage_from_files_Params"
+           (KButil_update_genome_lineage_from_files() ** **  Method for
+           adding/changing values in Genome object tax and lineage fields,
+           from files) -> structure: parameter "workspace_name" of type
+           "workspace_name" (** The workspace object refs are of form: ** ** 
+           objects = ws.get_objects([{'ref':
+           params['workspace_id']+'/'+params['obj_name']}]) ** ** "ref" means
+           the entire name combining the workspace id and the object name **
+           "id" is a numerical identifier of the workspace or object, and
+           should just be used for workspace ** "name" is a string identifier
+           of a workspace or object.  This is received from Narrative.),
+           parameter "target_list_file" of type "file_path", parameter
+           "release_file" of type "file_path", parameter
+           "taxonomy_hierarchy_file" of type "file_path"
+        :returns: instance of type
+           "KButil_update_genome_lineage_from_files_Output" -> structure:
+           parameter "updated_object_refs" of list of type "data_obj_ref"
+        """
+        # ctx is the context object
+        # return variables are: returnVal
+        #BEGIN KButil_update_genome_lineage_from_files
+        console = []
+        invalid_msgs = []
+        updated_object_refs = []
+        self.log(console,'Running KButil_update_gemome_lineage_from_files with params=')
+        self.log(console, "\n"+pformat(params))
+        report = ''
+        #report = 'Running KButil_update_genome_species_name with params='
+        #report += "\n"+pformat(params)
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+
+        
+        #### do some basic checks
+        #
+        required_params = ['workspace_name', 'target_list_file']
+        at_least_one_params = [
+                               'release_file',
+                               'taxonomy_hierarchy_file'
+                                #'taxonomy_ncbi_id_file'
+                              ]
+        for req_param in required_params:
+            if not params.get(req_param):
+                raise ValueError('{} parameter is required'.format(req_param))
+        at_least_one_found = False
+        for optional_param in at_least_one_params:
+            if params.get(optional_param):
+                at_least_one_found = True
+        if not at_least_one_found:
+            raise ValueError('at least one of {} parameter is required'.format(",".join(at_least_one_param)))
+
+
+        # read targets and new vals
+        targets = dict()
+        with open (params['target_list_file'], 'r') as targets_h:
+            for targets_line in targets_h:
+                genome_id = targets_line.rstrip()
+                targets[genome_id] = True
+
+        map_files = {
+            'release': params.get('release_file'),
+            'tax_hierarchy': params.get('taxonomy_hierarchy_file')
+            #'ncbi_tax_id': params.get('taxonomy_ncbi_id_file'),
+        }
+
+        maps = dict()
+        for map_type in map_files.keys():
+            if map_files[map_type]:
+                maps[map_type] = dict()
+                with open (map_files[map_type], 'r') as map_h:
+                    for map_line in map_h:
+                        map_line = map_line.rstrip()
+                        [genome_id, field_val] = map_line.split("\t")
+                        if targets.get(genome_id):
+                            maps[map_type][genome_id] = field_val        
+                        
+        # get ws_id
+        ws_id = self.dfuClient.ws_name_to_id(params['workspace_name'])
+
+        # read genome objects in workspace
+        chunk_size = 2000
+        total_genomes = 0
+        genome_id_to_ref = dict()
+        genome_id_to_oldname = dict()
+        for chunk_i in range(0,1000):
+            minObjectID = chunk_i * chunk_size
+            maxObjectID = (chunk_i+1) * chunk_size - 1
+    
+            genome_info_list = self.wsClient.list_objects({'ids':[ws_id],
+                                    #'type':'KBaseGenomeAnnotations.Assembly', 
+                                                'type':'KBaseGenomes.Genome', 
+                                                'minObjectID': minObjectID,
+                                                'maxObjectID': maxObjectID
+            })
+            num_genomes = len(genome_info_list)
+            if num_genomes < 1:
+                break
+            print ("num genomes: {}".format(num_genomes))
+            total_genomes += num_genomes
+
+            for genome_info in genome_info_list:
+                obj_name = genome_info[NAME_I]
+                obj_ref = self.getUPA_fromInfo(genome_info)
+                genome_id = re.sub('.Genome$', '', obj_name, flags=re.IGNORECASE)
+                genome_id = re.sub('__$', '', genome_id)
+                genome_id = re.sub('^GTDB_Arc-', '', genome_id, flags=re.IGNORECASE)
+                genome_id = re.sub('^GTDB_Bac-', '', genome_id, flags=re.IGNORECASE)
+                genome_id = re.sub(r'^(GC[AF]_\d{9}\.\d).*$', r'\1', genome_id)
+                
+                if targets.get(genome_id):
+                    genome_id_to_ref[genome_id] = obj_ref
+                    genome_id_to_oldname[genome_id] = obj_name
+                
+
+        # adjust target genome objects
+        genome_cnt = 0
+        for genome_id in sorted(genome_id_to_ref.keys()):
+            genome_cnt += 1
+            genome_ref = genome_id_to_ref[genome_id]
+            genome_oldname = genome_id_to_oldname[genome_id]
+
+            self.log(console, "")
+            self.log(console, "===================================================")
+            self.log(console, "GETTING genome {} genome ID {}".format(genome_cnt, genome_id))
+            self.log(console, "===================================================\n")
+            genome_obj = self.dfuClient.get_objects({'object_refs':[genome_ref]})['data'][0]
+            genome_info = genome_obj['info']
+            genome_data = genome_obj['data']
+
+            # release
+            this_release = 'gtdb_r214'
+            if maps.get('release'):
+                this_release = genome_data['release'] = maps['release'][genome_id]
+                this_release = this_release.lower()
+                
+            # taxonomy
+            this_classification = None
+            if maps.get('tax_hierarchy'):
+                this_classification = maps['tax_hierarchy'][genome_id]
+                genome_data['taxonomy'] = this_classification
+                if params.get('delete_old_taxon_assignments') or \
+                   not genome_data.get('taxon_assignments'):
+                    genome_data['taxon_assignments'] = dict()
+                genome_data['taxon_assignments'][this_release] = this_classification
+
+            # std_lineages
+            # release
+            if this_release.endswith('214'):
+                gtdb_ver = '214.1'
+            else:
+                gtdb_ver = this_release.replace('gtdb_r','')+'.0'
+            # taxon_id
+            this_taxon_id = None
+            if this_classification:
+                for taxon_id in reversed(this_classification.split(';')):
+                    if len(taxon_id) == 3:
+                        continue
+                    this_taxon_id = taxon_id
+                    break
+            if this_taxon_id == None:
+                raise ValueError ("unable to find taxon_id for {}".format(this_classification))            
+            # source_id
+            if genome_id.startswith ('GCF'):
+                this_source_id = 'RS_'+genome_id
+            elif genome_id.startswith ('GCA'):
+                this_source_id = 'GB_'+genome_id
+            else:
+                raise ValueError ("bad genome ID: {}".format(genome_id))
+            std_lineages = { 'gtdb': { 'lineage': maps['tax_hierarchy'][genome_id],
+                                       'source_ver': gtdb_ver,
+                                       'taxon_id': this_taxon_id,
+                                       'source_id': this_source_id
+                                      }
+                            }
+
+            # add std_lineages to genome
+            genome_data['std_lineages'] = std_lineages
+
+            # add std_lineages to assembly
+            assembly_ref = genome_data['assembly_ref']
+            assembly_obj = self.dfuClient.get_objects({'object_refs':[assembly_ref]})['data'][0]
+            assembly_info = assembly_obj['info']
+            assembly_data = assembly_obj['data']
+            assembly_obj_name = assembly_info[NAME_I]
+            assembly_data['std_lineages'] = std_lineages
+            self.log(console, "")
+            self.log(console, "===================================================")
+            self.log(console, "SAVING assembly {}, {} genome ID {}".format(assembly_ref, genome_cnt, genome_id))
+            self.log(console, "===================================================\n")
+            new_info = self.dfuClient.save_objects({'id': ws_id,
+                                                    'objects': [
+                                                        {'type': 'KBaseGenomeAnnotations.Assembly',
+                                                         'name': assembly_obj_name,
+                                                         'data': assembly_data
+                                                        }]
+                                                   })[0]
+            new_assembly_ref = self.getUPA_fromInfo(new_info)
+            
+            # update assembly ref in genome
+            genome_data['assembly_ref'] = new_assembly_ref
+            
+            # obj_name
+            genome_obj_name = genome_oldname
+
+            self.log(console, "")
+            self.log(console, "===================================================")
+            self.log(console, "SAVING genome {} genome ID {}".format(genome_cnt, genome_id))
+            self.log(console, "===================================================\n")
+            new_info = self.dfuClient.save_objects({'id': ws_id,
+                                                    'objects': [
+                                                        {'type': 'KBaseGenomes.Genome',
+                                                         'name': genome_obj_name,
+                                                         'data': genome_data
+                                                        }]
+                                                   })[0]
+            new_ref = self.getUPA_fromInfo(new_info)
+            updated_object_refs.append(new_ref)
+            
+            
+        # Return report and updated_object_refs
+        returnVal = { 'updated_object_refs': updated_object_refs }
+        self.log(console,"KButil_update_genome_lineage_from_files DONE")
+        #END KButil_update_genome_lineage_from_files
+
+        # At some point might do deeper type checking...
+        if not isinstance(returnVal, dict):
+            raise ValueError('Method KButil_update_genome_lineage_from_files return value ' +
                              'returnVal is not type dict as required.')
         # return the results
         return [returnVal]

@@ -165,6 +165,26 @@ module kb_ObjectUtilities {
     funcdef KButil_update_genome_fields_from_files (KButil_update_genome_fields_from_files_Params params)  returns (KButil_update_genome_fields_from_files_Output) authentication required;
     
 
+    /* KButil_update_genome_lineage_from_files()
+    **
+    **  Method for adding/changing values in Genome object tax and lineage fields, from files
+    */
+    typedef structure {
+        workspace_name workspace_name;
+	/*list<data_obj_ref>  input_refs;*/
+	file_path  target_list_file;
+	file_path  release_file;
+	file_path  taxonomy_hierarchy_file;
+	bool       delete_old_taxon_assignments;
+    } KButil_update_genome_lineage_from_files_Params;
+
+    typedef structure {
+	list<data_obj_ref> updated_object_refs;
+    } KButil_update_genome_lineage_from_files_Output;
+
+    funcdef KButil_update_genome_lineage_from_files (KButil_update_genome_lineage_from_files_Params params)  returns (KButil_update_genome_lineage_from_files_Output) authentication required;
+    
+
     /* KButil_update_genome_features_from_file()
     **
     **  Method for adding values to Genome object features, from file

@@ -1,3 +1,6 @@
+### Version 1.4.0
+- added method (no app) KButil_update_genome_lineage_from_files()
+
 ### Version 1.3.0
 - added method and app to copy an object of a limited number of common types
 - fixed bug in KButil_Concat_MSAs() where f_id was not split from genome_id

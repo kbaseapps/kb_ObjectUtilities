@@ -196,6 +196,30 @@ class kb_ObjectUtilities(object):
         return self._client.call_method('kb_ObjectUtilities.KButil_update_genome_fields_from_files',
                                         [params], self._service_ver, context)
 
+    def KButil_update_genome_lineage_from_files(self, params, context=None):
+        """
+        :param params: instance of type
+           "KButil_update_genome_lineage_from_files_Params"
+           (KButil_update_genome_lineage_from_files() ** **  Method for
+           adding/changing values in Genome object tax and lineage fields,
+           from files) -> structure: parameter "workspace_name" of type
+           "workspace_name" (** The workspace object refs are of form: ** ** 
+           objects = ws.get_objects([{'ref':
+           params['workspace_id']+'/'+params['obj_name']}]) ** ** "ref" means
+           the entire name combining the workspace id and the object name **
+           "id" is a numerical identifier of the workspace or object, and
+           should just be used for workspace ** "name" is a string identifier
+           of a workspace or object.  This is received from Narrative.),
+           parameter "target_list_file" of type "file_path", parameter
+           "release_file" of type "file_path", parameter
+           "taxonomy_hierarchy_file" of type "file_path"
+        :returns: instance of type
+           "KButil_update_genome_lineage_from_files_Output" -> structure:
+           parameter "updated_object_refs" of list of type "data_obj_ref"
+        """
+        return self._client.call_method('kb_ObjectUtilities.KButil_update_genome_lineage_from_files',
+                                        [params], self._service_ver, context)
+
     def KButil_update_genome_features_from_file(self, params, context=None):
         """
         :param params: instance of type

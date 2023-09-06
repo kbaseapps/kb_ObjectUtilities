@@ -366,6 +366,10 @@ class Application(object):
                              name='kb_ObjectUtilities.KButil_update_genome_fields_from_files',
                              types=[dict])
         self.method_authentication['kb_ObjectUtilities.KButil_update_genome_fields_from_files'] = 'required'  # noqa
+        self.rpc_service.add(impl_kb_ObjectUtilities.KButil_update_genome_lineage_from_files,
+                             name='kb_ObjectUtilities.KButil_update_genome_lineage_from_files',
+                             types=[dict])
+        self.method_authentication['kb_ObjectUtilities.KButil_update_genome_lineage_from_files'] = 'required'  # noqa
         self.rpc_service.add(impl_kb_ObjectUtilities.KButil_update_genome_features_from_file,
                              name='kb_ObjectUtilities.KButil_update_genome_features_from_file',
                              types=[dict])

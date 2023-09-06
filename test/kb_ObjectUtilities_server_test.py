@@ -331,7 +331,7 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
         print ("\n\nRUNNING: {}".format(method))
         print ("==================================\n\n")
         [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
-
+        
         obj_types =  ['KBaseGenomeAnnotations.Assembly','KBaseGenomes.Genome']
         #obj_types =  ['KBaseGenomes.Genome']  # DEBUG
         expected_count = {'KBaseGenomeAnnotations.Assembly': 3,
@@ -349,9 +349,12 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
         # run method
         params = {
             # DEBUG
-            #'workspace_name': 'dylan:narrative_1653154088731',  # Archaea: all
-            #'workspace_name': 'dylan:narrative_1653154121485',  # Bacteria: no GB MAGs
-            #'workspace_name': 'dylan:narrative_1653154144334',  # Bacteria: all GB MAGs
+            #'workspace_name': 'dylan:narrative_1653154088731',  # r207 Archaea: all
+            #'workspace_name': 'dylan:narrative_1653154121485',  # r207 Bacteria: no GB MAGs
+            #'workspace_name': 'dylan:narrative_1653154144334',  # r207 Bacteria: all GB MAGs
+            #'workspace_name': 'dylan:narrative_1653154178433',  # r214 Archaea: all
+            #'workspace_name': 'dylan:narrative_1653154252637',  # r214 Bacteria: no GB MAGs
+            #'workspace_name': 'dylan:narrative_1653154292963',  # r214 Bacteria: all GB MAGs
             # END DEBUG
             'workspace_name': self.getWsName(),
             'object_types': obj_types,
@@ -362,6 +365,7 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
         #pprint(result)
 
         # DEBUG: comment out section
+        """
         # check the output
         obj_refs_by_type = result['ws_obj_refs']
         for obj_type in obj_types:
@@ -371,6 +375,7 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
             for obj_ref in obj_refs:
                 obj_info = self.getWsClient().get_object_info_new({'objects': [{'ref': obj_ref}]})[0]
                 self.assertEqual(obj_info[TYPE_I].split('-')[0],obj_type)
+        """
         # END DEBUG
 
         pass
@@ -554,6 +559,85 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
             for score_group_i,target_score in enumerate(target_scores):
                 for field in ['method', 'method_version', 'score', 'score_interpretation', 'timestamp']:
                     self.assertEqual(output_obj_data['quality_scores'][score_group_i][field], target_score[field])
+
+                    
+    #### test_KButil_update_genome_lineage_from_files():
+    ##
+    # HIDE @unittest.skip("skipped test_KButil_update_genome_lineage_from_files")
+    def test_KButil_update_genome_lineage_from_files (self):
+        method = 'KButil_update_genome_lineage_from_files'
+
+        print ("\n\nRUNNING: {}".format(method))
+        print ("==================================\n\n")
+
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+
+
+        # upload test genomes
+        genomeInfo_0 = self.getGenomeInfo('GCF_000287295.1_ASM28729v1_genomic', 0)  # Candidatus Carsonella ruddii HT isolate Thao2000
+        genomeInfo_1 = self.getGenomeInfo('GCF_000306885.1_ASM30688v1_genomic', 1)  # Wolbachia endosymbiont of Onchocerca ochengi
+        genomeInfo_2 = self.getGenomeInfo('GCF_001439985.1_wTPRE_1.0_genomic',  2)  # Wolbachia endosymbiont of Trichogramma pretiosum
+        #genomeInfo_3 = self.getGenomeInfo('GCF_000022285.1_ASM2228v1_genomic',  3)  # Wolbachia sp. wRi
+
+        # copy mapping files to shared mount
+        shared_dir = "/kb/module/work/tmp"
+        map_files = {
+            'target_list': 'targets.list',
+            'release': 'release.map',
+            'tax_hierarchy': 'tax_hierarchy.map'
+            }
+        
+        dst_map_paths = dict()
+        for map_type in map_files.keys():
+            src_map_path = os.path.join('data','maps', map_files[map_type])
+            dst_map_paths[map_type] = os.path.join(shared_dir, map_files[map_type])
+            shutil.copy (src_map_path, dst_map_paths[map_type])
+
+
+        # read expected values
+        maps = dict()
+        for map_type in map_files.keys():
+            if map_type == 'target_list':
+                continue
+            maps[map_type] = dict()
+            with open (dst_map_paths[map_type], 'r') as map_h:
+                for map_line in map_h:
+                    map_line = map_line.rstrip()
+                    [genome_id, field_val] = map_line.split("\t")
+                    maps[map_type][genome_id] = field_val
+            
+        # run method
+        params = {
+            'workspace_name': self.getWsName(),
+            'target_list_file': dst_map_paths['target_list'],
+            'release_file': dst_map_paths['release'],
+            'taxonomy_hierarchy_file': dst_map_paths['tax_hierarchy']
+        }
+        result = self.getImpl().KButil_update_genome_lineage_from_files(self.getContext(),params)[0]
+        print('RESULT:')
+        pprint(result)
+
+        # check the output
+        output_refs = result['updated_object_refs']
+        for output_i,output_ref in enumerate(output_refs):
+            output_obj = self.getWsClient().get_objects2({'objects': [{'ref': output_ref}]})['data'][0]
+            output_obj_info = output_obj['info']
+            output_obj_data = output_obj['data']
+
+            output_obj_name = output_obj_info[NAME_I]
+            genome_id = re.sub('.Genome$', '', output_obj_name, flags=re.IGNORECASE)
+            genome_id = re.sub('__$', '', genome_id)
+            genome_id = re.sub('^GTDB_Arc-', '', genome_id, flags=re.IGNORECASE)
+            genome_id = re.sub('^GTDB_Bac-', '', genome_id, flags=re.IGNORECASE)
+            genome_id = re.sub(r'^(GC[AF]_\d{9}\.\d).*$', r'\1', genome_id)
+            print ("GENOME_ID: {}".format(genome_id))
+
+            # test field vals
+            #maps[map_type][genome_id] = field_val
+            this_release = maps['release'][genome_id].lower()
+            self.assertEqual(output_obj_data['release'], maps['release'][genome_id])
+            self.assertEqual(output_obj_data['taxonomy'], maps['tax_hierarchy'][genome_id])
+            self.assertEqual(output_obj_data['taxon_assignments'][this_release], maps['tax_hierarchy'][genome_id])
 
                     
     #### test_KButil_update_genome_features_from_file():

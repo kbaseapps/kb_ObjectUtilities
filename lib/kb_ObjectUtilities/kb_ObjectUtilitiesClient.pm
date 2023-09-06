@@ -864,6 +864,108 @@ data_obj_ref is a string
  
 
 
+=head2 KButil_update_genome_lineage_from_files
+
+  $return = $obj->KButil_update_genome_lineage_from_files($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a kb_ObjectUtilities.KButil_update_genome_lineage_from_files_Params
+$return is a kb_ObjectUtilities.KButil_update_genome_lineage_from_files_Output
+KButil_update_genome_lineage_from_files_Params is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+	target_list_file has a value which is a kb_ObjectUtilities.file_path
+	release_file has a value which is a kb_ObjectUtilities.file_path
+	taxonomy_hierarchy_file has a value which is a kb_ObjectUtilities.file_path
+workspace_name is a string
+file_path is a string
+KButil_update_genome_lineage_from_files_Output is a reference to a hash where the following keys are defined:
+	updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+data_obj_ref is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a kb_ObjectUtilities.KButil_update_genome_lineage_from_files_Params
+$return is a kb_ObjectUtilities.KButil_update_genome_lineage_from_files_Output
+KButil_update_genome_lineage_from_files_Params is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+	target_list_file has a value which is a kb_ObjectUtilities.file_path
+	release_file has a value which is a kb_ObjectUtilities.file_path
+	taxonomy_hierarchy_file has a value which is a kb_ObjectUtilities.file_path
+workspace_name is a string
+file_path is a string
+KButil_update_genome_lineage_from_files_Output is a reference to a hash where the following keys are defined:
+	updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+data_obj_ref is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+ sub KButil_update_genome_lineage_from_files
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function KButil_update_genome_lineage_from_files (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to KButil_update_genome_lineage_from_files:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'KButil_update_genome_lineage_from_files');
+	}
+    }
+
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "kb_ObjectUtilities.KButil_update_genome_lineage_from_files",
+	    params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'KButil_update_genome_lineage_from_files',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method KButil_update_genome_lineage_from_files",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'KButil_update_genome_lineage_from_files',
+				       );
+    }
+}
+ 
+
+
 =head2 KButil_update_genome_features_from_file
 
   $return = $obj->KButil_update_genome_features_from_file($params)
@@ -1726,6 +1828,79 @@ keep_spoofed_mRNAs has a value which is a kb_ObjectUtilities.bool
 
 
 =head2 KButil_update_genome_fields_from_files_Output
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+
+
+=end text
+
+=back
+
+
+
+=head2 KButil_update_genome_lineage_from_files_Params
+
+=over 4
+
+
+
+=item Description
+
+KButil_update_genome_lineage_from_files()
+**
+**  Method for adding/changing values in Genome object tax and lineage fields, from files
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+target_list_file has a value which is a kb_ObjectUtilities.file_path
+release_file has a value which is a kb_ObjectUtilities.file_path
+taxonomy_hierarchy_file has a value which is a kb_ObjectUtilities.file_path
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+target_list_file has a value which is a kb_ObjectUtilities.file_path
+release_file has a value which is a kb_ObjectUtilities.file_path
+taxonomy_hierarchy_file has a value which is a kb_ObjectUtilities.file_path
+
+
+=end text
+
+=back
+
+
+
+=head2 KButil_update_genome_lineage_from_files_Output
 
 =over 4
 
