@@ -165,6 +165,23 @@ public class KbObjectUtilitiesClient {
     }
 
     /**
+     * <p>Original spec-file function name: KButil_copy_object</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.kbobjectutilities.KButilCopyObjectParams KButilCopyObjectParams} (original type "KButil_copy_object_Params")
+     * @return   instance of type {@link us.kbase.kbobjectutilities.KButilCopyObjectOutput KButilCopyObjectOutput} (original type "KButil_copy_object_Output")
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public KButilCopyObjectOutput kButilCopyObject(KButilCopyObjectParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<KButilCopyObjectOutput>> retType = new TypeReference<List<KButilCopyObjectOutput>>() {};
+        List<KButilCopyObjectOutput> res = caller.jsonrpcCall("kb_ObjectUtilities.KButil_copy_object", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
      * <p>Original spec-file function name: KButil_Concat_MSAs</p>
      * <pre>
      * </pre>
@@ -178,6 +195,125 @@ public class KbObjectUtilitiesClient {
         args.add(params);
         TypeReference<List<KButilConcatMSAsOutput>> retType = new TypeReference<List<KButilConcatMSAsOutput>>() {};
         List<KButilConcatMSAsOutput> res = caller.jsonrpcCall("kb_ObjectUtilities.KButil_Concat_MSAs", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: KButil_count_ws_objects</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.kbobjectutilities.KButilCountWsObjectsParams KButilCountWsObjectsParams} (original type "KButil_count_ws_objects_Params")
+     * @return   instance of type {@link us.kbase.kbobjectutilities.KButilCountWsObjectsOutput KButilCountWsObjectsOutput} (original type "KButil_count_ws_objects_Output")
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public KButilCountWsObjectsOutput kButilCountWsObjects(KButilCountWsObjectsParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<KButilCountWsObjectsOutput>> retType = new TypeReference<List<KButilCountWsObjectsOutput>>() {};
+        List<KButilCountWsObjectsOutput> res = caller.jsonrpcCall("kb_ObjectUtilities.KButil_count_ws_objects", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: KButil_hide_ws_objects</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.kbobjectutilities.KButilHideWsObjectsParams KButilHideWsObjectsParams} (original type "KButil_hide_ws_objects_Params")
+     * @return   instance of type {@link us.kbase.kbobjectutilities.KButilHideWsObjectsOutput KButilHideWsObjectsOutput} (original type "KButil_hide_ws_objects_Output")
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public KButilHideWsObjectsOutput kButilHideWsObjects(KButilHideWsObjectsParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<KButilHideWsObjectsOutput>> retType = new TypeReference<List<KButilHideWsObjectsOutput>>() {};
+        List<KButilHideWsObjectsOutput> res = caller.jsonrpcCall("kb_ObjectUtilities.KButil_hide_ws_objects", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: KButil_unhide_ws_objects</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.kbobjectutilities.KButilUnhideWsObjectsParams KButilUnhideWsObjectsParams} (original type "KButil_unhide_ws_objects_Params")
+     * @return   instance of type {@link us.kbase.kbobjectutilities.KButilUnhideWsObjectsOutput KButilUnhideWsObjectsOutput} (original type "KButil_unhide_ws_objects_Output")
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public KButilUnhideWsObjectsOutput kButilUnhideWsObjects(KButilUnhideWsObjectsParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<KButilUnhideWsObjectsOutput>> retType = new TypeReference<List<KButilUnhideWsObjectsOutput>>() {};
+        List<KButilUnhideWsObjectsOutput> res = caller.jsonrpcCall("kb_ObjectUtilities.KButil_unhide_ws_objects", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: KButil_update_genome_species_name</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.kbobjectutilities.KButilUpdateGenomeSpeciesNameParams KButilUpdateGenomeSpeciesNameParams} (original type "KButil_update_genome_species_name_Params")
+     * @return   instance of type {@link us.kbase.kbobjectutilities.KButilUpdateGenomeSpeciesNameOutput KButilUpdateGenomeSpeciesNameOutput} (original type "KButil_update_genome_species_name_Output")
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public KButilUpdateGenomeSpeciesNameOutput kButilUpdateGenomeSpeciesName(KButilUpdateGenomeSpeciesNameParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<KButilUpdateGenomeSpeciesNameOutput>> retType = new TypeReference<List<KButilUpdateGenomeSpeciesNameOutput>>() {};
+        List<KButilUpdateGenomeSpeciesNameOutput> res = caller.jsonrpcCall("kb_ObjectUtilities.KButil_update_genome_species_name", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: KButil_update_genome_fields_from_files</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.kbobjectutilities.KButilUpdateGenomeFieldsFromFilesParams KButilUpdateGenomeFieldsFromFilesParams} (original type "KButil_update_genome_fields_from_files_Params")
+     * @return   instance of type {@link us.kbase.kbobjectutilities.KButilUpdateGenomeFieldsFromFilesOutput KButilUpdateGenomeFieldsFromFilesOutput} (original type "KButil_update_genome_fields_from_files_Output")
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public KButilUpdateGenomeFieldsFromFilesOutput kButilUpdateGenomeFieldsFromFiles(KButilUpdateGenomeFieldsFromFilesParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<KButilUpdateGenomeFieldsFromFilesOutput>> retType = new TypeReference<List<KButilUpdateGenomeFieldsFromFilesOutput>>() {};
+        List<KButilUpdateGenomeFieldsFromFilesOutput> res = caller.jsonrpcCall("kb_ObjectUtilities.KButil_update_genome_fields_from_files", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: KButil_update_genome_lineage_from_files</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.kbobjectutilities.KButilUpdateGenomeLineageFromFilesParams KButilUpdateGenomeLineageFromFilesParams} (original type "KButil_update_genome_lineage_from_files_Params")
+     * @return   instance of type {@link us.kbase.kbobjectutilities.KButilUpdateGenomeLineageFromFilesOutput KButilUpdateGenomeLineageFromFilesOutput} (original type "KButil_update_genome_lineage_from_files_Output")
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public KButilUpdateGenomeLineageFromFilesOutput kButilUpdateGenomeLineageFromFiles(KButilUpdateGenomeLineageFromFilesParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<KButilUpdateGenomeLineageFromFilesOutput>> retType = new TypeReference<List<KButilUpdateGenomeLineageFromFilesOutput>>() {};
+        List<KButilUpdateGenomeLineageFromFilesOutput> res = caller.jsonrpcCall("kb_ObjectUtilities.KButil_update_genome_lineage_from_files", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: KButil_update_genome_features_from_file</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.kbobjectutilities.KButilUpdateGenomeFeaturesFromFileParams KButilUpdateGenomeFeaturesFromFileParams} (original type "KButil_update_genome_features_from_file_Params")
+     * @return   instance of type {@link us.kbase.kbobjectutilities.KButilUpdateGenomeFeaturesFromFileOutput KButilUpdateGenomeFeaturesFromFileOutput} (original type "KButil_update_genome_features_from_file_Output")
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public KButilUpdateGenomeFeaturesFromFileOutput kButilUpdateGenomeFeaturesFromFile(KButilUpdateGenomeFeaturesFromFileParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<KButilUpdateGenomeFeaturesFromFileOutput>> retType = new TypeReference<List<KButilUpdateGenomeFeaturesFromFileOutput>>() {};
+        List<KButilUpdateGenomeFeaturesFromFileOutput> res = caller.jsonrpcCall("kb_ObjectUtilities.KButil_update_genome_features_from_file", args, retType, true, true, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 

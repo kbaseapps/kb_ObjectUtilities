@@ -16,12 +16,31 @@ module kb_ObjectUtilities {
     ** "name" is a string identifier of a workspace or object.  This is received from Narrative.
     */
     typedef string workspace_name;
+    typedef string file_path;
     typedef string sequence;
     typedef string data_obj_name;
     typedef string data_obj_ref;
     typedef int    bool;
 
 
+    /* KButil_copy_object()
+    **
+    **  Method for copying an object of a limited number of common types
+    */
+    typedef structure {
+        workspace_name workspace_name;
+	data_obj_ref   input_ref;
+	string         output_name;
+    } KButil_copy_object_Params;
+
+    typedef structure {
+	data_obj_name report_name;
+	data_obj_ref  report_ref;
+    } KButil_copy_object_Output;
+
+    funcdef KButil_copy_object (KButil_copy_object_Params params)  returns (KButil_copy_object_Output) authentication required;
+
+    
     /* KButil_Concat_MSAs()
     **
     **  Method for Concatenating MSAs into a combined MSA
@@ -41,5 +60,146 @@ module kb_ObjectUtilities {
 
     funcdef KButil_Concat_MSAs (KButil_Concat_MSAs_Params params)  returns (KButil_Concat_MSAs_Output) authentication required;
 
+
+    /* KButil_count_ws_objects()
+    **
+    **  Method for counting number of workspace objects when data panel fails
+    */
+    typedef structure {
+        workspace_name workspace_name;
+	list<string>   object_types;
+	bool           verbose;
+    } KButil_count_ws_objects_Params;
+
+    typedef structure {
+	data_obj_name report_name;
+	data_obj_ref  report_ref;
+	mapping<string,list<data_obj_ref>> ws_obj_refs;
+    } KButil_count_ws_objects_Output;
+
+    funcdef KButil_count_ws_objects (KButil_count_ws_objects_Params params)  returns (KButil_count_ws_objects_Output) authentication required;
+    
+
+    /* KButil_hide_ws_objects()
+    **
+    **  Method for hiding workspace objects in bulk
+    */
+    typedef structure {
+        workspace_name workspace_name;
+	list<string>   object_types;
+	bool           verbose;
+	bool           hide_all;
+    } KButil_hide_ws_objects_Params;
+
+    typedef structure {
+	data_obj_name report_name;
+	data_obj_ref  report_ref;
+    } KButil_hide_ws_objects_Output;
+
+    funcdef KButil_hide_ws_objects (KButil_hide_ws_objects_Params params)  returns (KButil_hide_ws_objects_Output) authentication required;
+    
+
+    /* KButil_unhide_ws_objects()
+    **
+    **  Method for unhiding workspace objects in bulk
+    */
+    typedef structure {
+        workspace_name workspace_name;
+	list<string>   object_types;
+	bool           verbose;
+	bool           unhide_all;
+    } KButil_unhide_ws_objects_Params;
+
+    typedef structure {
+	data_obj_name report_name;
+	data_obj_ref  report_ref;
+    } KButil_unhide_ws_objects_Output;
+
+    funcdef KButil_unhide_ws_objects (KButil_unhide_ws_objects_Params params)  returns (KButil_unhide_ws_objects_Output) authentication required;
+    
+
+    /* KButil_update_genome_species_name()
+    **
+    **  Method for adding/changing Genome objects species names
+    */
+    typedef structure {
+        workspace_name     workspace_name;
+	list<data_obj_ref> input_refs;
+	string             species_names;
+    } KButil_update_genome_species_name_Params;
+
+    typedef structure {
+	data_obj_name report_name;
+	data_obj_ref  report_ref;
+	list<data_obj_ref> updated_object_refs;
+    } KButil_update_genome_species_name_Output;
+
+    funcdef KButil_update_genome_species_name (KButil_update_genome_species_name_Params params)  returns (KButil_update_genome_species_name_Output) authentication required;
+
+    
+    /* KButil_update_genome_fields_from_files()
+    **
+    **  Method for adding/changing values in Genome object fields, from files
+    */
+    typedef structure {
+        workspace_name workspace_name;
+	/*list<data_obj_ref>  input_refs;*/
+	file_path  target_list_file;
+	file_path  object_newname_file;
+	file_path  species_name_file;
+	file_path  source_file;
+	file_path  domain_file;
+	file_path  genome_type_file;
+	file_path  release_file;
+	file_path  taxonomy_hierarchy_file;
+	file_path  taxonomy_ncbi_id_file;
+	file_path  genome_qual_scores_file;
+	file_path  gene_functions_file;
+	bool       keep_spoofed_mRNAs;
+    } KButil_update_genome_fields_from_files_Params;
+
+    typedef structure {
+	list<data_obj_ref> updated_object_refs;
+    } KButil_update_genome_fields_from_files_Output;
+
+    funcdef KButil_update_genome_fields_from_files (KButil_update_genome_fields_from_files_Params params)  returns (KButil_update_genome_fields_from_files_Output) authentication required;
+    
+
+    /* KButil_update_genome_lineage_from_files()
+    **
+    **  Method for adding/changing values in Genome object tax and lineage fields, from files
+    */
+    typedef structure {
+        workspace_name workspace_name;
+	/*list<data_obj_ref>  input_refs;*/
+	file_path  target_list_file;
+	file_path  release_file;
+	file_path  taxonomy_hierarchy_file;
+	bool       delete_old_taxon_assignments;
+    } KButil_update_genome_lineage_from_files_Params;
+
+    typedef structure {
+	list<data_obj_ref> updated_object_refs;
+    } KButil_update_genome_lineage_from_files_Output;
+
+    funcdef KButil_update_genome_lineage_from_files (KButil_update_genome_lineage_from_files_Params params)  returns (KButil_update_genome_lineage_from_files_Output) authentication required;
+    
+
+    /* KButil_update_genome_features_from_file()
+    **
+    **  Method for adding values to Genome object features, from file
+    */
+    typedef structure {
+        /*workspace_name workspace_name;*/  /* taken from genome or ama */
+	file_path feature_update_file;
+	file_path genome_ref_map;
+    } KButil_update_genome_features_from_file_Params;
+
+    typedef structure {
+	list<data_obj_ref> updated_object_refs;
+    } KButil_update_genome_features_from_file_Output;
+
+    funcdef KButil_update_genome_features_from_file (KButil_update_genome_features_from_file_Params params)  returns (KButil_update_genome_features_from_file_Output) authentication required;
+    
 };
 

@@ -1,0 +1,195 @@
+{
+    "ver": "1.3.0",
+    "authors": [
+        "dylan"
+    ],
+    "contact": "http://www.kbase.us/support/",
+    "visible": true,
+    "categories": ["active","util"],
+    "widgets": {
+        "input": null,
+        "output": "no-display"
+    },
+    "parameters": [ 
+        {
+            "id": "input_ref",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ "" ],
+            "field_type": "text",
+            "text_options": {
+                "valid_ws_types": [ "KBaseGenomes.Genome",
+				    "KBaseGenomes.Pangenome",
+				    "KBaseGenomeAnnotations.Assembly",
+				    "KBaseMetagenomes.AnnotatedMetagenomeAssembly",
+				    "KBaseMetagenomes.BinnedContigs",
+				    "KBaseSearch.GenomeSet",
+				    "KBaseSets.GenomeSet",
+				    "KBaseCollections.FeatureSet",
+				    "KBaseSets.ReadsSet",
+				    "KBaseSets.AssemblySet",
+				    "KBaseFile.SingleEndLibrary",
+				    "KBaseFile.PairedEndLibrary",
+				    "KBaseGeneFamilies.DomainAnnotation",
+				    "KBaseBiochem.Biochemistry",
+				    "KBaseBiochem.BiochemistryStructures",
+				    "KBaseBiochem.CompoundSet",
+				    "KBaseBiochem.Media",
+				    "KBaseBiochem.MediaSet",
+				    "KBaseBiochem.MetabolicMap",
+				    "KBaseCollections.FBAModelList",
+				    "KBaseCollections.FBAModelSet",
+				    "KBaseFBA.EscherMap",
+				    "KBaseFBA.ETC",
+				    "KBaseFBA.FBA",
+				    "KBaseFBA.FBAComparison",
+				    "KBaseFBA.FBAModel",
+				    "KBaseFBA.FBAModelSet",
+				    "KBaseFBA.FBAPathwayAnalysis",
+				    "KBaseFBA.FBAPathwayAnalysisMultiple",
+				    "KBaseFBA.Gapfilling",
+				    "KBaseFBA.Gapgeneration",
+				    "KBaseFBA.MissingRoleData",
+				    "KBaseFBA.ModelComparison",
+				    "KBaseFBA.ModelTemplate",
+				    "KBaseFBA.NewModelTemplate",
+				    "KBaseFBA.PromConstraint",
+				    "KBaseFBA.ReactionProbabilities",
+				    "KBaseFBA.ReactionSensitivityAnalysis",
+				    "KBaseFBA.SubsystemAnnotation",
+				    "KBaseGenomes.GenomeComparison",
+				    "KBaseGenomes.GenomeDomainData",
+				    "KBaseGenomes.MetagenomeAnnotation",
+				    "KBaseGenomes.ProbabilisticAnnotation",
+				    "KBaseMatrices.AmpliconMatrix",
+				    "KBaseMatrices.ChemicalAbundanceMatrix",
+				    "KBaseMatrices.DifferentialExpressionMatrix",
+				    "KBaseMatrices.ExpressionMatrix",
+				    "KBaseMatrices.FitnessMatrix",
+				    "KBaseMatrices.ReactionMatrix",
+				    "KBaseMatrices.TraitMatrix",
+				    "KBaseProfile.FunctionalProfile",
+				    "KBaseSequences.SequenceSet",
+				    "KBaseSets.SampleSet",
+				    "KBaseStructure.ProteinStructure",
+				    "KBaseStructure.ProteinStructures",
+				    "KBaseTrees.MSASet",
+				    "KBaseTrees.MSA",
+				    "KBaseTrees.Tree"
+				  ]
+            }
+        },
+        {
+            "id": "output_name",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ "" ],
+            "field_type": "text",
+            "text_options" : {
+                "is_output_name": true,
+                "valid_ws_types": [ "KBaseGenomes.Genome",
+				    "KBaseGenomes.Pangenome",
+				    "KBaseGenomeAnnotations.Assembly",
+				    "KBaseMetagenomes.AnnotatedMetagenomeAssembly",
+				    "KBaseMetagenomes.BinnedContigs",
+				    "KBaseSearch.GenomeSet",
+				    "KBaseSets.GenomeSet",
+				    "KBaseCollections.FeatureSet",
+				    "KBaseSets.ReadsSet",
+				    "KBaseSets.AssemblySet",
+				    "KBaseFile.SingleEndLibrary",
+				    "KBaseFile.PairedEndLibrary",
+				    "KBaseGeneFamilies.DomainAnnotation",
+				    "KBaseBiochem.Biochemistry",
+				    "KBaseBiochem.BiochemistryStructures",
+				    "KBaseBiochem.CompoundSet",
+				    "KBaseBiochem.Media",
+				    "KBaseBiochem.MediaSet",
+				    "KBaseBiochem.MetabolicMap",
+				    "KBaseCollections.FBAModelList",
+				    "KBaseCollections.FBAModelSet",
+				    "KBaseFBA.EscherMap",
+				    "KBaseFBA.ETC",
+				    "KBaseFBA.FBA",
+				    "KBaseFBA.FBAComparison",
+				    "KBaseFBA.FBAModel",
+				    "KBaseFBA.FBAModelSet",
+				    "KBaseFBA.FBAPathwayAnalysis",
+				    "KBaseFBA.FBAPathwayAnalysisMultiple",
+				    "KBaseFBA.Gapfilling",
+				    "KBaseFBA.Gapgeneration",
+				    "KBaseFBA.MissingRoleData",
+				    "KBaseFBA.ModelComparison",
+				    "KBaseFBA.ModelTemplate",
+				    "KBaseFBA.NewModelTemplate",
+				    "KBaseFBA.PromConstraint",
+				    "KBaseFBA.ReactionProbabilities",
+				    "KBaseFBA.ReactionSensitivityAnalysis",
+				    "KBaseFBA.SubsystemAnnotation",
+				    "KBaseGenomes.GenomeComparison",
+				    "KBaseGenomes.GenomeDomainData",
+				    "KBaseGenomes.MetagenomeAnnotation",
+				    "KBaseGenomes.ProbabilisticAnnotation",
+				    "KBaseMatrices.AmpliconMatrix",
+				    "KBaseMatrices.ChemicalAbundanceMatrix",
+				    "KBaseMatrices.DifferentialExpressionMatrix",
+				    "KBaseMatrices.ExpressionMatrix",
+				    "KBaseMatrices.FitnessMatrix",
+				    "KBaseMatrices.ReactionMatrix",
+				    "KBaseMatrices.TraitMatrix",
+				    "KBaseProfile.FunctionalProfile",
+				    "KBaseSequences.SequenceSet",
+				    "KBaseSets.SampleSet",
+				    "KBaseStructure.ProteinStructure",
+				    "KBaseStructure.ProteinStructures",
+				    "KBaseTrees.MSASet",
+				    "KBaseTrees.MSA",
+				    "KBaseTrees.Tree"
+				  ]
+            }
+        }
+    ],
+    "behavior": {
+        "service-mapping": {
+            "url": "",
+            "name": "kb_ObjectUtilities",
+            "method": "KButil_copy_object",
+            "input_mapping": [
+                {
+                    "narrative_system_variable": "workspace",
+                    "target_property": "workspace_name"
+                },
+                {
+                    "input_parameter": "input_ref",
+                    "target_property": "input_ref",
+		    "target_type_transform": "resolved-ref"
+                },
+                {
+                    "input_parameter": "output_name",
+                    "target_property": "output_name"
+                }
+            ],
+            "output_mapping": [
+                {
+                    "narrative_system_variable": "workspace",
+                    "target_property": "workspace_name"
+                },
+                {
+                    "service_method_output_path": [0, "report_name"],
+                    "target_property": "report_name"
+                },
+                {
+                    "service_method_output_path": [0, "report_ref"],
+                    "target_property": "report_ref"
+                },
+                {
+		    "constant_value": "15",
+                    "target_property": "report_window_line_height"
+                }
+            ]
+        }
+    },
+    "job_id_output_field": "docker"
+}
