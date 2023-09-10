@@ -1,7 +1,7 @@
 #
 # define display information
 #
-name: Join Multiple Sequence Alignments (MSAs) - v1.0.0
+name: Join Multiple Sequence Alignments (MSAs) - v1.3.0
 tooltip: |
     Allows user to concatenate two (or more) MSAs
 
@@ -37,12 +37,12 @@ parameters :
             Enter Description
     input_refs:
         ui-name : |
-            Input MSA Names
+            Input MSA
         short-hint : |
             Add a list of two or more MSA Names here (note: MSAs must contain consistent row IDs)
     output_name:
         ui-name : |
-            Output MSA Name
+            Output MSA
         short-hint : |
             Name for the Output MSA
     blanks_flag:
@@ -54,3 +54,8 @@ parameters :
 
 description : |
     <p>This method allows the user to concatenate several MSAs into one MSA.</p>
+
+    <p>There must be only one row per genome in each MSA.  This is meant to be used for generating species trees.</p>
+
+    <p><hr></p>
+    <p><strong>Team members who implemented App in KBase:</strong> <a href="https://narrative.kbase.us/#people/dylan">Dylan Chivian</a>. For questions, please <a href=”http://www.kbase.us/support/”>contact us</a>.</p>

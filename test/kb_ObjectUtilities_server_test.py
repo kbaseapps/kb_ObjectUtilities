@@ -4,14 +4,14 @@ import json
 import time
 import requests
 import shutil
+import re
 
 from os import environ
 from ConfigParser import ConfigParser
-from requests_toolbelt import MultipartEncoder
 from pprint import pprint
 
-from Workspace.WorkspaceClient import Workspace as workspaceService
-from biokbase.AbstractHandle.Client import AbstractHandle as HandleService
+from installed_clients.WorkspaceClient import Workspace as workspaceService
+from installed_clients.GenomeFileUtilClient import GenomeFileUtil
 from kb_ObjectUtilities.kb_ObjectUtilitiesImpl import kb_ObjectUtilities
 
 
@@ -78,215 +78,133 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
         return self.__class__.ctx
 
 
-    # call this method to get the WS object info of a Single End Library (will
-    # upload the example data if this is the first time the method is called during tests)
-    def getSingleEndLibInfo(self, read_lib_basename, lib_i=0):
-        if hasattr(self.__class__, 'singleEndLibInfo_list'):
+    def getUPA_fromInfo (self,obj_info):
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+        return '/'.join([str(obj_info[WSID_I]),
+                         str(obj_info[OBJID_I]),
+                         str(obj_info[VERSION_I])])
+
+    
+    def getGenomeInfo(self, genome_basename, item_i=0):
+        if hasattr(self.__class__, 'genomeInfo_list'):
             try:
-                info = self.__class__.singleEndLibInfo_list[lib_i]
-                name = self.__class__.singleEndLibName_list[lib_i]
+                info = self.__class__.genomeInfo_list[item_i]
+                name = self.__class__.genomeName_list[item_i]
                 if info != None:
-                    if name != read_lib_basename:
-                        self.__class__.singleEndLibInfo_list[lib_i] = None
-                        self.__class__.singleEndLibName_list[lib_i] = None
+                    if name != genome_basename:
+                        self.__class__.genomeInfo_list[item_i] = None
+                        self.__class__.genomeName_list[item_i] = None
                     else:
                         return info
             except:
                 pass
 
-        # 1) upload files to shock
+        # 1) transform genbank to kbase genome object and upload to ws
         shared_dir = "/kb/module/work/tmp"
-        forward_data_file = 'data/'+read_lib_basename+'.fwd.fq'
-        forward_file = os.path.join(shared_dir, os.path.basename(forward_data_file))
-        shutil.copy(forward_data_file, forward_file)
+        genome_data_file = 'data/genomes/'+genome_basename+'.gbff.gz'
+        genome_file = os.path.join(shared_dir, os.path.basename(genome_data_file))
+        shutil.copy(genome_data_file, genome_file)
 
-        ru = ReadsUtils(os.environ['SDK_CALLBACK_URL'])
-        single_end_ref = ru.upload_reads({'fwd_file': forward_file,
-                                          'sequencing_tech': 'artificial reads',
-                                          'wsname': self.getWsName(),
-                                          'name': 'test-'+str(lib_i)+'.se.reads'})['obj_ref']
+        SERVICE_VER = 'release'
+        #SERVICE_VER = 'dev'
+        GFU = GenomeFileUtil(os.environ['SDK_CALLBACK_URL'],
+                             token=self.getContext()['token'],
+                             service_ver=SERVICE_VER
+                         )
+        print ("UPLOADING genome: "+genome_basename+" to WORKSPACE "+self.getWsName()+" ...")
+        genome_upload_result = GFU.genbank_to_genome({'file': {'path': genome_file },
+                                                      'workspace_name': self.getWsName(),
+                                                      'genome_name': genome_basename
+                                                  })
+#                                                  })[0]
+        pprint(genome_upload_result)
+        genome_ref = genome_upload_result['genome_ref']
+        new_obj_info = self.getWsClient().get_object_info_new({'objects': [{'ref': genome_ref}]})[0]
 
-        new_obj_info = self.getWsClient().get_object_info_new({'objects': [{'ref': single_end_ref}]})[0]
-
-        # store it
-        if not hasattr(self.__class__, 'singleEndLibInfo_list'):
-            self.__class__.singleEndLibInfo_list = []
-            self.__class__.singleEndLibName_list = []
-        for i in range(lib_i+1):
+        # 2) store it
+        if not hasattr(self.__class__, 'genomeInfo_list'):
+            self.__class__.genomeInfo_list = []
+            self.__class__.genomeName_list = []
+        for i in range(item_i+1):
             try:
-                assigned = self.__class__.singleEndLibInfo_list[i]
+                assigned = self.__class__.genomeInfo_list[i]
             except:
-                self.__class__.singleEndLibInfo_list.append(None)
-                self.__class__.singleEndLibName_list.append(None)
+                self.__class__.genomeInfo_list.append(None)
+                self.__class__.genomeName_list.append(None)
 
-        self.__class__.singleEndLibInfo_list[lib_i] = new_obj_info
-        self.__class__.singleEndLibName_list[lib_i] = read_lib_basename
+        self.__class__.genomeInfo_list[item_i] = new_obj_info
+        self.__class__.genomeName_list[item_i] = genome_basename
         return new_obj_info
 
-
-    # call this method to get the WS object info of a Paired End Library (will
-    # upload the example data if this is the first time the method is called during tests)
-    def getPairedEndLibInfo(self, read_lib_basename, lib_i=0):
-        if hasattr(self.__class__, 'pairedEndLibInfo_list'):
+    
+    # call this method to get the WS object info of an AnnotatedMetagenomeAssembly
+    #   (will upload the example data if this is the first time the method is called during tests)
+    def getAMAInfo(self, ama_basename, item_i=0):
+        if hasattr(self.__class__, 'amaInfo_list'):
             try:
-                info = self.__class__.pairedEndLibInfo_list[lib_i]
-                name = self.__class__.pairedEndLibName_list[lib_i]
+                info = self.__class__.amaInfo_list[item_i]
+                name = self.__class__.amaName_list[item_i]
                 if info != None:
-                    if name != read_lib_basename:
-                        self.__class__.pairedEndLibInfo_list[lib_i] = None
-                        self.__class__.pairedEndLibName_list[lib_i] = None
+                    if name != ama_basename:
+                        self.__class__.amaInfo_list[item_i] = None
+                        self.__class__.amaName_list[item_i] = None
                     else:
                         return info
             except:
                 pass
 
-        # 1) upload files to shock
+        # 1) transform GFF+FNA to kbase AMA object and upload to ws
         shared_dir = "/kb/module/work/tmp"
-        forward_data_file = 'data/'+read_lib_basename+'.fwd.fq'
-        forward_file = os.path.join(shared_dir, os.path.basename(forward_data_file))
-        shutil.copy(forward_data_file, forward_file)
-        reverse_data_file = 'data/'+read_lib_basename+'.rev.fq'
-        reverse_file = os.path.join(shared_dir, os.path.basename(reverse_data_file))
-        shutil.copy(reverse_data_file, reverse_file)
+        ama_gff_srcfile = 'data/amas/'+ama_basename+'.gff'
+        ama_fna_srcfile = 'data/amas/'+ama_basename+'.fa'
+        ama_gff_dstfile = os.path.join(shared_dir, os.path.basename(ama_gff_srcfile))
+        ama_fna_dstfile = os.path.join(shared_dir, os.path.basename(ama_fna_srcfile))
+        shutil.copy(ama_gff_srcfile, ama_gff_dstfile)
+        shutil.copy(ama_fna_srcfile, ama_fna_dstfile)
 
-        ru = ReadsUtils(os.environ['SDK_CALLBACK_URL'])
-        paired_end_ref = ru.upload_reads({'fwd_file': forward_file, 'rev_file': reverse_file,
-                                          'sequencing_tech': 'artificial reads',
-                                          'interleaved': 0, 'wsname': self.getWsName(),
-                                          'name': 'test-'+str(lib_i)+'.pe.reads'})['obj_ref']
+        try:
+            SERVICE_VER = 'release'
+            #SERVICE_VER = 'dev'
+            GFU = GenomeFileUtil(os.environ['SDK_CALLBACK_URL'],
+                                 token=self.getContext()['token'],
+                                 service_ver=SERVICE_VER
+            )
+        except:
+            raise ValueError ("unable to obtain GenomeFileUtil client")
+        print ("UPLOADING AMA: "+ama_basename+" to WORKSPACE "+self.getWsName()+" ...")
+        ama_upload_params = {
+            "workspace_name": self.getWsName(),
+            "genome_name": ama_basename,
+            "fasta_file": {"path": ama_fna_dstfile},
+            "gff_file": {"path": ama_gff_dstfile},
+            "source": "GFF",
+            "scientific_name": "TEST AMA",
+            "generate_missing_genes": "True"
+        }        
+        try:
+            ama_upload_result = GFU.fasta_gff_to_metagenome(ama_upload_params)
+        except:
+            raise ValueError("unable to upload test AMA data object")
+        print ("AMA UPLOADED")
+        pprint(ama_upload_result)
 
-        new_obj_info = self.getWsClient().get_object_info_new({'objects': [{'ref': paired_end_ref}]})[0]
+        ama_ref = ama_upload_result['metagenome_ref']
+        new_obj_info = self.getWsClient().get_object_info_new({'objects': [{'ref': ama_ref}]})[0]
 
-        # store it
-        if not hasattr(self.__class__, 'pairedEndLibInfo_list'):
-            self.__class__.pairedEndLibInfo_list = []
-            self.__class__.pairedEndLibName_list = []
-        for i in range(lib_i+1):
+        # 2) store it
+        if not hasattr(self.__class__, 'amaInfo_list'):
+            self.__class__.amaInfo_list = []
+            self.__class__.amaName_list = []
+        for i in range(item_i+1):
             try:
-                assigned = self.__class__.pairedEndLibInfo_list[i]
+                assigned = self.__class__.amaInfo_list[i]
             except:
-                self.__class__.pairedEndLibInfo_list.append(None)
-                self.__class__.pairedEndLibName_list.append(None)
+                self.__class__.amaInfo_list.append(None)
+                self.__class__.amaName_list.append(None)
 
-        self.__class__.pairedEndLibInfo_list[lib_i] = new_obj_info
-        self.__class__.pairedEndLibName_list[lib_i] = read_lib_basename
+        self.__class__.amaInfo_list[item_i] = new_obj_info
+        self.__class__.amaName_list[item_i] = ama_basename
         return new_obj_info
-
-
-    # call this method to get the WS object info of a Single End Library Set (will
-    # upload the example data if this is the first time the method is called during tests)
-    def getSingleEndLib_SetInfo(self, read_libs_basename_list, refresh=False):
-        if hasattr(self.__class__, 'singleEndLib_SetInfo'):
-            try:
-                info = self.__class__.singleEndLib_SetInfo
-                if info != None:
-                    if refresh:
-                        self.__class__.singleEndLib_SetInfo = None
-                    else:
-                        return info
-            except:
-                pass
-
-        # build items and save each SingleEndLib
-        items = []
-        for lib_i,read_lib_basename in enumerate (read_libs_basename_list):
-            label    = read_lib_basename
-            lib_info = self.getSingleEndLibInfo (read_lib_basename, lib_i)
-            lib_ref  = str(lib_info[6])+'/'+str(lib_info[0])+'/'+str(lib_info[4])
-            print ("LIB_REF["+str(lib_i)+"]: "+lib_ref+" "+read_lib_basename)  # DEBUG
-
-            items.append({'ref': lib_ref,
-                          'label': label
-                          #'data_attachment': ,
-                          #'info':
-                         })
-
-        # save readsset
-        desc = 'test ReadsSet'
-        readsSet_obj = { 'description': desc,
-                         'items': items
-                       }
-        name = 'TEST_READSET'
-
-        new_obj_set_info = self.wsClient.save_objects({
-                        'workspace':self.getWsName(),
-                        'objects':[
-                            {
-                                'type':'KBaseSets.ReadsSet',
-                                'data':readsSet_obj,
-                                'name':name,
-                                'meta':{},
-                                'provenance':[
-                                    {
-                                        'service':'kb_ObjectUtilities',
-                                        'method':'test_kb_ObjectUtilities'
-                                    }
-                                ]
-                            }]
-                        })[0]
-
-        # store it
-        self.__class__.singleEndLib_SetInfo = new_obj_set_info
-        return new_obj_set_info
-
-
-    # call this method to get the WS object info of a Paired End Library Set (will
-    # upload the example data if this is the first time the method is called during tests)
-    def getPairedEndLib_SetInfo(self, read_libs_basename_list, refresh=False):
-        if hasattr(self.__class__, 'pairedEndLib_SetInfo'):
-            try:
-                info = self.__class__.pairedEndLib_SetInfo
-                if info != None:
-                    if refresh:
-                        self.__class__.pairedEndLib_SetInfo = None
-                    else:
-                        return info
-            except:
-                pass
-
-        # build items and save each PairedEndLib
-        items = []
-        for lib_i,read_lib_basename in enumerate (read_libs_basename_list):
-            label    = read_lib_basename
-            lib_info = self.getPairedEndLibInfo (read_lib_basename, lib_i)
-            lib_ref  = str(lib_info[6])+'/'+str(lib_info[0])+'/'+str(lib_info[4])
-            lib_type = str(lib_info[2])
-            print ("LIB_REF["+str(lib_i)+"]: "+lib_ref+" "+read_lib_basename)  # DEBUG
-            print ("LIB_TYPE["+str(lib_i)+"]: "+lib_type+" "+read_lib_basename)  # DEBUG
-
-            items.append({'ref': lib_ref,
-                          'label': label
-                          #'data_attachment': ,
-                          #'info':
-                         })
-
-        # save readsset
-        desc = 'test ReadsSet'
-        readsSet_obj = { 'description': desc,
-                         'items': items
-                       }
-        name = 'TEST_READSET'
-
-        new_obj_set_info = self.wsClient.save_objects({
-                        'workspace':self.getWsName(),
-                        'objects':[
-                            {
-                                'type':'KBaseSets.ReadsSet',
-                                'data':readsSet_obj,
-                                'name':name,
-                                'meta':{},
-                                'provenance':[
-                                    {
-                                        'service':'kb_ObjectUtilities',
-                                        'method':'test_kb_ObjectUtilities'
-                                    }
-                                ]
-                            }]
-                        })[0]
-
-        # store it
-        self.__class__.pairedEndLib_SetInfo = new_obj_set_info
-        return new_obj_set_info
 
 
     ##############
@@ -296,6 +214,7 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
 
     #### test_KButil_Concat_MSAs():
     ##
+    # HIDE @unittest.skip("skipped test_KButil_Concat_MSAs")
     def test_KButil_Concat_MSAs (self):
         method = 'KButil_Concat_MSAs'
 
@@ -303,7 +222,7 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
         print ("==================================\n\n")
 
         # MSA
-        MSA_json_file = os.path.join('data', 'DsrA.MSA.json')
+        MSA_json_file = os.path.join('data', 'MSAs', 'DsrA.MSA.json')
         with open (MSA_json_file, 'r', 0) as MSA_json_fh:
             MSA_obj = json.load(MSA_json_fh)
         provenance = [{}]
@@ -333,9 +252,9 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
                 }
             ]})
         [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
-        MSA_ref_1 = str(MSA_info_list[0][WSID_I])+'/'+str(MSA_info_list[0][OBJID_I])+'/'+str(MSA_info_list[0][VERSION_I])
-        MSA_ref_2 = str(MSA_info_list[1][WSID_I])+'/'+str(MSA_info_list[1][OBJID_I])+'/'+str(MSA_info_list[1][VERSION_I])
-        MSA_ref_3 = str(MSA_info_list[2][WSID_I])+'/'+str(MSA_info_list[2][OBJID_I])+'/'+str(MSA_info_list[2][VERSION_I])
+        MSA_ref_1 = self.getUPA_fromInfo (MSA_info_list[0])
+        MSA_ref_2 = self.getUPA_fromInfo (MSA_info_list[1])
+        MSA_ref_3 = self.getUPA_fromInfo (MSA_info_list[2])
 
         # run method
         base_output_name = method+'_output'
@@ -345,7 +264,7 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
             'output_name': base_output_name,
             'desc': 'test'
         }
-        result = self.getImpl().KButil_Concat_MSAs(self.getContext(),params)
+        result = self.getImpl().KButil_Concat_MSAs(self.getContext(),params)[0]
         print('RESULT:')
         pprint(result)
 
@@ -361,4 +280,455 @@ class kb_ObjectUtilitiesTest(unittest.TestCase):
         output_obj = self.getWsClient().get_objects2({'objects': [{'ref': output_ref}]})['data'][0]['data']
         self.assertEqual(len(output_obj['row_order']), len(MSA_obj['row_order']))
         self.assertEqual(output_obj['alignment_length'], 3*MSA_obj['alignment_length'])
+        pass
+
+
+    #### test_KButil_update_genome_species_name():
+    ##
+    # HIDE @unittest.skip("skipped test_KButil_update_genome_species_name")
+    def test_KButil_update_genome_species_name (self):
+        method = 'KButil_update_genome_species_names'
+
+        print ("\n\nRUNNING: {}".format(method))
+        print ("==================================\n\n")
+
+
+        # upload test genomes
+        genomeInfo_0 = self.getGenomeInfo('GCF_000287295.1_ASM28729v1_genomic', 0)  # Candidatus Carsonella ruddii HT isolate Thao2000
+        genomeInfo_1 = self.getGenomeInfo('GCF_000306885.1_ASM30688v1_genomic', 1)  # Wolbachia endosymbiont of Onchocerca ochengi
+        genomeInfo_2 = self.getGenomeInfo('GCF_001439985.1_wTPRE_1.0_genomic',  2)  # Wolbachia endosymbiont of Trichogramma pretiosum
+        #genomeInfo_3 = self.getGenomeInfo('GCF_000022285.1_ASM2228v1_genomic',  3)  # Wolbachia sp. wRi
+
+        genome_refs = [ self.getUPA_fromInfo (genomeInfo_0),
+                        self.getUPA_fromInfo (genomeInfo_1),
+                        self.getUPA_fromInfo (genomeInfo_2)]
+        output_names = ['Carsonella rudii', 'Wolbachia endo of Oo', 'Wolbachia endo of Tp']
+        
+        
+        # run method
+        params = {
+            'workspace_name': self.getWsName(),
+            'input_refs': genome_refs,
+            'species_names': ",\n".join(output_names)
+        }
+        result = self.getImpl().KButil_update_genome_species_name(self.getContext(),params)[0]
+        print('RESULT:')
+        pprint(result)
+
+        # check the output
+        output_refs = result['updated_object_refs']
+        for output_i,output_ref in enumerate(output_refs):
+            output_obj = self.getWsClient().get_objects2({'objects': [{'ref': output_ref}]})['data'][0]['data']
+            self.assertEqual(output_obj['scientific_name'], output_names[output_i])
+        pass
+
+    
+    #### test_KButil_count_ws_objects():
+    ##
+    # HIDE @unittest.skip("skipped test_KButil_count_ws_objects")
+    def test_KButil_count_ws_objects (self):
+        method = 'KButil_count_ws_objects'
+        print ("\n\nRUNNING: {}".format(method))
+        print ("==================================\n\n")
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+        
+        obj_types =  ['KBaseGenomeAnnotations.Assembly','KBaseGenomes.Genome']
+        #obj_types =  ['KBaseGenomes.Genome']  # DEBUG
+        expected_count = {'KBaseGenomeAnnotations.Assembly': 3,
+                          'KBaseGenomes.Genome': 3
+                          }
+
+        # DEBUG: comment out section
+        # upload test genomes
+        genomeInfo_0 = self.getGenomeInfo('GCF_000287295.1_ASM28729v1_genomic', 0)  # Candidatus Carsonella ruddii HT isolate Thao2000
+        genomeInfo_1 = self.getGenomeInfo('GCF_000306885.1_ASM30688v1_genomic', 1)  # Wolbachia endosymbiont of Onchocerca ochengi
+        genomeInfo_2 = self.getGenomeInfo('GCF_001439985.1_wTPRE_1.0_genomic',  2)  # Wolbachia endosymbiont of Trichogramma pretiosum
+        #genomeInfo_3 = self.getGenomeInfo('GCF_000022285.1_ASM2228v1_genomic',  3)  # Wolbachia sp. wRi
+        # END DEBUG
+        
+        # run method
+        params = {
+            # DEBUG
+            #'workspace_name': 'dylan:narrative_1653154088731',  # r207 Archaea: all
+            #'workspace_name': 'dylan:narrative_1653154121485',  # r207 Bacteria: no GB MAGs
+            #'workspace_name': 'dylan:narrative_1653154144334',  # r207 Bacteria: all GB MAGs
+            #'workspace_name': 'dylan:narrative_1653154178433',  # r214 Archaea: all
+            #'workspace_name': 'dylan:narrative_1653154252637',  # r214 Bacteria: no GB MAGs
+            #'workspace_name': 'dylan:narrative_1653154292963',  # r214 Bacteria: all GB MAGs
+            # END DEBUG
+            'workspace_name': self.getWsName(),
+            'object_types': obj_types,
+            'verbose': 1
+        }
+        result = self.getImpl().KButil_count_ws_objects(self.getContext(),params)[0]
+        #print('RESULT:')
+        #pprint(result)
+
+        # DEBUG: comment out section
+        """
+        # check the output
+        obj_refs_by_type = result['ws_obj_refs']
+        for obj_type in obj_types:
+            obj_refs = obj_refs_by_type[obj_type]
+            print ("TESTING OBJ_TYPE: {} NUM_OBJS: {}".format(obj_type,len(obj_refs)))
+            self.assertEqual(len(obj_refs),expected_count[obj_type])
+            for obj_ref in obj_refs:
+                obj_info = self.getWsClient().get_object_info_new({'objects': [{'ref': obj_ref}]})[0]
+                self.assertEqual(obj_info[TYPE_I].split('-')[0],obj_type)
+        """
+        # END DEBUG
+
+        pass
+    
+
+    #### test_KButil_hide_ws_objects():
+    ##
+    # HIDE @unittest.skip("skipped test_KButil_hide_ws_objects")
+    def test_KButil_hide_ws_objects (self):
+        method = 'KButil_hide_ws_objects'
+        print ("\n\nRUNNING: {}".format(method))
+        print ("==================================\n\n")
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+
+        obj_types =  ['KBaseGenomeAnnotations.Assembly','KBaseGenomes.Genome']
+        #obj_types =  ['KBaseGenomes.Genome']  # DEBUG
+        expected_count = {'KBaseGenomeAnnotations.Assembly': 3,
+                          'KBaseGenomes.Genome': 3
+                          }
+
+        # DEBUG: comment out section
+        # upload test genomes
+        genomeInfo_0 = self.getGenomeInfo('GCF_000287295.1_ASM28729v1_genomic', 0)  # Candidatus Carsonella ruddii HT isolate Thao2000
+        genomeInfo_1 = self.getGenomeInfo('GCF_000306885.1_ASM30688v1_genomic', 1)  # Wolbachia endosymbiont of Onchocerca ochengi
+        genomeInfo_2 = self.getGenomeInfo('GCF_001439985.1_wTPRE_1.0_genomic',  2)  # Wolbachia endosymbiont of Trichogramma pretiosum
+        #genomeInfo_3 = self.getGenomeInfo('GCF_000022285.1_ASM2228v1_genomic',  3)  # Wolbachia sp. wRi
+        # END DEBUG
+        
+        # run method
+        params = {
+            'workspace_name': self.getWsName(),
+            'object_types': obj_types,
+            'verbose': 1,
+            'hide_all': 0
+        }
+        result = self.getImpl().KButil_hide_ws_objects(self.getContext(),params)[0]
+        print('RESULT:')
+        pprint(result)
+
+        pass
+
+
+    #### test_KButil_unhide_ws_objects():
+    ##
+    # HIDE @unittest.skip("skipped test_KButil_unhide_ws_objects")
+    def test_KButil_unhide_ws_objects (self):
+        method = 'KButil_unhide_ws_objects'
+        print ("\n\nRUNNING: {}".format(method))
+        print ("==================================\n\n")
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+
+        #expected_count = {'KBaseGenomeAnnotations.Assembly': 3,
+        #                  'KBaseGenomes.Genome': 3
+        #                 }
+
+        # run method
+        params = {
+            'workspace_name': self.getWsName(),
+            'object_types': ['KBaseGenomeAnnotations.Assembly','KBaseGenomes.Genome']
+        }
+        result = self.getImpl().KButil_unhide_ws_objects(self.getContext(),params)[0]
+        print('RESULT:')
+        pprint(result)
+
+        pass
+        
+
+    #### test_KButil_update_genome_fields_from_files():
+    ##
+    # HIDE @unittest.skip("skipped test_KButil_update_genome_fields_from_files")
+    def test_KButil_update_genome_fields_from_files (self):
+        method = 'KButil_update_genome_fields_from_files'
+
+        print ("\n\nRUNNING: {}".format(method))
+        print ("==================================\n\n")
+
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+
+
+        # config
+        keep_mRNAs = 0
+        
+        # upload test genomes
+        genomeInfo_0 = self.getGenomeInfo('GCF_000287295.1_ASM28729v1_genomic', 0)  # Candidatus Carsonella ruddii HT isolate Thao2000
+        genomeInfo_1 = self.getGenomeInfo('GCF_000306885.1_ASM30688v1_genomic', 1)  # Wolbachia endosymbiont of Onchocerca ochengi
+        genomeInfo_2 = self.getGenomeInfo('GCF_001439985.1_wTPRE_1.0_genomic',  2)  # Wolbachia endosymbiont of Trichogramma pretiosum
+        #genomeInfo_3 = self.getGenomeInfo('GCF_000022285.1_ASM2228v1_genomic',  3)  # Wolbachia sp. wRi
+
+        # copy mapping files to shared mount
+        shared_dir = "/kb/module/work/tmp"
+        map_files = {
+            'target_list': 'targets.list',
+            'obj_name': 'obj_name.map',
+            'species_name': 'species_name.map',
+            'source': 'source.map',
+            'domain': 'domains.map',
+            'genome_type': 'genome_type.map',
+            'release': 'release.map',
+            'tax_hierarchy': 'tax_hierarchy.map',
+            'ncbi_tax_id': 'ncbi_tax_id.map',
+            'genome_qual_scores': 'genome_qual_scores.map'
+            #'gene_functions': 'gene_functions.map'
+            }
+        
+        dst_map_paths = dict()
+        for map_type in map_files.keys():
+            src_map_path = os.path.join('data','maps', map_files[map_type])
+            dst_map_paths[map_type] = os.path.join(shared_dir, map_files[map_type])
+            shutil.copy (src_map_path, dst_map_paths[map_type])
+
+
+        # read expected values
+        maps = dict()
+        for map_type in map_files.keys():
+            if map_type == 'target_list':
+                continue
+            maps[map_type] = dict()
+            with open (dst_map_paths[map_type], 'r') as map_h:
+                for map_line in map_h:
+                    map_line = map_line.rstrip()
+                    [genome_id, field_val] = map_line.split("\t")
+                    maps[map_type][genome_id] = field_val
+            
+        # run method
+        params = {
+            'workspace_name': self.getWsName(),
+            'target_list_file': dst_map_paths['target_list'],
+            'object_newname_file': dst_map_paths['obj_name'],
+            'species_name_file': dst_map_paths['species_name'],
+            'source_file': dst_map_paths['source'],
+            'domain_file': dst_map_paths['domain'],
+            'genome_type_file': dst_map_paths['genome_type'],
+            'release_file': dst_map_paths['release'],
+            'taxonomy_hierarchy_file': dst_map_paths['tax_hierarchy'],
+            'taxonomy_ncbi_id_file': dst_map_paths['ncbi_tax_id'],
+            'genome_qual_scores_file': dst_map_paths['genome_qual_scores'],
+            #'gene_functions_file': dst_map_paths['gene_functions'],
+            'keep_spoofed_mRNAs': keep_mRNAs
+        }
+        result = self.getImpl().KButil_update_genome_fields_from_files(self.getContext(),params)[0]
+        print('RESULT:')
+        pprint(result)
+
+        # check the output
+        output_refs = result['updated_object_refs']
+        for output_i,output_ref in enumerate(output_refs):
+            output_obj = self.getWsClient().get_objects2({'objects': [{'ref': output_ref}]})['data'][0]
+            output_obj_info = output_obj['info']
+            output_obj_data = output_obj['data']
+
+            output_obj_name = output_obj_info[NAME_I]
+            genome_id = re.sub('.Genome$', '', output_obj_name, flags=re.IGNORECASE)
+            genome_id = re.sub('__$', '', genome_id)
+            genome_id = re.sub('^GTDB_Arc-', '', genome_id, flags=re.IGNORECASE)
+            genome_id = re.sub('^GTDB_Bac-', '', genome_id, flags=re.IGNORECASE)
+            genome_id = re.sub(r'^(GC[AF]_\d{9}\.\d).*$', r'\1', genome_id)
+            print ("GENOME_ID: {}".format(genome_id))
+
+            # test field vals
+            #maps[map_type][genome_id] = field_val
+            self.assertEqual(output_obj_name, maps['obj_name'][genome_id])
+            self.assertEqual(output_obj_data['scientific_name'], maps['species_name'][genome_id])
+            self.assertEqual(output_obj_data['source'], maps['source'][genome_id])
+            self.assertEqual(output_obj_data['domain'], maps['domain'][genome_id])
+            self.assertEqual(output_obj_data['genome_type'], maps['genome_type'][genome_id])
+            self.assertEqual(output_obj_data['release'], maps['release'][genome_id])
+            self.assertEqual(output_obj_data['taxonomy'], maps['tax_hierarchy'][genome_id])
+            self.assertEqual(output_obj_data['taxon_assignments']['ncbi'], maps['ncbi_tax_id'][genome_id])
+            self.assertEqual(output_obj_data['taxon_assignments']['gtdb_r207'], maps['tax_hierarchy'][genome_id])
+            if keep_mRNAs == 0:
+                self.assertEqual(len(output_obj_data['mrnas']),0)
+
+            # test genome_qual_scores
+            target_scores = []
+            for score_group in maps['genome_qual_scores'][genome_id].split(';'):
+                score_dict = {}
+                for score_kv in score_group.split(','):
+                    [key, val] = score_kv.split('=')
+		    score_dict[key] = val
+                target_scores.append(score_dict)
+            for score_group_i,target_score in enumerate(target_scores):
+                for field in ['method', 'method_version', 'score', 'score_interpretation', 'timestamp']:
+                    self.assertEqual(output_obj_data['quality_scores'][score_group_i][field], target_score[field])
+
+                    
+    #### test_KButil_update_genome_lineage_from_files():
+    ##
+    # HIDE @unittest.skip("skipped test_KButil_update_genome_lineage_from_files")
+    def test_KButil_update_genome_lineage_from_files (self):
+        method = 'KButil_update_genome_lineage_from_files'
+
+        print ("\n\nRUNNING: {}".format(method))
+        print ("==================================\n\n")
+
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+
+
+        # upload test genomes
+        genomeInfo_0 = self.getGenomeInfo('GCF_000287295.1_ASM28729v1_genomic', 0)  # Candidatus Carsonella ruddii HT isolate Thao2000
+        genomeInfo_1 = self.getGenomeInfo('GCF_000306885.1_ASM30688v1_genomic', 1)  # Wolbachia endosymbiont of Onchocerca ochengi
+        genomeInfo_2 = self.getGenomeInfo('GCF_001439985.1_wTPRE_1.0_genomic',  2)  # Wolbachia endosymbiont of Trichogramma pretiosum
+        #genomeInfo_3 = self.getGenomeInfo('GCF_000022285.1_ASM2228v1_genomic',  3)  # Wolbachia sp. wRi
+
+        # copy mapping files to shared mount
+        shared_dir = "/kb/module/work/tmp"
+        map_files = {
+            'target_list': 'targets.list',
+            'release': 'release.map',
+            'tax_hierarchy': 'tax_hierarchy.map'
+            }
+        
+        dst_map_paths = dict()
+        for map_type in map_files.keys():
+            src_map_path = os.path.join('data','maps', map_files[map_type])
+            dst_map_paths[map_type] = os.path.join(shared_dir, map_files[map_type])
+            shutil.copy (src_map_path, dst_map_paths[map_type])
+
+
+        # read expected values
+        maps = dict()
+        for map_type in map_files.keys():
+            if map_type == 'target_list':
+                continue
+            maps[map_type] = dict()
+            with open (dst_map_paths[map_type], 'r') as map_h:
+                for map_line in map_h:
+                    map_line = map_line.rstrip()
+                    [genome_id, field_val] = map_line.split("\t")
+                    maps[map_type][genome_id] = field_val
+            
+        # run method
+        params = {
+            'workspace_name': self.getWsName(),
+            'target_list_file': dst_map_paths['target_list'],
+            'release_file': dst_map_paths['release'],
+            'taxonomy_hierarchy_file': dst_map_paths['tax_hierarchy']
+        }
+        result = self.getImpl().KButil_update_genome_lineage_from_files(self.getContext(),params)[0]
+        print('RESULT:')
+        pprint(result)
+
+        # check the output
+        output_refs = result['updated_object_refs']
+        for output_i,output_ref in enumerate(output_refs):
+            output_obj = self.getWsClient().get_objects2({'objects': [{'ref': output_ref}]})['data'][0]
+            output_obj_info = output_obj['info']
+            output_obj_data = output_obj['data']
+
+            output_obj_name = output_obj_info[NAME_I]
+            genome_id = re.sub('.Genome$', '', output_obj_name, flags=re.IGNORECASE)
+            genome_id = re.sub('__$', '', genome_id)
+            genome_id = re.sub('^GTDB_Arc-', '', genome_id, flags=re.IGNORECASE)
+            genome_id = re.sub('^GTDB_Bac-', '', genome_id, flags=re.IGNORECASE)
+            genome_id = re.sub(r'^(GC[AF]_\d{9}\.\d).*$', r'\1', genome_id)
+            print ("GENOME_ID: {}".format(genome_id))
+
+            # test field vals
+            #maps[map_type][genome_id] = field_val
+            this_release = maps['release'][genome_id].lower()
+            self.assertEqual(output_obj_data['release'], maps['release'][genome_id])
+            self.assertEqual(output_obj_data['taxonomy'], maps['tax_hierarchy'][genome_id])
+            self.assertEqual(output_obj_data['taxon_assignments'][this_release], maps['tax_hierarchy'][genome_id])
+
+                    
+    #### test_KButil_update_genome_features_from_file():
+    ##
+    # HIDE @unittest.skip("skipped test_KButil_update_genome_features_from_file")
+    def test_KButil_update_genome_features_from_file (self):
+        method = 'KButil_update_genome_features_from_file'
+
+        print ("\n\nRUNNING: {}".format(method))
+        print ("==================================\n\n")
+
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+
+
+        # upload test genomes
+        genomeInfo_0 = self.getGenomeInfo('GCF_000287295.1_ASM28729v1_genomic', 0)  # Candidatus Carsonella ruddii HT isolate Thao2000
+        genomeInfo_1 = self.getGenomeInfo('GCF_000306885.1_ASM30688v1_genomic', 1)  # Wolbachia endosymbiont of Onchocerca ochengi
+        genomeInfo_2 = self.getGenomeInfo('GCF_001439985.1_wTPRE_1.0_genomic',  2)  # Wolbachia endosymbiont of Trichogramma pretiosum
+        genomeInfo_3 = self.getGenomeInfo('GCF_000022285.1_ASM2228v1_genomic',  3)  # Wolbachia sp. wRi
+        amaInfo_0 = self.getAMAInfo('test_ama', 0)
+
+        # genome_ref mapping
+        genome_ref_map = {'123625/5/1' : self.getUPA_fromInfo (genomeInfo_0),
+                          '123625/4/1' : self.getUPA_fromInfo (genomeInfo_1),
+                          '123625/3/1' : self.getUPA_fromInfo (genomeInfo_2),
+                          '123625/2/1' : self.getUPA_fromInfo (genomeInfo_3),
+                          '123625/12/1' : self.getUPA_fromInfo (amaInfo_0)
+        }
+        
+        # copy mapping files to shared mount
+        shared_dir = "/kb/module/work/tmp"
+        map_files = {
+            'features': 'features.map'
+            }
+        
+        dst_map_paths = dict()
+        for map_type in map_files.keys():
+            src_map_path = os.path.join('data','maps', map_files[map_type])
+            dst_map_paths[map_type] = os.path.join(shared_dir, map_files[map_type])
+            #shutil.copy (src_map_path, dst_map_paths[map_type])
+
+
+            # correct features map object IDs
+            with open (src_map_path, 'r') as map_in:
+                with open (dst_map_paths[map_type], 'w') as map_out:
+                    for map_line in map_in:
+                        map_line = map_line.rstrip()
+                        [genome_id, fid, aliases_str, functions_str, inference_data_str] = map_line.split("\t")
+
+                        if len(genome_id.split('/')) == 3:
+                            if genome_id in genome_ref_map:
+                                new_genome_ref = genome_ref_map[genome_id]
+                            else:
+                                raise ValueError ("genome id {} from features.map not in genome_ref_map".format(genome_id))
+                        else:
+                            raise ValueError ("bad genome id {}.  Must be UPA".format(genome_id))
+                        map_out.write("\t".join([new_genome_ref, fid, aliases_str, functions_str, inference_data_str])+"\n")
+
+                        
+        # run method
+        params = {
+            'feature_update_file': dst_map_paths['features'],
+            'test_genome_ref_map': genome_ref_map
+        }
+        result = self.getImpl().KButil_update_genome_features_from_file(self.getContext(),params)[0]
+        print('RESULT:')
+        pprint(result)
+
+        # check the output
+        """
+        output_refs = result['updated_object_refs']
+        output_refs_noVER = []
+        for ref in output_refs:
+            output_refs_noVER.append('/'.join(ref.split('/')[0:2]))
+        target_refs_noVER = []
+        for ref in sorted(target_refs.keys()):
+            target_refs_noVER.append('/'.join(ref.split('/')[0:2]))
+            
+        for target_ref in target_refs_noVER:
+            self.assertTrue (target_ref in output_refs_noVER)
+
+        for output_i,output_ref in enumerate(output_refs):
+            output_obj = self.getWsClient().get_objects2({'objects': [{'ref': output_ref}]})['data'][0]
+            output_obj_info = output_obj['info']
+            output_obj_data = output_obj['data']
+            
+            output_obj_name = output_obj_info[NAME_I]
+            print ("OUTPUT_NAME: {}".format(output_obj_name))
+            
+#            # test field vals
+#            #maps[map_type][genome_id] = field_val
+#            #self.assertEqual(output_obj_data['scientific_name'], maps['species_name'][genome_id])
+        """
         pass

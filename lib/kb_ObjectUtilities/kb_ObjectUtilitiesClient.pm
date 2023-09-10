@@ -110,6 +110,108 @@ sub new
 
 
 
+=head2 KButil_copy_object
+
+  $return = $obj->KButil_copy_object($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a kb_ObjectUtilities.KButil_copy_object_Params
+$return is a kb_ObjectUtilities.KButil_copy_object_Output
+KButil_copy_object_Params is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+	input_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+	output_name has a value which is a string
+workspace_name is a string
+data_obj_ref is a string
+KButil_copy_object_Output is a reference to a hash where the following keys are defined:
+	report_name has a value which is a kb_ObjectUtilities.data_obj_name
+	report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+data_obj_name is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a kb_ObjectUtilities.KButil_copy_object_Params
+$return is a kb_ObjectUtilities.KButil_copy_object_Output
+KButil_copy_object_Params is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+	input_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+	output_name has a value which is a string
+workspace_name is a string
+data_obj_ref is a string
+KButil_copy_object_Output is a reference to a hash where the following keys are defined:
+	report_name has a value which is a kb_ObjectUtilities.data_obj_name
+	report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+data_obj_name is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+ sub KButil_copy_object
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function KButil_copy_object (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to KButil_copy_object:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'KButil_copy_object');
+	}
+    }
+
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "kb_ObjectUtilities.KButil_copy_object",
+	    params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'KButil_copy_object',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method KButil_copy_object",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'KButil_copy_object',
+				       );
+    }
+}
+ 
+
+
 =head2 KButil_Concat_MSAs
 
   $return = $obj->KButil_Concat_MSAs($params)
@@ -216,6 +318,748 @@ KButil_Concat_MSAs_Output is a reference to a hash where the following keys are 
     }
 }
  
+
+
+=head2 KButil_count_ws_objects
+
+  $return = $obj->KButil_count_ws_objects($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a kb_ObjectUtilities.KButil_count_ws_objects_Params
+$return is a kb_ObjectUtilities.KButil_count_ws_objects_Output
+KButil_count_ws_objects_Params is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+	object_types has a value which is a reference to a list where each element is a string
+	verbose has a value which is a kb_ObjectUtilities.bool
+workspace_name is a string
+bool is an int
+KButil_count_ws_objects_Output is a reference to a hash where the following keys are defined:
+	report_name has a value which is a kb_ObjectUtilities.data_obj_name
+	report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+	ws_obj_refs has a value which is a reference to a hash where the key is a string and the value is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+data_obj_name is a string
+data_obj_ref is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a kb_ObjectUtilities.KButil_count_ws_objects_Params
+$return is a kb_ObjectUtilities.KButil_count_ws_objects_Output
+KButil_count_ws_objects_Params is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+	object_types has a value which is a reference to a list where each element is a string
+	verbose has a value which is a kb_ObjectUtilities.bool
+workspace_name is a string
+bool is an int
+KButil_count_ws_objects_Output is a reference to a hash where the following keys are defined:
+	report_name has a value which is a kb_ObjectUtilities.data_obj_name
+	report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+	ws_obj_refs has a value which is a reference to a hash where the key is a string and the value is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+data_obj_name is a string
+data_obj_ref is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+ sub KButil_count_ws_objects
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function KButil_count_ws_objects (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to KButil_count_ws_objects:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'KButil_count_ws_objects');
+	}
+    }
+
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "kb_ObjectUtilities.KButil_count_ws_objects",
+	    params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'KButil_count_ws_objects',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method KButil_count_ws_objects",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'KButil_count_ws_objects',
+				       );
+    }
+}
+ 
+
+
+=head2 KButil_hide_ws_objects
+
+  $return = $obj->KButil_hide_ws_objects($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a kb_ObjectUtilities.KButil_hide_ws_objects_Params
+$return is a kb_ObjectUtilities.KButil_hide_ws_objects_Output
+KButil_hide_ws_objects_Params is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+	object_types has a value which is a reference to a list where each element is a string
+	verbose has a value which is a kb_ObjectUtilities.bool
+	hide_all has a value which is a kb_ObjectUtilities.bool
+workspace_name is a string
+bool is an int
+KButil_hide_ws_objects_Output is a reference to a hash where the following keys are defined:
+	report_name has a value which is a kb_ObjectUtilities.data_obj_name
+	report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+data_obj_name is a string
+data_obj_ref is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a kb_ObjectUtilities.KButil_hide_ws_objects_Params
+$return is a kb_ObjectUtilities.KButil_hide_ws_objects_Output
+KButil_hide_ws_objects_Params is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+	object_types has a value which is a reference to a list where each element is a string
+	verbose has a value which is a kb_ObjectUtilities.bool
+	hide_all has a value which is a kb_ObjectUtilities.bool
+workspace_name is a string
+bool is an int
+KButil_hide_ws_objects_Output is a reference to a hash where the following keys are defined:
+	report_name has a value which is a kb_ObjectUtilities.data_obj_name
+	report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+data_obj_name is a string
+data_obj_ref is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+ sub KButil_hide_ws_objects
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function KButil_hide_ws_objects (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to KButil_hide_ws_objects:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'KButil_hide_ws_objects');
+	}
+    }
+
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "kb_ObjectUtilities.KButil_hide_ws_objects",
+	    params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'KButil_hide_ws_objects',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method KButil_hide_ws_objects",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'KButil_hide_ws_objects',
+				       );
+    }
+}
+ 
+
+
+=head2 KButil_unhide_ws_objects
+
+  $return = $obj->KButil_unhide_ws_objects($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a kb_ObjectUtilities.KButil_unhide_ws_objects_Params
+$return is a kb_ObjectUtilities.KButil_unhide_ws_objects_Output
+KButil_unhide_ws_objects_Params is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+	object_types has a value which is a reference to a list where each element is a string
+	verbose has a value which is a kb_ObjectUtilities.bool
+	unhide_all has a value which is a kb_ObjectUtilities.bool
+workspace_name is a string
+bool is an int
+KButil_unhide_ws_objects_Output is a reference to a hash where the following keys are defined:
+	report_name has a value which is a kb_ObjectUtilities.data_obj_name
+	report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+data_obj_name is a string
+data_obj_ref is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a kb_ObjectUtilities.KButil_unhide_ws_objects_Params
+$return is a kb_ObjectUtilities.KButil_unhide_ws_objects_Output
+KButil_unhide_ws_objects_Params is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+	object_types has a value which is a reference to a list where each element is a string
+	verbose has a value which is a kb_ObjectUtilities.bool
+	unhide_all has a value which is a kb_ObjectUtilities.bool
+workspace_name is a string
+bool is an int
+KButil_unhide_ws_objects_Output is a reference to a hash where the following keys are defined:
+	report_name has a value which is a kb_ObjectUtilities.data_obj_name
+	report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+data_obj_name is a string
+data_obj_ref is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+ sub KButil_unhide_ws_objects
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function KButil_unhide_ws_objects (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to KButil_unhide_ws_objects:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'KButil_unhide_ws_objects');
+	}
+    }
+
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "kb_ObjectUtilities.KButil_unhide_ws_objects",
+	    params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'KButil_unhide_ws_objects',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method KButil_unhide_ws_objects",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'KButil_unhide_ws_objects',
+				       );
+    }
+}
+ 
+
+
+=head2 KButil_update_genome_species_name
+
+  $return = $obj->KButil_update_genome_species_name($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a kb_ObjectUtilities.KButil_update_genome_species_name_Params
+$return is a kb_ObjectUtilities.KButil_update_genome_species_name_Output
+KButil_update_genome_species_name_Params is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+	input_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+	species_names has a value which is a string
+workspace_name is a string
+data_obj_ref is a string
+KButil_update_genome_species_name_Output is a reference to a hash where the following keys are defined:
+	report_name has a value which is a kb_ObjectUtilities.data_obj_name
+	report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+	updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+data_obj_name is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a kb_ObjectUtilities.KButil_update_genome_species_name_Params
+$return is a kb_ObjectUtilities.KButil_update_genome_species_name_Output
+KButil_update_genome_species_name_Params is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+	input_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+	species_names has a value which is a string
+workspace_name is a string
+data_obj_ref is a string
+KButil_update_genome_species_name_Output is a reference to a hash where the following keys are defined:
+	report_name has a value which is a kb_ObjectUtilities.data_obj_name
+	report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+	updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+data_obj_name is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+ sub KButil_update_genome_species_name
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function KButil_update_genome_species_name (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to KButil_update_genome_species_name:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'KButil_update_genome_species_name');
+	}
+    }
+
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "kb_ObjectUtilities.KButil_update_genome_species_name",
+	    params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'KButil_update_genome_species_name',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method KButil_update_genome_species_name",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'KButil_update_genome_species_name',
+				       );
+    }
+}
+ 
+
+
+=head2 KButil_update_genome_fields_from_files
+
+  $return = $obj->KButil_update_genome_fields_from_files($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a kb_ObjectUtilities.KButil_update_genome_fields_from_files_Params
+$return is a kb_ObjectUtilities.KButil_update_genome_fields_from_files_Output
+KButil_update_genome_fields_from_files_Params is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+	target_list_file has a value which is a kb_ObjectUtilities.file_path
+	object_newname_file has a value which is a kb_ObjectUtilities.file_path
+	species_name_file has a value which is a kb_ObjectUtilities.file_path
+	source_file has a value which is a kb_ObjectUtilities.file_path
+	domain_file has a value which is a kb_ObjectUtilities.file_path
+	genome_type_file has a value which is a kb_ObjectUtilities.file_path
+	release_file has a value which is a kb_ObjectUtilities.file_path
+	taxonomy_hierarchy_file has a value which is a kb_ObjectUtilities.file_path
+	taxonomy_ncbi_id_file has a value which is a kb_ObjectUtilities.file_path
+	genome_qual_scores_file has a value which is a kb_ObjectUtilities.file_path
+	gene_functions_file has a value which is a kb_ObjectUtilities.file_path
+	keep_spoofed_mRNAs has a value which is a kb_ObjectUtilities.bool
+workspace_name is a string
+file_path is a string
+bool is an int
+KButil_update_genome_fields_from_files_Output is a reference to a hash where the following keys are defined:
+	updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+data_obj_ref is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a kb_ObjectUtilities.KButil_update_genome_fields_from_files_Params
+$return is a kb_ObjectUtilities.KButil_update_genome_fields_from_files_Output
+KButil_update_genome_fields_from_files_Params is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+	target_list_file has a value which is a kb_ObjectUtilities.file_path
+	object_newname_file has a value which is a kb_ObjectUtilities.file_path
+	species_name_file has a value which is a kb_ObjectUtilities.file_path
+	source_file has a value which is a kb_ObjectUtilities.file_path
+	domain_file has a value which is a kb_ObjectUtilities.file_path
+	genome_type_file has a value which is a kb_ObjectUtilities.file_path
+	release_file has a value which is a kb_ObjectUtilities.file_path
+	taxonomy_hierarchy_file has a value which is a kb_ObjectUtilities.file_path
+	taxonomy_ncbi_id_file has a value which is a kb_ObjectUtilities.file_path
+	genome_qual_scores_file has a value which is a kb_ObjectUtilities.file_path
+	gene_functions_file has a value which is a kb_ObjectUtilities.file_path
+	keep_spoofed_mRNAs has a value which is a kb_ObjectUtilities.bool
+workspace_name is a string
+file_path is a string
+bool is an int
+KButil_update_genome_fields_from_files_Output is a reference to a hash where the following keys are defined:
+	updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+data_obj_ref is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+ sub KButil_update_genome_fields_from_files
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function KButil_update_genome_fields_from_files (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to KButil_update_genome_fields_from_files:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'KButil_update_genome_fields_from_files');
+	}
+    }
+
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "kb_ObjectUtilities.KButil_update_genome_fields_from_files",
+	    params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'KButil_update_genome_fields_from_files',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method KButil_update_genome_fields_from_files",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'KButil_update_genome_fields_from_files',
+				       );
+    }
+}
+ 
+
+
+=head2 KButil_update_genome_lineage_from_files
+
+  $return = $obj->KButil_update_genome_lineage_from_files($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a kb_ObjectUtilities.KButil_update_genome_lineage_from_files_Params
+$return is a kb_ObjectUtilities.KButil_update_genome_lineage_from_files_Output
+KButil_update_genome_lineage_from_files_Params is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+	target_list_file has a value which is a kb_ObjectUtilities.file_path
+	release_file has a value which is a kb_ObjectUtilities.file_path
+	taxonomy_hierarchy_file has a value which is a kb_ObjectUtilities.file_path
+workspace_name is a string
+file_path is a string
+KButil_update_genome_lineage_from_files_Output is a reference to a hash where the following keys are defined:
+	updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+data_obj_ref is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a kb_ObjectUtilities.KButil_update_genome_lineage_from_files_Params
+$return is a kb_ObjectUtilities.KButil_update_genome_lineage_from_files_Output
+KButil_update_genome_lineage_from_files_Params is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+	target_list_file has a value which is a kb_ObjectUtilities.file_path
+	release_file has a value which is a kb_ObjectUtilities.file_path
+	taxonomy_hierarchy_file has a value which is a kb_ObjectUtilities.file_path
+workspace_name is a string
+file_path is a string
+KButil_update_genome_lineage_from_files_Output is a reference to a hash where the following keys are defined:
+	updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+data_obj_ref is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+ sub KButil_update_genome_lineage_from_files
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function KButil_update_genome_lineage_from_files (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to KButil_update_genome_lineage_from_files:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'KButil_update_genome_lineage_from_files');
+	}
+    }
+
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "kb_ObjectUtilities.KButil_update_genome_lineage_from_files",
+	    params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'KButil_update_genome_lineage_from_files',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method KButil_update_genome_lineage_from_files",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'KButil_update_genome_lineage_from_files',
+				       );
+    }
+}
+ 
+
+
+=head2 KButil_update_genome_features_from_file
+
+  $return = $obj->KButil_update_genome_features_from_file($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a kb_ObjectUtilities.KButil_update_genome_features_from_file_Params
+$return is a kb_ObjectUtilities.KButil_update_genome_features_from_file_Output
+KButil_update_genome_features_from_file_Params is a reference to a hash where the following keys are defined:
+	feature_update_file has a value which is a kb_ObjectUtilities.file_path
+	genome_ref_map has a value which is a kb_ObjectUtilities.file_path
+file_path is a string
+KButil_update_genome_features_from_file_Output is a reference to a hash where the following keys are defined:
+	updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+data_obj_ref is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a kb_ObjectUtilities.KButil_update_genome_features_from_file_Params
+$return is a kb_ObjectUtilities.KButil_update_genome_features_from_file_Output
+KButil_update_genome_features_from_file_Params is a reference to a hash where the following keys are defined:
+	feature_update_file has a value which is a kb_ObjectUtilities.file_path
+	genome_ref_map has a value which is a kb_ObjectUtilities.file_path
+file_path is a string
+KButil_update_genome_features_from_file_Output is a reference to a hash where the following keys are defined:
+	updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+data_obj_ref is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+ sub KButil_update_genome_features_from_file
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function KButil_update_genome_features_from_file (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to KButil_update_genome_features_from_file:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'KButil_update_genome_features_from_file');
+	}
+    }
+
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "kb_ObjectUtilities.KButil_update_genome_features_from_file",
+	    params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'KButil_update_genome_features_from_file',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method KButil_update_genome_features_from_file",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'KButil_update_genome_features_from_file',
+				       );
+    }
+}
+ 
   
 sub status
 {
@@ -259,16 +1103,16 @@ sub version {
             Bio::KBase::Exceptions::JSONRPC->throw(
                 error => $result->error_message,
                 code => $result->content->{code},
-                method_name => 'KButil_Concat_MSAs',
+                method_name => 'KButil_update_genome_features_from_file',
             );
         } else {
             return wantarray ? @{$result->result} : $result->result->[0];
         }
     } else {
         Bio::KBase::Exceptions::HTTP->throw(
-            error => "Error invoking method KButil_Concat_MSAs",
+            error => "Error invoking method KButil_update_genome_features_from_file",
             status_line => $self->{client}->status_line,
-            method_name => 'KButil_Concat_MSAs',
+            method_name => 'KButil_update_genome_features_from_file',
         );
     }
 }
@@ -320,6 +1164,32 @@ sub _validate_version {
 ** "ref" means the entire name combining the workspace id and the object name
 ** "id" is a numerical identifier of the workspace or object, and should just be used for workspace
 ** "name" is a string identifier of a workspace or object.  This is received from Narrative.
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a string
+</pre>
+
+=end html
+
+=begin text
+
+a string
+
+=end text
+
+=back
+
+
+
+=head2 file_path
+
+=over 4
+
 
 
 =item Definition
@@ -446,6 +1316,79 @@ an int
 
 
 
+=head2 KButil_copy_object_Params
+
+=over 4
+
+
+
+=item Description
+
+KButil_copy_object()
+**
+**  Method for copying an object of a limited number of common types
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+input_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+output_name has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+input_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+output_name has a value which is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 KButil_copy_object_Output
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+report_name has a value which is a kb_ObjectUtilities.data_obj_name
+report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+report_name has a value which is a kb_ObjectUtilities.data_obj_name
+report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+
+
+=end text
+
+=back
+
+
+
 =head2 KButil_Concat_MSAs_Params
 
 =over 4
@@ -515,6 +1458,539 @@ report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
 a reference to a hash where the following keys are defined:
 report_name has a value which is a kb_ObjectUtilities.data_obj_name
 report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+
+
+=end text
+
+=back
+
+
+
+=head2 KButil_count_ws_objects_Params
+
+=over 4
+
+
+
+=item Description
+
+KButil_count_ws_objects()
+**
+**  Method for counting number of workspace objects when data panel fails
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+object_types has a value which is a reference to a list where each element is a string
+verbose has a value which is a kb_ObjectUtilities.bool
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+object_types has a value which is a reference to a list where each element is a string
+verbose has a value which is a kb_ObjectUtilities.bool
+
+
+=end text
+
+=back
+
+
+
+=head2 KButil_count_ws_objects_Output
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+report_name has a value which is a kb_ObjectUtilities.data_obj_name
+report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+ws_obj_refs has a value which is a reference to a hash where the key is a string and the value is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+report_name has a value which is a kb_ObjectUtilities.data_obj_name
+report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+ws_obj_refs has a value which is a reference to a hash where the key is a string and the value is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+
+
+=end text
+
+=back
+
+
+
+=head2 KButil_hide_ws_objects_Params
+
+=over 4
+
+
+
+=item Description
+
+KButil_hide_ws_objects()
+**
+**  Method for hiding workspace objects in bulk
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+object_types has a value which is a reference to a list where each element is a string
+verbose has a value which is a kb_ObjectUtilities.bool
+hide_all has a value which is a kb_ObjectUtilities.bool
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+object_types has a value which is a reference to a list where each element is a string
+verbose has a value which is a kb_ObjectUtilities.bool
+hide_all has a value which is a kb_ObjectUtilities.bool
+
+
+=end text
+
+=back
+
+
+
+=head2 KButil_hide_ws_objects_Output
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+report_name has a value which is a kb_ObjectUtilities.data_obj_name
+report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+report_name has a value which is a kb_ObjectUtilities.data_obj_name
+report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+
+
+=end text
+
+=back
+
+
+
+=head2 KButil_unhide_ws_objects_Params
+
+=over 4
+
+
+
+=item Description
+
+KButil_unhide_ws_objects()
+**
+**  Method for unhiding workspace objects in bulk
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+object_types has a value which is a reference to a list where each element is a string
+verbose has a value which is a kb_ObjectUtilities.bool
+unhide_all has a value which is a kb_ObjectUtilities.bool
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+object_types has a value which is a reference to a list where each element is a string
+verbose has a value which is a kb_ObjectUtilities.bool
+unhide_all has a value which is a kb_ObjectUtilities.bool
+
+
+=end text
+
+=back
+
+
+
+=head2 KButil_unhide_ws_objects_Output
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+report_name has a value which is a kb_ObjectUtilities.data_obj_name
+report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+report_name has a value which is a kb_ObjectUtilities.data_obj_name
+report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+
+
+=end text
+
+=back
+
+
+
+=head2 KButil_update_genome_species_name_Params
+
+=over 4
+
+
+
+=item Description
+
+KButil_update_genome_species_name()
+**
+**  Method for adding/changing Genome objects species names
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+input_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+species_names has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+input_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+species_names has a value which is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 KButil_update_genome_species_name_Output
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+report_name has a value which is a kb_ObjectUtilities.data_obj_name
+report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+report_name has a value which is a kb_ObjectUtilities.data_obj_name
+report_ref has a value which is a kb_ObjectUtilities.data_obj_ref
+updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+
+
+=end text
+
+=back
+
+
+
+=head2 KButil_update_genome_fields_from_files_Params
+
+=over 4
+
+
+
+=item Description
+
+KButil_update_genome_fields_from_files()
+**
+**  Method for adding/changing values in Genome object fields, from files
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+target_list_file has a value which is a kb_ObjectUtilities.file_path
+object_newname_file has a value which is a kb_ObjectUtilities.file_path
+species_name_file has a value which is a kb_ObjectUtilities.file_path
+source_file has a value which is a kb_ObjectUtilities.file_path
+domain_file has a value which is a kb_ObjectUtilities.file_path
+genome_type_file has a value which is a kb_ObjectUtilities.file_path
+release_file has a value which is a kb_ObjectUtilities.file_path
+taxonomy_hierarchy_file has a value which is a kb_ObjectUtilities.file_path
+taxonomy_ncbi_id_file has a value which is a kb_ObjectUtilities.file_path
+genome_qual_scores_file has a value which is a kb_ObjectUtilities.file_path
+gene_functions_file has a value which is a kb_ObjectUtilities.file_path
+keep_spoofed_mRNAs has a value which is a kb_ObjectUtilities.bool
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+target_list_file has a value which is a kb_ObjectUtilities.file_path
+object_newname_file has a value which is a kb_ObjectUtilities.file_path
+species_name_file has a value which is a kb_ObjectUtilities.file_path
+source_file has a value which is a kb_ObjectUtilities.file_path
+domain_file has a value which is a kb_ObjectUtilities.file_path
+genome_type_file has a value which is a kb_ObjectUtilities.file_path
+release_file has a value which is a kb_ObjectUtilities.file_path
+taxonomy_hierarchy_file has a value which is a kb_ObjectUtilities.file_path
+taxonomy_ncbi_id_file has a value which is a kb_ObjectUtilities.file_path
+genome_qual_scores_file has a value which is a kb_ObjectUtilities.file_path
+gene_functions_file has a value which is a kb_ObjectUtilities.file_path
+keep_spoofed_mRNAs has a value which is a kb_ObjectUtilities.bool
+
+
+=end text
+
+=back
+
+
+
+=head2 KButil_update_genome_fields_from_files_Output
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+
+
+=end text
+
+=back
+
+
+
+=head2 KButil_update_genome_lineage_from_files_Params
+
+=over 4
+
+
+
+=item Description
+
+KButil_update_genome_lineage_from_files()
+**
+**  Method for adding/changing values in Genome object tax and lineage fields, from files
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+target_list_file has a value which is a kb_ObjectUtilities.file_path
+release_file has a value which is a kb_ObjectUtilities.file_path
+taxonomy_hierarchy_file has a value which is a kb_ObjectUtilities.file_path
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+workspace_name has a value which is a kb_ObjectUtilities.workspace_name
+target_list_file has a value which is a kb_ObjectUtilities.file_path
+release_file has a value which is a kb_ObjectUtilities.file_path
+taxonomy_hierarchy_file has a value which is a kb_ObjectUtilities.file_path
+
+
+=end text
+
+=back
+
+
+
+=head2 KButil_update_genome_lineage_from_files_Output
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+
+
+=end text
+
+=back
+
+
+
+=head2 KButil_update_genome_features_from_file_Params
+
+=over 4
+
+
+
+=item Description
+
+KButil_update_genome_features_from_file()
+**
+**  Method for adding values to Genome object features, from file
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+feature_update_file has a value which is a kb_ObjectUtilities.file_path
+genome_ref_map has a value which is a kb_ObjectUtilities.file_path
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+feature_update_file has a value which is a kb_ObjectUtilities.file_path
+genome_ref_map has a value which is a kb_ObjectUtilities.file_path
+
+
+=end text
+
+=back
+
+
+
+=head2 KButil_update_genome_features_from_file_Output
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
 
 
 =end text

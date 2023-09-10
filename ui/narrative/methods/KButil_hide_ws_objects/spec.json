@@ -1,0 +1,248 @@
+{
+    "ver": "1.2.0",
+    "authors": [
+        "dylan"
+    ],
+    "contact": "http://www.kbase.us/support/",
+    "visible": true,
+    "categories": ["inactive","util"],
+    "widgets": {
+        "input": null,
+        "output": "no-display"
+    },
+    "parameters": [ 
+        {
+            "id": "object_types",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": true,
+            "default_values": [ "" ],
+            "field_type": "dropdown",
+            "dropdown_options": {
+		"options": [
+			{
+				"value": "KBaseFile.PairedEndLibrary",
+				"display": "PairedEndLibrary",
+				"id": "KBaseFile.PairedEndLibrary",
+				"ui-name": "KBaseFile.PairedEndLibrary"
+			},
+
+			{
+				"value": "KBaseFile.SingleEndLibrary",
+				"display": "SingleEndLibrary",
+				"id": "KBaseFile.SingleEndLibrary",
+				"ui-name": "KBaseFile.SingleEndLibrary"
+			},
+
+			{
+				"value": "KBaseGenomeAnnotations.Assembly",
+				"display": "Assembly",
+				"id": "KBaseGenomeAnnotations.Assembly",
+				"ui-name": "KBaseGenomeAnnotations.Assembly"
+			},
+
+			{
+				"value": "KBaseGenomes.Genome",
+				"display": "Genome",
+				"id": "KBaseGenomes.Genome",
+				"ui-name": "KBaseGenomes.Genome"
+			},
+
+			{
+				"value": "KBaseSets.ReadsSet",
+				"display": "ReadsSet",
+				"id": "KBaseSets.ReadsSet",
+				"ui-name": "KBaseSets.ReadsSet"
+			},
+
+			{
+				"value": "KBaseSets.AssemblySet",
+				"display": "AssemblySet",
+				"id": "KBaseSets.AssemblySet",
+				"ui-name": "KBaseSets.AssemblySet"
+			},
+
+			{
+				"value": "KBaseSearch.GenomeSet",
+				"display": "GenomeSet",
+				"id": "KBaseSearch.GenomeSet",
+				"ui-name": "KBaseSearch.GenomeSet"
+			},
+
+			{
+				"value": "KBaseCollections.FeatureSet",
+				"display": "FeatureSet",
+				"id": "KBaseCollections.FeatureSet",
+				"ui-name": "KBaseCollections.FeatureSet"
+			},
+
+			{
+				"value": "KBaseGeneFamilies.DomainAnnotation",
+				"display": "DomainAnnotation",
+				"id": "KBaseGeneFamilies.DomainAnnotation",
+				"ui-name": "KBaseGeneFamilies.DomainAnnotation"
+			},
+
+			{
+				"value": "KBaseGenomes.GenomeComparison",
+				"display": "GenomeComparison",
+				"id": "KBaseGenomes.GenomeComparison",
+				"ui-name": "KBaseGenomes.GenomeComparison"
+			},
+
+			{
+				"value": "KBaseGenomes.Pangenome",
+				"display": "Pangenome",
+				"id": "KBaseGenomes.Pangenome",
+				"ui-name": "KBaseGenomes.Pangenome"
+			},
+
+			{
+				"value": "KBaseMetagenomes.AnnotatedMetagenomeAssembly",
+				"display": "AnnotatedMetagenomeAssembly",
+				"id": "KBaseMetagenomes.AnnotatedMetagenomeAssembly",
+				"ui-name": "KBaseMetagenomes.AnnotatedMetagenomeAssembly"
+			},
+
+			{
+				"value": "KBaseMetagenomes.BinnedContigs",
+				"display": "BinnedContigs",
+				"id": "KBaseMetagenomes.BinnedContigs",
+				"ui-name": "KBaseMetagenomes.BinnedContigs"
+			},
+
+			{
+				"value": "KBaseSequences.SequenceSet",
+				"display": "SequenceSet",
+				"id": "KBaseSequences.SequenceSet",
+				"ui-name": "KBaseSequences.SequenceSet"
+			},
+
+			{
+				"value": "KBaseStructure.ProteinStructure",
+				"display": "ProteinStructure",
+				"id": "KBaseStructure.ProteinStructure",
+				"ui-name": "KBaseStructure.ProteinStructure"
+			},
+
+			{
+				"value": "KBaseStructure.ProteinStructures",
+				"display": "ProteinStructures",
+				"id": "KBaseStructure.ProteinStructures",
+				"ui-name": "KBaseStructure.ProteinStructures"
+			},
+
+			{
+				"value": "KBaseTrees.MSA",
+				"display": "MSA",
+				"id": "KBaseTrees.MSA",
+				"ui-name": "KBaseTrees.MSA"
+			},
+
+			{
+				"value": "KBaseTrees.MSASet",
+				"display": "MSASet",
+				"id": "KBaseTrees.MSASet",
+				"ui-name": "KBaseTrees.MSASet"
+			},
+
+			{
+				"value": "KBaseTrees.Tree",
+				"display": "Tree",
+				"id": "KBaseTrees.Tree",
+				"ui-name": "KBaseTrees.Tree"
+			},
+
+			{
+				"value": "KBaseAssembly.PairedEndLibrary",
+				"display": "PairedEndLibrary (old)",
+				"id": "KBaseAssembly.PairedEndLibrary",
+				"ui-name": "KBaseAssembly.PairedEndLibrary"
+			},
+
+			{
+				"value": "KBaseAssembly.SingleEndLibrary",
+				"display": "SingleEndLibrary (old)",
+				"id": "KBaseAssembly.SingleEndLibrary",
+				"ui-name": "KBaseAssembly.SingleEndLibrary"
+			},
+
+			{
+				"value": "KBaseGenomes.ContigSet",
+				"display": "Assembly (old)",
+				"id": "KBaseGenomes.ContigSet",
+				"ui-name": "KBaseGenomes.ContigSet"
+			}
+		]
+            }
+        },
+        {
+            "id": "verbose",
+            "optional": true,
+            "advanced": true,
+            "allow_multiple": false,
+            "default_values": [ "0" ],
+            "field_type": "checkbox",
+            "checkbox_options": {
+                "checked_value": "1",
+                "unchecked_value": "0"
+            }
+        },
+        {
+            "id": "hide_all",
+            "optional": true,
+            "advanced": true,
+            "allow_multiple": false,
+            "default_values": [ "0" ],
+            "field_type": "checkbox",
+            "checkbox_options": {
+                "checked_value": "1",
+                "unchecked_value": "0"
+            }
+        }
+    ],
+    "behavior": {
+        "service-mapping": {
+            "url": "",
+            "name": "kb_ObjectUtilities",
+            "method": "KButil_hide_ws_objects",
+            "input_mapping": [
+                {
+                    "narrative_system_variable": "workspace",
+                    "target_property": "workspace_name"
+                },
+                {
+                    "input_parameter": "object_types",
+                    "target_property": "object_types"
+                },
+                {
+                    "input_parameter": "verbose",
+                    "target_property": "verbose"
+                },
+                {
+                    "input_parameter": "hide_all",
+                    "target_property": "hide_all"
+                }
+            ],
+            "output_mapping": [
+                {
+                    "narrative_system_variable": "workspace",
+                    "target_property": "workspace_name"
+                },
+                {
+                    "service_method_output_path": [0, "report_name"],
+                    "target_property": "report_name"
+                },
+                {
+                    "service_method_output_path": [0, "report_ref"],
+                    "target_property": "report_ref"
+                },
+                {
+		    "constant_value": "15",
+                    "target_property": "report_window_line_height"
+                }
+            ]
+        }
+    },
+    "job_id_output_field": "docker"
+}
