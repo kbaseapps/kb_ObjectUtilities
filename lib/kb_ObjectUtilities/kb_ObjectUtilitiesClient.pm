@@ -882,8 +882,10 @@ KButil_update_genome_lineage_from_files_Params is a reference to a hash where th
 	target_list_file has a value which is a kb_ObjectUtilities.file_path
 	release_file has a value which is a kb_ObjectUtilities.file_path
 	taxonomy_hierarchy_file has a value which is a kb_ObjectUtilities.file_path
+	delete_old_taxon_assignments has a value which is a kb_ObjectUtilities.bool
 workspace_name is a string
 file_path is a string
+bool is an int
 KButil_update_genome_lineage_from_files_Output is a reference to a hash where the following keys are defined:
 	updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
 data_obj_ref is a string
@@ -901,8 +903,10 @@ KButil_update_genome_lineage_from_files_Params is a reference to a hash where th
 	target_list_file has a value which is a kb_ObjectUtilities.file_path
 	release_file has a value which is a kb_ObjectUtilities.file_path
 	taxonomy_hierarchy_file has a value which is a kb_ObjectUtilities.file_path
+	delete_old_taxon_assignments has a value which is a kb_ObjectUtilities.bool
 workspace_name is a string
 file_path is a string
+bool is an int
 KButil_update_genome_lineage_from_files_Output is a reference to a hash where the following keys are defined:
 	updated_object_refs has a value which is a reference to a list where each element is a kb_ObjectUtilities.data_obj_ref
 data_obj_ref is a string
@@ -1880,6 +1884,7 @@ workspace_name has a value which is a kb_ObjectUtilities.workspace_name
 target_list_file has a value which is a kb_ObjectUtilities.file_path
 release_file has a value which is a kb_ObjectUtilities.file_path
 taxonomy_hierarchy_file has a value which is a kb_ObjectUtilities.file_path
+delete_old_taxon_assignments has a value which is a kb_ObjectUtilities.bool
 
 </pre>
 
@@ -1892,6 +1897,7 @@ workspace_name has a value which is a kb_ObjectUtilities.workspace_name
 target_list_file has a value which is a kb_ObjectUtilities.file_path
 release_file has a value which is a kb_ObjectUtilities.file_path
 taxonomy_hierarchy_file has a value which is a kb_ObjectUtilities.file_path
+delete_old_taxon_assignments has a value which is a kb_ObjectUtilities.bool
 
 
 =end text

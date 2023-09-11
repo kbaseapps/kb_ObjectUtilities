@@ -212,7 +212,8 @@ class kb_ObjectUtilities(object):
            of a workspace or object.  This is received from Narrative.),
            parameter "target_list_file" of type "file_path", parameter
            "release_file" of type "file_path", parameter
-           "taxonomy_hierarchy_file" of type "file_path"
+           "taxonomy_hierarchy_file" of type "file_path", parameter
+           "delete_old_taxon_assignments" of type "bool"
         :returns: instance of type
            "KButil_update_genome_lineage_from_files_Output" -> structure:
            parameter "updated_object_refs" of list of type "data_obj_ref"

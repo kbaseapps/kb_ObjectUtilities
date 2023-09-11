@@ -1,3 +1,6 @@
+### Version 1.4.1
+- code cleanup
+
 ### Version 1.4.0
 - added method (no app) KButil_update_genome_lineage_from_files()
 

@@ -25,8 +25,13 @@ from installed_clients.DataFileUtilClient import DataFileUtil
 from installed_clients.KBaseReportClient import KBaseReport
 
 # silence whining
-import requests
 requests.packages.urllib3.disable_warnings()
+
+
+###################################################################
+# TODO: next dev should move the print/debug statements to logger #
+###################################################################
+
 #END_HEADER
 
 
@@ -47,9 +52,9 @@ class kb_ObjectUtilities:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "1.4.0"
+    VERSION = "1.4.1"
     GIT_URL = "https://github.com/kbaseapps/kb_ObjectUtilities"
-    GIT_COMMIT_HASH = "d40f14c350e510ad4240a119cf6400f163ba2296"
+    GIT_COMMIT_HASH = "2270ed6449b1c3ea41142253d4c4ce667fa89cee"
 
     #BEGIN_CLASS_HEADER
     workspaceURL = None
@@ -59,6 +64,8 @@ class kb_ObjectUtilities:
     callbackURL = None
     scratch = None
 
+    [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+    
     known_obj_types_path = os.path.join (os.path.sep, 'kb', 'module', 'data', 'known_obj_types.txt')
     
     def now_ISO(self):
@@ -75,10 +82,9 @@ class kb_ObjectUtilities:
         sys.stdout.flush()
 
     def getUPA_fromInfo (self,obj_info):
-        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
-        return '/'.join([str(obj_info[WSID_I]),
-                         str(obj_info[OBJID_I]),
-                         str(obj_info[VERSION_I])])
+        return '/'.join([str(obj_info[self.WSID_I]),
+                         str(obj_info[self.OBJID_I]),
+                         str(obj_info[self.VERSION_I])])
 
     def gaAPI_get_all_AMA_features(self, features_handle_ref):
         output_dir = os.path.join(self.scratch, 'output_'+self.now_ISO())
@@ -180,7 +186,6 @@ class kb_ObjectUtilities:
         self.log(console,'Running KButil_copy_object with params=')
         self.log(console, "\n"+pformat(params))
         report = ''
-        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
 
         
         #### do some basic checks
@@ -201,8 +206,8 @@ class kb_ObjectUtilities:
         src_obj = self.dfuClient.get_objects({'object_refs':[params['input_ref']]})['data'][0]
         src_info = src_obj['info']
         src_data = src_obj['data']
-        src_type = src_info[TYPE_I]
-        src_name = src_info[NAME_I]
+        src_type = src_info[self.TYPE_I]
+        src_name = src_info[self.NAME_I]
         
         if src_name == params['output_name']:
             self.log(console, "Must give name for new object that is different from source object")
@@ -286,7 +291,6 @@ class kb_ObjectUtilities:
         report = ''
 #        report = 'Running KButil_Concat_MSAs with params='
 #        report += "\n"+pformat(params)
-        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
         genome_id_feature_id_delim = '.f:'
         
         
@@ -339,7 +343,7 @@ class kb_ObjectUtilities:
                 objects = self.dfuClient.get_objects({'object_refs':[MSA_ref]})['data']
                 data = objects[0]['data']
                 info = objects[0]['info']
-                type_name = info[TYPE_I].split('.')[1].split('-')[0]
+                type_name = info[self.TYPE_I].split('.')[1].split('-')[0]
 
             except Exception as e:
                 raise ValueError('Unable to fetch input_ref object from workspace: ' + str(e))
@@ -569,7 +573,6 @@ class kb_ObjectUtilities:
         report = ''
         #report = 'Running KButil_count_ws_objects params='
         #report += "\n"+pformat(params)
-        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
 
         
         #### do some basic checks
@@ -619,7 +622,7 @@ class kb_ObjectUtilities:
                 for obj_info in obj_info_list:
 
                     # filter by version
-                    if not int(obj_info[VERSION_I]) == target_version:
+                    if not int(obj_info[self.VERSION_I]) == target_version:
                         continue
                     #else:
                     #    new_obj_info_list.append(obj_info)
@@ -631,7 +634,7 @@ class kb_ObjectUtilities:
                     if int(Y) <= target_Y and \
                        int(M) <= target_M and \
                        int(D) <= target_D:
-                        print ("OBJ: {} SAVE_DATE: {}".format(obj_info[NAME_I], save_date))
+                        print ("OBJ: {} SAVE_DATE: {}".format(obj_info[self.NAME_I], save_date))
                         new_obj_info_list.append(obj_info)
                     else:
                         continue
@@ -643,7 +646,7 @@ class kb_ObjectUtilities:
                 total_objs += num_objs
 
                 for obj_info in obj_info_list:
-                    obj_name_to_ref[obj_info[NAME_I]] = self.getUPA_fromInfo(obj_info)
+                    obj_name_to_ref[obj_info[self.NAME_I]] = self.getUPA_fromInfo(obj_info)
             # log and store
             self.log(console, "OBJ_TYPE: {}".format(obj_type))
             for obj_name in sorted(obj_name_to_ref.keys()):
@@ -718,7 +721,6 @@ class kb_ObjectUtilities:
         report = ''
         #report = 'Running KButil_count_ws_objects params='
         #report += "\n"+pformat(params)
-        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
 
         
         #### do some basic checks
@@ -770,7 +772,7 @@ class kb_ObjectUtilities:
 
                 refs_to_hide = []
                 for obj_info in obj_info_list:
-                    obj_name = obj_info[NAME_I]
+                    obj_name = obj_info[self.NAME_I]
                     obj_ref = self.getUPA_fromInfo(obj_info) 
                     if int(params.get('verbose','0')) == 1:
                         self.log(console,"deleting {} -> {}".format(obj_name, obj_ref))
@@ -833,7 +835,6 @@ class kb_ObjectUtilities:
         report = ''
         #report = 'Running KButil_count_ws_objects params='
         #report += "\n"+pformat(params)
-        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
 
         
         #### do some basic checks
@@ -886,7 +887,7 @@ class kb_ObjectUtilities:
 
                 refs_to_unhide = []
                 for obj_info in obj_info_list:
-                    obj_name = obj_info[NAME_I]
+                    obj_name = obj_info[self.NAME_I]
                     obj_ref = self.getUPA_fromInfo(obj_info) 
                     if int(params.get('verbose','0')) == 1:
                         self.log(console,"deleting {} -> {}".format(obj_name, obj_ref))
@@ -951,7 +952,6 @@ class kb_ObjectUtilities:
         report = ''
         #report = 'Running KButil_update_genome_species_name with params='
         #report += "\n"+pformat(params)
-        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
 
         
         #### do some basic checks
@@ -994,14 +994,14 @@ class kb_ObjectUtilities:
 
             this_genome_data['scientific_name'] = new_species_name
             
-            self.log(console,"{} saving genome {} ".format(genome_i+1,this_genome_info[NAME_I]))
+            self.log(console,"{} saving genome {} ".format(genome_i+1,this_genome_info[self.NAME_I]))
 
             new_obj_info = self.dfuClient.save_objects({
                 'id': ws_id,
                 'objects':[{
                     'type': 'KBaseGenomes.Genome',
                     'data': this_genome_data,
-                    'name': this_genome_info[NAME_I],
+                    'name': this_genome_info[self.NAME_I],
                     'meta': {},
                 }]
             })[0]
@@ -1086,7 +1086,6 @@ class kb_ObjectUtilities:
         report = ''
         #report = 'Running KButil_update_genome_species_name with params='
         #report += "\n"+pformat(params)
-        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
 
         
         #### do some basic checks
@@ -1111,7 +1110,7 @@ class kb_ObjectUtilities:
             if params.get(optional_param):
                 at_least_one_found = True
         if not at_least_one_found:
-            raise ValueError('at least one of {} parameter is required'.format(",".join(at_least_one_param)))
+            raise ValueError('at least one of {} parameter is required'.format(",".join(at_least_one_params)))
 
 
         # read targets and new vals
@@ -1170,7 +1169,7 @@ class kb_ObjectUtilities:
             total_genomes += num_genomes
 
             for genome_info in genome_info_list:
-                obj_name = genome_info[NAME_I]
+                obj_name = genome_info[self.NAME_I]
                 obj_ref = self.getUPA_fromInfo(genome_info)
                 genome_id = re.sub('.Genome$', '', obj_name, flags=re.IGNORECASE)
                 genome_id = re.sub('__$', '', genome_id)
@@ -1304,7 +1303,8 @@ class kb_ObjectUtilities:
            of a workspace or object.  This is received from Narrative.),
            parameter "target_list_file" of type "file_path", parameter
            "release_file" of type "file_path", parameter
-           "taxonomy_hierarchy_file" of type "file_path"
+           "taxonomy_hierarchy_file" of type "file_path", parameter
+           "delete_old_taxon_assignments" of type "bool"
         :returns: instance of type
            "KButil_update_genome_lineage_from_files_Output" -> structure:
            parameter "updated_object_refs" of list of type "data_obj_ref"
@@ -1320,7 +1320,6 @@ class kb_ObjectUtilities:
         report = ''
         #report = 'Running KButil_update_genome_species_name with params='
         #report += "\n"+pformat(params)
-        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
 
         
         #### do some basic checks
@@ -1339,7 +1338,7 @@ class kb_ObjectUtilities:
             if params.get(optional_param):
                 at_least_one_found = True
         if not at_least_one_found:
-            raise ValueError('at least one of {} parameter is required'.format(",".join(at_least_one_param)))
+            raise ValueError('at least one of {} parameter is required'.format(",".join(at_least_one_params)))
 
 
         # read targets and new vals
@@ -1391,7 +1390,7 @@ class kb_ObjectUtilities:
             total_genomes += num_genomes
 
             for genome_info in genome_info_list:
-                obj_name = genome_info[NAME_I]
+                obj_name = genome_info[self.NAME_I]
                 obj_ref = self.getUPA_fromInfo(genome_info)
                 genome_id = re.sub('.Genome$', '', obj_name, flags=re.IGNORECASE)
                 genome_id = re.sub('__$', '', genome_id)
@@ -1473,7 +1472,7 @@ class kb_ObjectUtilities:
             assembly_obj = self.dfuClient.get_objects({'object_refs':[assembly_ref]})['data'][0]
             assembly_info = assembly_obj['info']
             assembly_data = assembly_obj['data']
-            assembly_obj_name = assembly_info[NAME_I]
+            assembly_obj_name = assembly_info[self.NAME_I]
             assembly_data['std_lineages'] = std_lineages
             self.log(console, "")
             self.log(console, "===================================================")
@@ -1544,7 +1543,6 @@ class kb_ObjectUtilities:
         report = ''
         #report = 'Running KButil_update_genome_species_name with params='
         #report += "\n"+pformat(params)
-        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
 
         #### do some basic checks
         #
@@ -1607,8 +1605,8 @@ class kb_ObjectUtilities:
             genome_data = genome_obj['data']
 
             genome_ws_id = genome_ref.split('/')[0]
-            genome_obj_name = genome_info[NAME_I]
-            genome_obj_type = genome_info[TYPE_I].split('-')[0]
+            genome_obj_name = genome_info[self.NAME_I]
+            genome_obj_type = genome_info[self.TYPE_I].split('-')[0]
 
             # get original features
             features = []
